@@ -508,6 +508,21 @@
 .native-safari {
   background: #eef0f3;
 }
+.safari-search-history { margin: 4px 13px 17px; }
+.safari-search-history h2 { padding: 3px 4px 9px; color: #737881; font-size: 11px; font-weight: 600; }
+.safari-search-history-list { border-radius: 12px; background: #fff; overflow: hidden; }
+.safari-search-history-list > button {
+  width: 100%; display: flex; align-items: center; gap: 10px; text-align: left;
+  padding: 12px 13px; border-bottom: 1px solid #eff0f2;
+}
+.safari-search-history-list > button:last-child { border-bottom: none; }
+.safari-search-icon { display: grid; place-items: center; flex: 0 0 28px; height: 28px;
+  color: #7e8b9b; background: #f1f3f6; border-radius: 50%; }
+.safari-search-entry { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 3px; }
+.safari-search-entry strong { font-size: 12px; font-weight: 550; color: #22262b; }
+.safari-search-entry small { font-size: 10px; color: #979da5; }
+.safari-search-chevron { flex-shrink: 0; color: #b4bbc3; }
+.safari-address > button { border: 0; padding: 3px; display: grid; place-items: center; color: inherit; }
 .safari-favorites {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
