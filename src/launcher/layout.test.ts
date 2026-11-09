@@ -189,3 +189,37 @@ it("keeps player name and icon edits when the authored revision has not changed"
   expect(restored.apps.find((app) => app.id === "photos")).toEqual(photo);
   expect(restored.authoredRevision).toBe(old.authoredRevision);
 });
+
+it("groups Mina shopping apps, hides Apple Music and migrates prior desktop settings", () => {
+  const w = work();
+  w.phone.wallpaper = "mina";
+  const shops = ["amazonjp", "rakuten", "qoo10", "coupang", "musinsa", "taobao"];
+  for (const a of w.apps) {
+    if (a.id === "music" || shops.includes(a.id)) {
+      a.installed = true;
+      a.visible = true;
+    }
+  }
+  const fresh = defaultLayout(w);
+  expect(fresh.apps.find((a) => a.id === "music")).toMatchObject({
+    installed: false, visible: false, dock: false,
+  });
+  for (const id of shops)
+    expect(fresh.apps.find((a) => a.id === id)?.folder).toBe("ショッピング");
+  expect(homeEntries(fresh).some((e) => e.key === "folder:ショッピング")).toBe(true);
+
+  const older = defaultLayout({ ...w, phone: { ...w.phone, wallpaper: "sage" } });
+  older.minaLayoutRevision = 0;
+  older.apps.find((a) => a.id === "spotify")!.folder = "お気に入り";
+  older.order = ["spotify", "amazonjp", "music", "notes"];
+  older.positions.music = { page: 0, x: 0, y: 2 };
+  const migrated = validateLayout(older, w);
+  expect(migrated.apps.find((a) => a.id === "music")?.installed).toBe(false);
+  expect(migrated.apps.find((a) => a.id === "amazonjp")?.folder).toBe("ショッピング");
+  expect(migrated.apps.find((a) => a.id === "spotify")?.folder).toBe("お気に入り");
+  expect(migrated.order).toContain("folder:ショッピング");
+  expect(migrated.order).not.toContain("music");
+  expect(migrated.positions.music).toBeUndefined();
+  expect(migrated.minaLayoutRevision).toBe(1);
+  expect(validateLayout(migrated, w).order).toEqual(migrated.order);
+});

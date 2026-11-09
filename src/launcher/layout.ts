@@ -15,6 +15,7 @@ export const layoutSchema = z
     workId: z.string(),
     authoredRevision: z.number().default(-1),
     previewLayoutRevision: z.number().int().min(0).default(0),
+    minaLayoutRevision: z.number().int().min(0).default(0),
     apps: workSchema.shape.apps,
     widgets: z.array(widgetSchema).max(24),
     order: z.array(z.string().max(150)).max(500),
@@ -34,6 +35,25 @@ export const layoutSchema = z
 export type DeviceLayout = z.infer<typeof layoutSchema>;
 export type Widget = z.infer<typeof widgetSchema>;
 export type AppConfig = Work["apps"][number];
+const MINA_SHOPPING_FOLDER = "ショッピング";
+const MINA_SHOPPING_APPS = new Set([
+  "amazonjp", "rakuten", "qoo10", "coupang", "musinsa", "taobao",
+]);
+const isMinaPhone = (work: Work) => work.phone.wallpaper === "mina";
+function applyMinaHomeLayout(apps: AppConfig[]) {
+  for (const app of apps) {
+    if (app.id === "music") {
+      // Hide Apple Music without deleting the author's story data.
+      app.installed = false;
+      app.visible = false;
+      app.dock = false;
+      app.folder = "";
+    } else if (MINA_SHOPPING_APPS.has(app.id)) {
+      app.folder = MINA_SHOPPING_FOLDER;
+      app.dock = false;
+    }
+  }
+}
 export function ensureAppStore(work: Work): Work {
   return work.apps.some((a) => a.id === "appstore")
     ? work
@@ -55,18 +75,21 @@ export function ensureAppStore(work: Work): Work {
 }
 export function defaultLayout(input: Work): DeviceLayout {
   const w = ensureAppStore(input);
+  const apps = structuredClone(w.apps)
+    .sort((a, b) => (a.id === "appstore" ? -1 : b.id === "appstore" ? 1 : 0))
+    .map((a) =>
+      a.id === "appstore"
+        ? { ...a, installed: true, visible: true, folder: "", dock: false }
+        : a,
+    );
+  if (isMinaPhone(w)) applyMinaHomeLayout(apps);
   return {
     version: 1,
     workId: w.id,
     authoredRevision: w.updatedAt,
     previewLayoutRevision: w.id === "ui-test-phone-v2" ? 1 : 0,
-    apps: structuredClone(w.apps)
-      .sort((a, b) => (a.id === "appstore" ? -1 : b.id === "appstore" ? 1 : 0))
-      .map((a) =>
-        a.id === "appstore"
-          ? { ...a, installed: true, visible: true, folder: "", dock: false }
-          : a,
-      ),
+    minaLayoutRevision: isMinaPhone(w) ? 1 : 0,
+    apps,
     widgets: [],
     order: [],
     cleared: [],
@@ -130,6 +153,21 @@ export function validateLayout(raw: unknown, input: Work) {
       ...layout.order.filter((id) => !visibleApps.includes(id)),
     ];
     layout.previewLayoutRevision = 1;
+  }
+  if (isMinaPhone(w) && layout.minaLayoutRevision < 1) {
+    // Apply the change once to previously saved desktops.
+    applyMinaHomeLayout(layout.apps);
+    delete layout.positions.music;
+    for (const id of MINA_SHOPPING_APPS) delete layout.positions[id];
+    const folderKey = "folder:" + MINA_SHOPPING_FOLDER;
+    const previousOrder = layout.order.filter(
+      (key) => key !== "music" && !MINA_SHOPPING_APPS.has(key) && key !== folderKey,
+    );
+    const firstShop = layout.order.findIndex((key) => MINA_SHOPPING_APPS.has(key));
+    const index = firstShop < 0 ? 0 : Math.min(firstShop, previousOrder.length);
+    previousOrder.splice(index, 0, folderKey);
+    layout.order = previousOrder;
+    layout.minaLayoutRevision = 1;
   }
   const entries = homeEntries(layout),
     packed = packHome(entries, layout.positions);
