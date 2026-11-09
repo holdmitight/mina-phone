@@ -18,7 +18,7 @@ export const catalogSkins = {
   phone: skin(system, "PhoneSkin"),
   contacts: skin(system, "ContactsSkin"),
   photos: skin(() => import("./MinaPhotosSkin"), "MinaPhotosSkin"),
-  camera: skin(system, "CameraSkin"),
+  camera: skin(() => import("./MinaCameraSkin"), "MinaCameraSkin"),
   safari: skin(system, "SafariSkin"),
   notes: skin(system, "NotesSkin"),
   calendar: skin(system, "CalendarSkin"),
