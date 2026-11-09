@@ -24,6 +24,9 @@ import {
   Smile,
   Menu,
   Compass,
+  Clapperboard,
+  UserRound,
+  UserPlus,
 } from "lucide-react";
 import type { SkinProps } from "../../AppSkins";
 import { Avatar, Media } from "../../skins/shared";
@@ -32,6 +35,8 @@ import { ja } from "../../i18n";
 import { makeItem, type Item } from "../../schema";
 import "./ui.css";
 import "./adapter.css";
+import { minaInstagramAvatar } from "../../skins/mina-instagram-avatar";
+import "../../skins/mina-instagram.css";
 function grouped(items: Item[]) {
   return [...new Set(items.map((i) => i.title))].map((title) => ({
     title,
@@ -316,6 +321,29 @@ export function MymyKakao(p: SkinProps) {
 }
 export function MymyInstagram(p: SkinProps) {
   const profileName = p.profileName || p.owner || "Instagram";
+  const [profilePanel, setProfilePanel] = useState<"menu" | "edit" | null>(null);
+  const [profileSection, setProfileSection] = useState<"posts" | "reels" | "tagged">("posts");
+  const [profileBio, setProfileBio] = useSkinState<string>(p, "minaIgBio", "");
+  const [bioDraft, setBioDraft] = useState("");
+  const [profileNotice, setProfileNotice] = useState("");
+
+  async function shareProfile() {
+    const url = window.location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: profileName, url });
+      } else if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url);
+        setProfileNotice("この作品のリンクをコピーしました");
+      } else {
+        setProfileNotice("この作品のURLをブラウザから共有できます");
+      }
+    } catch (error) {
+      if (!(error instanceof DOMException && error.name === "AbortError")) {
+        setProfileNotice("ブラウザの共有機能を利用できませんでした");
+      }
+    }
+  }
   const [tab, setTab] = useSkinState<string>(p, "mymyTab", "个人主页"),
     [liked, setLiked] = useSkinState<string[]>(p, "mymyLiked", []),
     [saved, setSaved] = useSkinState<string[]>(p, "mymySaved", []),
@@ -447,9 +475,11 @@ export function MymyInstagram(p: SkinProps) {
           <span className="igl2">
             {selected ? "投稿" : tab === "主页" ? "Instagram" : tab === "个人主页" ? profileName : ja(tab)}
           </span>
-          <button aria-label="メッセージを開く" onClick={() => setTab("私信")}>
-            <Send />
-          </button>
+          {!selected && tab === "个人主页" ? (
+            <button aria-label="プロフィールメニュー" onClick={() => setProfilePanel("menu")}><Menu /></button>
+          ) : (
+            <button aria-label="メッセージを開く" onClick={() => setTab("私信")}><Send /></button>
+          )}
         </header>
         <div className="igb">
           {selected && post(selected)}
@@ -476,39 +506,42 @@ export function MymyInstagram(p: SkinProps) {
             </>
           )}
           {!selected && tab === "个人主页" && (
-            <>
-              <div className="pf">
-                <Avatar name={profileName} />
+            <section className="mina-ig-profile" aria-label="Instagramプロフィール">
+              <div className="pf mina-ig-stat-row">
+                <span className="mina-ig-avatar">
+                  <img src={minaInstagramAvatar} alt="ヘッドホンをしたペンギンのぬいぐるみ" />
+                </span>
                 <div className="ps">
-                  <div>
-                    <b>{posts.length}</b>
-                    <small>投稿</small>
-                  </div>
-                  <div>
-                    <b>—</b>
-                    <small>フォロワー</small>
-                  </div>
-                  <div>
-                    <b>—</b>
-                    <small>フォロー中</small>
-                  </div>
+                  <div><b>{posts.length}</b><small>投稿</small></div>
+                  <div><b>124</b><small>フォロワー</small></div>
+                  <div><b>392</b><small>フォロー中</small></div>
                 </div>
               </div>
-              <p className="pn">{profileName}</p>
-              <div className="ptab">
-                <div className="on">
-                  <Grid />
-                </div>
+              {profileBio && <p className="mina-ig-bio">{profileBio}</p>}
+              <div className="mina-ig-profile-actions">
+                <button onClick={() => { setBioDraft(profileBio); setProfilePanel("edit"); }}>プロフィールを編集</button>
+                <button onClick={() => void shareProfile()}>プロフィールをシェア</button>
+                <button className="mina-ig-add" aria-label="プロフィールのその他の操作" onClick={() => setProfilePanel("menu")}><UserPlus size={18} /></button>
               </div>
-              <div className="pg2">
-                {posts.map((i) => (
-                  <button key={i.id} onClick={() => openPost(i)}>
-                    <Media item={i} />
-                  </button>
-                ))}
-              </div>
-              {!posts.length && <div className="mina-ig-empty" role="status"><span><Grid size={27} /></span><h2>投稿はまだありません</h2></div>}
-            </>
+              {profileNotice && <p className="mina-ig-notice" role="status">{profileNotice}</p>}
+              <nav className="mina-ig-content-tabs" aria-label="プロフィールのコンテンツ">
+                <button aria-label="投稿" aria-pressed={profileSection === "posts"} className={profileSection === "posts" ? "selected" : ""} onClick={() => setProfileSection("posts")}><Grid size={23}/></button>
+                <button aria-label="リール" aria-pressed={profileSection === "reels"} className={profileSection === "reels" ? "selected" : ""} onClick={() => setProfileSection("reels")}><Clapperboard size={22}/></button>
+                <button aria-label="タグ付けされた投稿" aria-pressed={profileSection === "tagged"} className={profileSection === "tagged" ? "selected" : ""} onClick={() => setProfileSection("tagged")}><UserRound size={21}/></button>
+              </nav>
+              {profileSection === "posts" && (
+                <>
+                  <div className="pg2">{posts.map((i) =>
+                    <button key={i.id} aria-label={i.title + "を見る"} onClick={() => openPost(i)}><Media item={i}/></button>
+                  )}</div>
+                  {!posts.length && <div className="mina-ig-empty" role="status">
+                    <span><Grid size={28}/></span><h2>まだ投稿がありません</h2><p>写真や動画の投稿はありません。</p>
+                  </div>}
+                </>
+              )}
+              {profileSection === "reels" && <div className="mina-ig-empty" role="status"><span><Clapperboard size={28}/></span><h2>リールはまだありません</h2></div>}
+              {profileSection === "tagged" && <div className="mina-ig-empty" role="status"><span><UserRound size={28}/></span><h2>タグ付けされた投稿はありません</h2></div>}
+            </section>
           )}
           {!selected && tab === "私信" && (
             <>
@@ -552,11 +585,30 @@ export function MymyInstagram(p: SkinProps) {
                 setTab(["主页", "搜索", "私信", "个人主页"][n]);
               }}
             >
-              <Icon />
+              {n === 3 ? <span className="mina-ig-nav-avatar"><img src={minaInstagramAvatar} alt="" /></span> : <Icon />}
             </button>
           ))}
         </nav>
       </div>
+      {profilePanel && (
+        <div className="mina-ig-modal-backdrop" role="presentation" onClick={() => setProfilePanel(null)}>
+          <section className="mina-ig-modal" role="dialog" aria-modal="true" aria-label={profilePanel === "edit" ? "プロフィールを編集" : "プロフィールメニュー"} onClick={(event) => event.stopPropagation()}>
+            <header><strong>{profilePanel === "edit" ? "プロフィールを編集" : "プロフィール"}</strong><button aria-label="閉じる" onClick={() => setProfilePanel(null)}><X size={20}/></button></header>
+            {profilePanel === "edit" ? (
+              <form onSubmit={(event) => { event.preventDefault(); setProfileBio(bioDraft.trim().slice(0, 150)); setProfilePanel(null); }}>
+                <label>自己紹介（任意）<textarea value={bioDraft} onChange={(event) => setBioDraft(event.target.value)} maxLength={150} rows={3} placeholder="自己紹介を入力…" /></label>
+                <p>この内容は作品内だけに保存されます。アカウント名は変更されません。</p>
+                <button type="submit">保存</button>
+              </form>
+            ) : (
+              <div className="mina-ig-modal-menu">
+                <p><b>{profileName}</b><br/>非公式のフィクションアカウントです。実際のInstagramとは連携していません。</p>
+                <button onClick={() => { setProfilePanel(null); void shareProfile(); }}>プロフィールをシェア</button>
+              </div>
+            )}
+          </section>
+        </div>
+      )}
       {sheet && (
         <div className="kzcs">
           <button
