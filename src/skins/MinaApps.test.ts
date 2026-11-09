@@ -20,7 +20,8 @@ describe("Bubble reference screens", () => {
     const html = renderToStaticMarkup(createElement(BubbleSkin, props()));
     expect(html).toContain("Favorite Chat List");
     expect(html).toContain("Recent Chat Room");
-    expect(html).toContain("MINAのトークを開く");
+    expect(html).toContain("ONCEとのトークを開く");
+    expect(html).toContain('data-perspective="mina"');
     expect(html).toContain("bubble for JYPnation");
     expect(html).not.toContain("mina-bubble-composer");
   });
@@ -39,10 +40,13 @@ describe("Bubble reference screens", () => {
     expect(artist).toBeDefined();
     expect(fan).toBeDefined();
     expect(artist).toContain("ONCE、今日はありがとう。");
-    expect(artist?.split("ONCE、今日はありがとう。")[0]).toContain("MINA");
+    expect(artist).not.toContain("bubble-reference-message-avatar");
+    expect(artist).not.toContain("bubble-reference-sender");
     expect(artist).not.toContain("ミナも、ゆっくり休んでね。");
     expect(fan).toContain("ミナも、ゆっくり休んでね。");
-    expect(fan?.split("ミナも、ゆっくり休んでね。")[0]).not.toContain("ARTIST");
+    expect(fan?.split("ミナも、ゆっくり休んでね。")[0]).toContain("ONCE");
+    expect(fan).toContain("bubble-artist-fan-avatar");
+    expect(html).toContain('<strong>ONCE</strong>');
     expect(items).toEqual(before);
   });
   it("restores composed letters as safe text without modifying authored records", () => {
@@ -55,7 +59,7 @@ describe("Bubble reference screens", () => {
     });
     const before = structuredClone(p.items);
     const html = renderToStaticMarkup(createElement(BubbleSkin, p));
-    expect(html).toContain("MINAとのトーク");
+    expect(html).toContain("ONCEとのトーク");
     expect(html).toContain("今日はありがとう");
     expect(html).toContain("ONCE，今天过得好吗？");
     expect(html).toContain("&lt;script&gt;");
@@ -77,7 +81,8 @@ describe("Bubble reference screens", () => {
     expect(html).toContain("メッセージを入力…");
     expect(html).toContain("사랑해 💗");
     expect(html).toContain('bubble-reference-message outgoing artist');
-    expect(html).toContain("mina-bubble-reference-avatar");
+    expect(html).toContain('data-perspective="mina"');
+    expect(html).toContain('<strong>ONCE</strong>');
     expect(html).not.toContain("mina-bubble-quick-messages");
     expect(html).not.toContain("メッセージ候補");
   });
@@ -94,6 +99,7 @@ describe("Bubble reference screens", () => {
     expect(html).toContain("잘 자 🌙");
     expect(html).toContain("編集");
     expect(html).toContain("bubble-reference-message outgoing artist");
+    expect(html).not.toContain("bubble-reference-message-avatar");
   });
 
   it("ignores an invalid saved letter value and starts with an empty composer", () => {
