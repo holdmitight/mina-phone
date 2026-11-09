@@ -10,7 +10,7 @@ const fmt = (day: string) => {
   return year + "年" + Number(month) + "月" + Number(date) + "日";
 };
 
-/** 2015 conversation is always shown from the owner Mina's viewpoint. */
+/** 2014–2015 archive is always shown from the owner Mina's viewpoint. */
 export function MinaLineSkin(p: Props) {
   const [searchQuery, setSearchQuery] = useState("");
   const [tab, setTab] = useState<"トーク" | "友だち">("トーク");
@@ -35,7 +35,7 @@ export function MinaLineSkin(p: Props) {
   const showMemory = (minaLineThreadName + minaLineLastMessage.text).toLowerCase().includes(searchQuery.toLowerCase()) || !searchQuery.trim();
 
   return (
-    <section className="catalog-skin mina-line" data-view={inMemory ? "memory" : tab} aria-label="LINE — 2015年のトーク">
+    <section className="catalog-skin mina-line" data-view={inMemory ? "memory" : tab} aria-label="LINE — 2014年から2015年のトーク">
       {inMemory ? (
         <>
           <header className="mina-line-thread-header">
@@ -48,8 +48,8 @@ export function MinaLineSkin(p: Props) {
             <button onClick={() => { setTranslations((v)=>!v); setMenuOpen(false); }}>{translations ? "日本語だけ表示" : "中国語訳を表示"}</button>
             <button onClick={() => { threadRef.current?.scrollTo({ top: threadRef.current.scrollHeight, behavior: "smooth" }); setMenuOpen(false); }}>最後のメッセージへ</button>
           </div>}
-          <div className="mina-line-messages" ref={threadRef} aria-label="2015年のAとのメッセージ履歴">
-            <div className="mina-line-memory-marker">2015 · あの夏から</div>
+          <div className="mina-line-messages" ref={threadRef} aria-label="2014年から2015年のAとのメッセージ履歴">
+            <div className="mina-line-memory-marker">2014 · あの夏から</div>
             {minaLineMemories.map((message, index) => {
               const isMina = message.from === "mina";
               const newDate = index === 0 || minaLineMemories[index - 1].day !== message.day;
@@ -72,7 +72,7 @@ export function MinaLineSkin(p: Props) {
           </div>
           <div className="mina-line-reply-archive">
             <button aria-label="絵文字" disabled><Smile size={20}/></button>
-            <span>2015年のトーク履歴</span>
+            <span>2014–2015年のトーク履歴</span>
             <button aria-label="最後のメッセージへ" onClick={() => threadRef.current?.scrollTo({ top: threadRef.current.scrollHeight, behavior: "smooth" })}><ArrowDown size={20}/></button>
           </div>
         </>
