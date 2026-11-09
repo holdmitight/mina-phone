@@ -116,7 +116,6 @@ export const minaLineMemories: LineMemoryMessage[] = [
   { id: "2015-11-03-01", day: "2015-11-03", time: "00:02", from: "a", text: "私、まだあの夏にいるみたい。", translation: "我好像还停留在那个夏天。" },
   { id: "2015-11-03-02", day: "2015-11-03", time: "00:08", from: "a", text: "南は、もう違う場所にいるんだよね。", translation: "南已经在另一个世界了，对吧。" },
   { id: "2015-11-03-03", day: "2015-11-03", time: "00:12", from: "a", text: "……ごめんね。", translation: "……对不起。" },
-  { id: "2015-11-03-04", day: "2015-11-03", time: "00:17", from: "a", text: "你真的走了吗？", translation: "" },
   { id: "2015-11-03-05", day: "2015-11-03", time: "00:29", from: "a", text: "お願い、無視しないで。", translation: "求你了，不要不理我。" },
   { id: "2015-11-04-01", day: "2015-11-04", time: "23:19", from: "a", text: "……わかった。", translation: "……好吧。" },
   { id: "2015-11-06-01", day: "2015-11-06", time: "22:06", from: "a", text: "南なんて嫌い。", translation: "讨厌你。" },
