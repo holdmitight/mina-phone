@@ -72,15 +72,15 @@ describe("Mina's 2014–2015 LINE archive", () => {
   });
 
   it("ends in 'don't ignore me', 'okay', 'I hate you', then the unanswered Hawaii promise", () => {
-    const lastFive = minaLineMemories.slice(-5);
-    expect(lastFive.map((m) => m.text)).toEqual([
-      "你真的走了吗？",
+    const lastFour = minaLineMemories.slice(-4);
+    expect(lastFour.map((m) => m.text)).toEqual([
       "お願い、無視しないで。",
       "……わかった。",
       "南なんて嫌い。",
       "うそだよ。\n来年、一緒にハワイに行こうね。",
     ]);
-    expect(lastFive.every((m) => m.from === "a")).toBe(true);
+    expect(lastFour.every((m) => m.from === "a")).toBe(true);
+    expect(minaLineMemories.some((m) => m.text === "你真的走了吗？")).toBe(false);
     expect(minaLineLastMessage).toMatchObject({
       id: "2015-11-06-02",
       day: "2015-11-06",
@@ -97,7 +97,7 @@ describe("Mina's 2014–2015 LINE archive", () => {
     expect(html).toContain("mina-line-message theirs");
     expect(html).not.toContain("mina-line-small-avatar");
     expect(html).toContain("いつか一緒にレゴ作ろう");
-    expect(html).toContain("你真的走了吗？");
+    expect(html).not.toContain("你真的走了吗？");
     expect(html).toContain("来年、一緒にハワイに行こうね。");
     const last = html.lastIndexOf("来年、一緒にハワイに行こうね。");
     expect(html.slice(last)).not.toContain("mina-line-message mine");
