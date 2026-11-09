@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { RichText } from "../RichText";
 import { safeMedia, type Item } from "../schema";
+import { isCuratedSafariBookmark, SafariBookmarkPage } from "./SafariBookmarks";
+import "./safari-bookmarks.css";
 export const nativeDetailApps = new Set([
   "notes",
   "photos",
@@ -176,9 +178,15 @@ export function NativeDetail({
         </div>
       ) : app === "safari" ? (
         <>
-          <div className="native-detail-scroll native-reader">
-            <h1>{item.title}</h1>
-            <RichText value={item.richText} fallback={item.body} />
+          <div className={isCuratedSafariBookmark(item.title) ? "native-detail-scroll native-reader safari-curated-reader" : "native-detail-scroll native-reader"}>
+            {isCuratedSafariBookmark(item.title) ? (
+              <SafariBookmarkPage title={item.title} />
+            ) : (
+              <>
+                <h1>{item.title}</h1>
+                <RichText value={item.richText} fallback={item.body} />
+              </>
+            )}
           </div>
           <footer className="native-reader-address">
             <Search size={16} />
