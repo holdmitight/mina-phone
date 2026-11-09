@@ -1,5 +1,5 @@
 import { useRef, useState, type ChangeEvent } from "react";
-import { Camera, Check, ChevronLeft, ChevronRight, Clock3, Home, Menu, Minus, Package, Search, Share2, ShoppingCart, Sparkles, Trash2, UserRound, X } from "lucide-react";
+import { Camera, ChevronLeft, ChevronRight, Clock3, Home, Menu, Minus, Search, ShoppingCart, Sparkles, Trash2, UserRound, X } from "lucide-react";
 import { useSkinState } from "../skinState";
 import type { Props } from "./shared";
 import { amazonReferenceImages } from "./amazonReferenceImages";
