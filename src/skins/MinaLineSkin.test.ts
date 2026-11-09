@@ -46,6 +46,15 @@ describe("Mina's ten-year-old LINE conversation", () => {
     expect(stamps).toEqual([...stamps].sort());
   });
 
+  it("includes A's rain vocabulary slip and Mina's gentle correction in July 2015", () => {
+    const rainy = minaLineMemories.filter((item) => item.id.startsWith("2015-07-04-rain-"));
+    expect(rainy).toHaveLength(6);
+    expect(rainy[0]).toMatchObject({ from: "a", text: "雨が大きいね！☔️" });
+    expect(rainy[1].text).toContain("雨が強い");
+    expect(rainy[3].text).toContain("かわいい間違い");
+    expect(minaLineLastMessage.text).toBe("你真的走了吗？");
+  });
+
   it("renders Mina's LINE messages on her right and A's messages on her left", () => {
     const html=renderToStaticMarkup(createElement(MinaLineSkin,props(minaLineThreadName)));
     expect(html).toContain('data-view="memory"');
