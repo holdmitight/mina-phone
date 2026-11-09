@@ -80,11 +80,15 @@ export function MymyKakao(p: SkinProps) {
     p.items.find((item) => item.id === "kaka-you-last")?.title ||
     p.items.find((item) => item.id.startsWith("kaka-you-"))?.title ||
     "";
+  // Display only the heart for Mina's private contact, without changing
+  // authored titles/senders that drive conversation lookup and story triggers.
+  const isHeartContact = (name: string) =>
+    (Boolean(partnerTitle) && name === partnerTitle) ||
+    /^(?:(?:💗|💖|💕|♡)\\s*)?君(?:\\s*(?:💗|💖|💕|♡))?$/u.test(name.trim());
   const displayTitle = (title: string) =>
-    (partnerTitle && title === partnerTitle) ||
-    /^(?:💗\s*)?君(?:\s*💗)?$/.test(title)
-      ? "💗"
-      : title;
+    isHeartContact(title) ? "💗" : title;
+  const displaySender = (sender: string) =>
+    isHeartContact(sender) ? "💗" : sender;
   const list = grouped(p.items),
     messages = [
       ...p.items.filter((i) => i.title === p.thread),
@@ -149,7 +153,7 @@ export function MymyKakao(p: SkinProps) {
                       <div className="kzmav">
                         <Avatar name={m.sender} src={kakaoDefaultAvatar} />
                       </div>
-                      <div className="kzmn">{m.sender}</div>
+                      <div className="kzmn">{displaySender(m.sender)}</div>
                     </>
                   )}
                   {m.outgoing && run.last && (
@@ -217,7 +221,7 @@ export function MymyKakao(p: SkinProps) {
             <div className="mymy-local-menu">
               <strong>{displayTitle(p.thread)}</strong>
               <p>
-                グループメンバー：{[...new Set(messages.map((m) => m.sender))].join("、")}
+                グループメンバー：{[...new Set(messages.map((m) => displaySender(m.sender)))].join("、")}
               </p>
               <button onClick={() => setMenu(false)}>完了</button>
             </div>
@@ -290,7 +294,7 @@ export function MymyKakao(p: SkinProps) {
                     <Avatar name={last.sender || g.title} src={kakaoDefaultAvatar} />
                     <span className="kzkn">
                       <b>{displayTitle(g.title)}</b>
-                      <small>{tab === "好友" ? last.sender : last.body}</small>
+                      <small>{last.body}</small>
                     </span>
                     <span className="kzkmt">
                       {last.time.slice(-5)}
