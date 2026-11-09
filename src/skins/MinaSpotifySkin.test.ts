@@ -31,7 +31,7 @@ describe("Mina's Japanese Spotify demo", () => {
     expect(html).toContain("最新リリース");
     expect(html).toContain("ILLIT");
     expect(html).toContain("You&#x27;re Under Arrest (Remixes)");
-    expect(html).toContain("Don't Stop the Clocks");
+    expect(html).toContain("Don&#x27;t Stop the Clocks");
     expect(html).toContain("今日の人気プレイリスト");
     expect(html).toContain("すべて");
     expect(html).toContain("オーディオブック");
