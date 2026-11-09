@@ -49,6 +49,17 @@ describe("Bubble reference screens", () => {
     expect(html).toContain('<strong>ONCE</strong>');
     expect(items).toEqual(before);
   });
+  it("uses 묘 as Mina's Bubble display name while keeping ONCE as the conversation", () => {
+    const profile = renderToStaticMarkup(createElement(BubbleSkin, props({ ui: { "bubble-screen": "profile" } })));
+    const friends = renderToStaticMarkup(createElement(BubbleSkin, props({ ui: { "bubble-screen": "friends" } })));
+    const thread = renderToStaticMarkup(createElement(BubbleSkin, props({ ui: { "bubble-screen": "thread" } })));
+    expect(profile).toContain("<h1>묘</h1>");
+    expect(friends).toContain("<strong>묘</strong>");
+    expect(thread).toContain("묘 → ONCE");
+    expect(thread).toContain("<strong>ONCE</strong>");
+    expect(thread).toContain("묘として送信");
+  });
+
   it("restores composed letters as safe text without modifying authored records", () => {
     const p = props({
       items: [
@@ -76,8 +87,8 @@ describe("Bubble reference screens", () => {
     const html = renderToStaticMarkup(createElement(BubbleSkin, props({
       items, ui: { "bubble-screen": "thread" },
     })));
-    expect(html).toContain("MINAとして送信");
-    expect(html).toContain("MINAとして送るメッセージを入力");
+    expect(html).toContain("묘として送信");
+    expect(html).toContain("묘として送るメッセージを入力");
     expect(html).toContain("メッセージを入力…");
     expect(html).toContain("사랑해 💗");
     expect(html).toContain('bubble-reference-message outgoing artist');
@@ -105,7 +116,7 @@ describe("Bubble reference screens", () => {
   it("ignores an invalid saved letter value and starts with an empty composer", () => {
     const html = renderToStaticMarkup(createElement(BubbleSkin, props({ ui: { "bubble-screen": "thread", "bubble-letters": 42 } })));
     expect(html).toContain("メッセージはまだありません");
-    expect(html).toContain('aria-label="MINAとして送信" disabled=""');
+    expect(html).toContain('aria-label="묘として送信" disabled=""');
   });
 });
 
