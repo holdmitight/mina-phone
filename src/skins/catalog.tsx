@@ -58,7 +58,7 @@ export const catalogSkins = {
   taobao: skin(commerce, "TaobaoSkin"),
   delivery: skin(commerce, "DeliverySkin"),
   bubble: skin(mina, "BubbleSkin"),
-  amazonjp: skin(mina, "MinaShoppingSkin"),
+  amazonjp: skin(() => import("./MinaAmazonSkin"), "MinaAmazonSkin"),
   rakuten: skin(mina, "MinaShoppingSkin"),
   qoo10: skin(mina, "MinaShoppingSkin"),
   coupang: skin(mina, "MinaShoppingSkin"),
