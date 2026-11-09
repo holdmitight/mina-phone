@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { makeItem } from "../schema";
 import { registry } from "../registry";
 import type { Props } from "./shared";
-import { BubbleSkin, MinaShoppingSkin, minaBubbleMessagePresets } from "./MinaApps";
+import { BubbleSkin, MinaShoppingSkin } from "./MinaApps";
 
 function props(overrides: Partial<Props> = {}): Props {
   return {
@@ -18,9 +18,9 @@ function props(overrides: Partial<Props> = {}): Props {
 describe("Bubble reference screens", () => {
   it("opens on MINA's account with ONCE as the conversation recipient", () => {
     const html = renderToStaticMarkup(createElement(BubbleSkin, props()));
-    expect(html).toContain("お気に入りのトーク");
-    expect(html).toContain("最近のトーク");
-    expect(html).toContain("ONCEへのトークを開く");
+    expect(html).toContain("Favorite Chat List");
+    expect(html).toContain("Recent Chat Room");
+    expect(html).toContain("MINAのトークを開く");
     expect(html).toContain("bubble for JYPnation");
     expect(html).not.toContain("mina-bubble-composer");
   });
@@ -55,7 +55,7 @@ describe("Bubble reference screens", () => {
     });
     const before = structuredClone(p.items);
     const html = renderToStaticMarkup(createElement(BubbleSkin, p));
-    expect(html).toContain("ONCEへのトーク");
+    expect(html).toContain("MINAとのトーク");
     expect(html).toContain("今日はありがとう");
     expect(html).toContain("ONCE，今天过得好吗？");
     expect(html).toContain("&lt;script&gt;");
@@ -65,7 +65,7 @@ describe("Bubble reference screens", () => {
     expect(p.onUi).not.toHaveBeenCalled();
   });
 
-  it("offers an explicit in-story MINA message action without changing the authored thread", () => {
+  it("shows a free-form composer for MINA without forcing preset message choices", () => {
     const items = [
       makeItem({ id: "mina-sent", sender: "名井南", body: "사랑해 💗", outgoing: true, folder: "ONCE" }),
     ];
@@ -73,23 +73,33 @@ describe("Bubble reference screens", () => {
       items, ui: { "bubble-screen": "thread" },
     })));
     expect(html).toContain("MINAとして送信");
-    expect(html).toContain("メッセージを送る");
-    expect(html).toContain('aria-label="MINAからONCEへのメッセージ"');
+    expect(html).toContain("MINAとして送るメッセージを入力");
+    expect(html).toContain("メッセージを入力…");
     expect(html).toContain("사랑해 💗");
-    expect(html).not.toContain("오늘도 잘 지냈어? 💗"); // options open only when tapped
+    expect(html).toContain('bubble-reference-message outgoing artist');
+    expect(html).toContain("mina-bubble-reference-avatar");
+    expect(html).not.toContain("mina-bubble-quick-messages");
+    expect(html).not.toContain("メッセージ候補");
   });
 
-  it("provides distinct Korean quick messages and keeps all choices inside the story", () => {
-    expect(minaBubbleMessagePresets).toHaveLength(5);
-    expect(new Set(minaBubbleMessagePresets).size).toBe(5);
-    expect(minaBubbleMessagePresets).toContain("오늘도 잘 지냈어? 💗");
-    expect(minaBubbleMessagePresets.every((message) => message.length <= 1000)).toBe(true);
+  it("renders saved fan-fiction messages as editable MINA messages", () => {
+    const html = renderToStaticMarkup(createElement(BubbleSkin, props({
+      items: [],
+      ui: {
+        "bubble-screen": "thread",
+        "bubble-letters": ["직접 쓴 메시지 💌", "잘 자 🌙"],
+      },
+    })));
+    expect(html).toContain("직접 쓴 메시지 💌");
+    expect(html).toContain("잘 자 🌙");
+    expect(html).toContain("編集");
+    expect(html).toContain("bubble-reference-message outgoing artist");
   });
 
   it("ignores an invalid saved letter value and starts with an empty composer", () => {
     const html = renderToStaticMarkup(createElement(BubbleSkin, props({ ui: { "bubble-screen": "thread", "bubble-letters": 42 } })));
     expect(html).toContain("メッセージはまだありません");
-    expect(html).toContain('aria-label="ONCEに送信" disabled=""');
+    expect(html).toContain('aria-label="MINAとして送信" disabled=""');
   });
 });
 
