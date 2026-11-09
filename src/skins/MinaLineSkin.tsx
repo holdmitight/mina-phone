@@ -67,7 +67,7 @@ function LineAvatar({
   src?: string;
   noPhoto?: boolean;
 }) {
-  const image = noPhoto ? "" : safeMedia(src);
+  const image = noPhoto ? "" : safeMedia(src ?? "");
   return (
     <span
       className={`mina-line-avatar${noPhoto ? " empty" : ""}`}
