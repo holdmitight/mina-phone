@@ -20,7 +20,7 @@ export function SafariBookmarkPage({ title }: { title: string }) {
         <article className="safari-bookmark-site safari-cafe-site" aria-label={title}>
           <header className="safari-site-masthead">
             <span className="safari-site-brand">cozy café</span>
-            <span className="safari-site-nav">ABOUT　 MENU　 NEWS</span>
+            <span className="safari-site-nav">ABOUT  MENU  NEWS</span>
           </header>
           <div className="safari-cafe-hero">
             <span className="safari-hero-eyebrow">A LITTLE QUIET PLACE</span>
@@ -41,7 +41,7 @@ export function SafariBookmarkPage({ title }: { title: string }) {
             </div>
             <p className="safari-site-footnote">席の予約は受け付けていません。混雑時は少しお待ちいただく場合があります。</p>
           </div>
-          <footer className="safari-site-footer">cozy café　·　small days, good coffee</footer>
+          <footer className="safari-site-footer">cozy café · small days, good coffee</footer>
         </article>
       );
     case "今夜の映画リスト":
@@ -49,30 +49,30 @@ export function SafariBookmarkPage({ title }: { title: string }) {
         <article className="safari-bookmark-site safari-movie-site" aria-label={title}>
           <header className="safari-site-masthead">
             <span className="safari-site-brand">night screen</span>
-            <span className="safari-site-nav">FILMS　 NOTES　 ARCHIVE</span>
+            <span className="safari-site-nav">FILMS  NOTES  ARCHIVE</span>
           </header>
           <div className="safari-movie-hero">
             <span className="safari-hero-eyebrow">WEEKLY WATCHLIST</span>
             <h1>今夜の映画リスト</h1>
             <p>眠る前に、気分で選ぶ三本。</p>
-            <time>2025.11.04　/　編集部メモ</time>
+            <time>2025.11.04 / 編集部メモ</time>
           </div>
           <div className="safari-site-body">
             <section className="safari-movie-entry">
               <span className="safari-movie-number">01</span>
-              <div><h2>雨の日に観たい短編</h2><p>窓の外を眺めたくなるような、台詞の少ない作品。長くないので、平日の夜にも。</p><small>SHORT FILM　·　静かな気分の日に</small></div>
+              <div><h2>雨の日に観たい短編</h2><p>窓の外を眺めたくなるような、台詞の少ない作品。長くないので、平日の夜にも。</p><small>SHORT FILM · 静かな気分の日に</small></div>
             </section>
             <section className="safari-movie-entry">
               <span className="safari-movie-number">02</span>
-              <div><h2>少し古いコメディ</h2><p>何度観ても笑える場面がある。予定のない夜は、こういう軽い一本がちょうどいい。</p><small>COMEDY　·　気楽に観たいとき</small></div>
+              <div><h2>少し古いコメディ</h2><p>何度観ても笑える場面がある。予定のない夜は、こういう軽い一本がちょうどいい。</p><small>COMEDY · 気楽に観たいとき</small></div>
             </section>
             <section className="safari-movie-entry">
               <span className="safari-movie-number">03</span>
-              <div><h2>景色のきれいな旅映画</h2><p>大きな出来事は起きないけれど、移動中の風景と音楽が印象に残る作品。</p><small>ROAD MOVIE　·　週末向け</small></div>
+              <div><h2>景色のきれいな旅映画</h2><p>大きな出来事は起きないけれど、移動中の風景と音楽が印象に残る作品。</p><small>ROAD MOVIE · 週末向け</small></div>
             </section>
             <p className="safari-site-footnote">配信状況は変更になる場合があります。観たい作品は各サービスでご確認ください。</p>
           </div>
-          <footer className="safari-site-footer">night screen　©　film notes</footer>
+          <footer className="safari-site-footer">night screen © film notes</footer>
         </article>
       );
     case "スープの温め直し方":
@@ -80,7 +80,7 @@ export function SafariBookmarkPage({ title }: { title: string }) {
         <article className="safari-bookmark-site safari-soup-site" aria-label={title}>
           <header className="safari-site-masthead">
             <span className="safari-site-brand">warm table</span>
-            <span className="safari-site-nav">RECIPE　 KITCHEN　 TIPS</span>
+            <span className="safari-site-nav">RECIPE  KITCHEN  TIPS</span>
           </header>
           <div className="safari-soup-hero">
             <span className="safari-hero-eyebrow">KITCHEN TIP / 保存版</span>
@@ -101,7 +101,7 @@ export function SafariBookmarkPage({ title }: { title: string }) {
             <div className="safari-soup-note"><strong>保存について</strong><p>作ったら早めに冷まして冷蔵し、長く置いたものや状態が不明なものは食べないようにしましょう。</p></div>
             <p className="safari-site-footnote">食材や保存状態によって適切な扱いは異なります。</p>
           </div>
-          <footer className="safari-site-footer">warm table　·　毎日の台所ノート</footer>
+          <footer className="safari-site-footer">warm table · 毎日の台所ノート</footer>
         </article>
       );
     default:
