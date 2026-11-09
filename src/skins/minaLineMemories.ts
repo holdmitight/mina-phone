@@ -14,7 +14,7 @@ export type LineMemoryMessage = {
   translation?: string;
 };
 
-export const minaLineThreadName = "A ♡";
+export const minaLineThreadName = "うさぎちゃん 🐰";
 
 export const minaLineMemories: LineMemoryMessage[] = [
   { id: "2014-06-16-01", day: "2014-06-16", time: "17:48", from: "a", text: "今日はありがとう！\nあの回転、何度やってもできなくて…", translation: "今天谢谢你！那个旋转我怎么练都练不好……" },
@@ -54,7 +54,7 @@ export const minaLineMemories: LineMemoryMessage[] = [
   { id: "2014-09-21-05", day: "2014-09-21", time: "19:33", from: "mina", text: "明日、お粥持って行こうか。", translation: "明天要不要给你带粥？" },
   { id: "2014-09-21-06", day: "2014-09-21", time: "19:34", from: "a", text: "え、ほんと？", translation: "欸，真的吗？" },
   { id: "2014-09-21-07", day: "2014-09-21", time: "19:36", from: "mina", text: "ちゃんと食べるならね。", translation: "只要你肯好好吃饭。" },
-  { id: "2014-11-19-01", day: "2014-11-19", time: "20:14", from: "mina", text: "A、話したいことがある。", translation: "A，我有件事想告诉你。" },
+  { id: "2014-11-19-01", day: "2014-11-19", time: "20:14", from: "mina", text: "ねえ、話したいことがある。", translation: "A，我有件事想告诉你。" },
   { id: "2014-11-19-02", day: "2014-11-19", time: "20:15", from: "a", text: "どうしたの？", translation: "怎么啦？" },
   { id: "2014-11-19-03", day: "2014-11-19", time: "20:19", from: "mina", text: "年末には韓国に戻ることになった。\nしばらく日本には帰れないと思う。", translation: "年底要回韩国了。应该很久都不能回日本。" },
   { id: "2014-11-19-04", day: "2014-11-19", time: "20:23", from: "a", text: "そっか……練習、忙しくなるんだね。", translation: "这样啊……之后练习会很忙吧。" },
@@ -96,16 +96,16 @@ export const minaLineMemories: LineMemoryMessage[] = [
   { id: "2015-06-16-02", day: "2015-06-16", time: "17:51", from: "a", text: "変かな、こういうの覚えてるの。笑", translation: "还记得这种日子，是不是有点奇怪。哈哈" },
   { id: "2015-06-16-03", day: "2015-06-16", time: "23:39", from: "a", text: "今日も忙しいよね。\nちゃんとご飯食べてね。", translation: "今天也很忙吧。记得好好吃饭。" },
   { id: "2015-07-04-01", day: "2015-07-04", time: "20:56", from: "a", text: "今日も雨が強いね。☔️\nほら、ちゃんと覚えてるでしょ。", translation: "今天的雨也很大呢。☔️ 你看，我有好好记住正确说法吧。" },
-  { id: "2015-07-04-02", day: "2015-07-04", time: "21:00", from: "a", text: "あの時、南が「大きいじゃなくて強い」って教えてくれたの思い出した。", translation: "想起那时南教我「不是大きい，是強い」。" },
-  { id: "2015-07-04-03", day: "2015-07-04", time: "22:18", from: "a", text: "また、傘を返せてないね。", translation: "那把伞，我还是没能还给你。" },
-  { id: "2015-08-09-01", day: "2015-08-09", time: "16:22", from: "a", text: "おもちゃ屋さんの前を通ったよ。\nレゴの指輪、まだ覚えてる？笑", translation: "今天路过玩具店了。乐高戒指的事，你还记得吗？哈哈" },
-  { id: "2015-08-09-02", day: "2015-08-09", time: "16:26", from: "a", text: "あの時、南は「覚えておく」って言ったんだよ。", translation: "那时候南说过「我会记住的」哦。" },
+  { id: "2015-08-09-01", day: "2015-08-09", time: "16:22", from: "a", text: "すっごく大きくて、きれいなレゴのセットを見つけたの！", translation: "我看到一盒特别大、特别漂亮的乐高！" },
+  { id: "2015-08-09-02", day: "2015-08-09", time: "16:23", from: "a", text: "思わず買っちゃった。笑", translation: "忍不住买下来了。哈哈" },
+  { id: "2015-08-09-03", day: "2015-08-09", time: "16:24", from: "a", text: "何のレゴだと思う？当ててみて！", translation: "猜猜是什么乐高？快猜猜！" },
+  { id: "2015-08-09-04", day: "2015-08-09", time: "16:41", from: "a", text: "……南は忙しいから、レゴを作る時間なんてないよね。", translation: "……南这么忙，应该没时间拼乐高吧。" },
   { id: "2015-09-14-01", day: "2015-09-14", time: "23:16", from: "a", text: "今日、久しぶりに南の声が聞きたくなった。", translation: "今天突然好想再听听南的声音。" },
   { id: "2015-09-14-02", day: "2015-09-14", time: "23:19", from: "a", text: "電話してもいい？", translation: "可以打电话吗？" },
   { id: "2015-09-14-03", day: "2015-09-15", time: "00:02", from: "a", text: "ごめんね。\n忙しいの、わかってる。", translation: "对不起。我知道你很忙。" },
   { id: "2015-10-19-01", day: "2015-10-19", time: "21:38", from: "a", text: "明日だね。\n南が大きなステージに立つ日。", translation: "就是明天了。南终于要站上大舞台的日子。" },
   { id: "2015-10-19-02", day: "2015-10-19", time: "21:40", from: "a", text: "ずっと応援してる。\n本当に、おめでとう。", translation: "我会一直支持你。真的，恭喜你。" },
-  { id: "2015-10-19-03", day: "2015-10-19", time: "23:54", from: "mina", text: "ありがとう。\nAも元気でね。", translation: "谢谢你。A 也要好好的。" },
+  { id: "2015-10-19-03", day: "2015-10-19", time: "23:54", from: "mina", text: "ありがとう。\nそっちも元気でね。", translation: "谢谢你。A 也要好好的。" },
   { id: "2015-10-19-04", day: "2015-10-19", time: "23:58", from: "a", text: "うん。\n……また話せるよね？", translation: "嗯。……以后还会再聊天吧？" },
   { id: "2015-10-21-01", day: "2015-10-21", time: "18:14", from: "a", text: "デビューのステージ、見たよ。\n南、すごく綺麗だった。", translation: "我看了出道舞台。南真的很漂亮。" },
   { id: "2015-10-21-02", day: "2015-10-21", time: "18:17", from: "a", text: "画面の中の南が、なんだかすごく遠かった。", translation: "屏幕里的南，感觉突然变得好遥远。" },
@@ -117,6 +117,10 @@ export const minaLineMemories: LineMemoryMessage[] = [
   { id: "2015-11-03-02", day: "2015-11-03", time: "00:08", from: "a", text: "南は、もう違う場所にいるんだよね。", translation: "南已经在另一个世界了，对吧。" },
   { id: "2015-11-03-03", day: "2015-11-03", time: "00:12", from: "a", text: "……ごめんね。", translation: "……对不起。" },
   { id: "2015-11-03-04", day: "2015-11-03", time: "00:17", from: "a", text: "你真的走了吗？", translation: "" },
+  { id: "2015-11-03-05", day: "2015-11-03", time: "00:29", from: "a", text: "お願い、無視しないで。", translation: "求你了，不要不理我。" },
+  { id: "2015-11-04-01", day: "2015-11-04", time: "23:19", from: "a", text: "……わかった。", translation: "……好吧。" },
+  { id: "2015-11-06-01", day: "2015-11-06", time: "22:06", from: "a", text: "南なんて嫌い。", translation: "讨厌你。" },
+  { id: "2015-11-06-02", day: "2015-11-06", time: "22:17", from: "a", text: "うそだよ。\n来年、一緒にハワイに行こうね。", translation: "骗你的。明年一起去夏威夷吧。" },
 ];
 
 export const minaLineLastMessage = minaLineMemories[minaLineMemories.length - 1];
