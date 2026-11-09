@@ -1,7 +1,7 @@
 /* React/data adapters for dudwo5/Mymy UI templates: kt/ktn/KHD/bub,
  * igHome/igProfile/igDM/igSheet, xHome. See NOTICE.txt for permission.
  * Author content, DOM globals, timers and media dependencies are excluded. */
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
   Search,
@@ -37,6 +37,7 @@ import "./ui.css";
 import "./adapter.css";
 import { minaInstagramAvatar } from "../../skins/mina-instagram-avatar";
 import { kakaoDefaultAvatar } from "./kakao-default-avatar";
+import { minaKakao2025Items } from "./mina-kakao-2025";
 import "../../skins/mina-instagram.css";
 function grouped(items: Item[]) {
   return [...new Set(items.map((i) => i.title))].map((title) => ({
@@ -89,9 +90,17 @@ export function MymyKakao(p: SkinProps) {
     isHeartContact(title) ? "💗" : title;
   const displaySender = (sender: string) =>
     isHeartContact(sender) ? "💗" : sender;
-  const list = grouped(p.items),
+  // Attach the flashback only to the specific Mina Phone story.
+  const isMinaStory =
+    p.owner === "名井南" &&
+    p.items.some((item) => item.id === "kaka-sana-1") &&
+    p.items.some((item) => item.id === "kaka-jeongyeon-1");
+  const sourceItems = isMinaStory
+    ? [...minaKakao2025Items, ...p.items]
+    : p.items;
+  const list = grouped(sourceItems),
     messages = [
-      ...p.items.filter((i) => i.title === p.thread),
+      ...sourceItems.filter((i) => i.title === p.thread),
       ...sent.flatMap((raw, index) => {
         try {
           const entry: unknown = JSON.parse(raw);
@@ -139,9 +148,18 @@ export function MymyKakao(p: SkinProps) {
           <div className="msgs kk" ref={scroll}>
             {messages.map((m, i) => {
               const run = messageRun(messages, i);
+              const date = m.time.slice(0, 10);
+              const showDate =
+                /^\d{4}-\d{2}-\d{2}$/.test(date) &&
+                (i === 0 || messages[i - 1].time.slice(0, 10) !== date);
               return (
-                <div
-                  key={m.id}
+                <Fragment key={m.id}>
+                  {showDate && (
+                    <div className="kakao-date-separator">
+                      {date.replaceAll("-", ".")}
+                    </div>
+                  )}
+                  <div
                   className={
                     "kzm " +
                     (m.outgoing ? "kzmy" : "kzot") +
@@ -172,7 +190,8 @@ export function MymyKakao(p: SkinProps) {
                   {!m.outgoing && run.last && (
                     <span className="kzt">{m.time.slice(-5)}</span>
                   )}
-                </div>
+                  </div>
+                </Fragment>
               );
             })}
             {!messages.length && <Blank />}
