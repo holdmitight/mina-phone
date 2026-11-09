@@ -73,6 +73,17 @@ export function MymyKakao(p: SkinProps) {
     [draft, setDraft] = useState(""),
     [query, setQuery] = useState(""),
     [menu, setMenu] = useState(false);
+  // Rename only the partner's chat in the UI; keep its authored title
+  // unchanged so threads, saves and story triggers still work.
+  const partnerTitle =
+    p.items.find((item) => item.id === "kaka-you-last")?.title ||
+    p.items.find((item) => item.id.startsWith("kaka-you-"))?.title ||
+    "";
+  const displayTitle = (title: string) =>
+    (partnerTitle && title === partnerTitle) ||
+    /^(?:💗\s*)?君(?:\s*💗)?$/.test(title)
+      ? "💗"
+      : title;
   const list = grouped(p.items),
     messages = [
       ...p.items.filter((i) => i.title === p.thread),
@@ -113,7 +124,7 @@ export function MymyKakao(p: SkinProps) {
         <>
           <header className="kzth">
             <Back onClick={() => p.onThread("")} />
-            <span className="kzname">{p.thread}</span>
+            <span className="kzname">{displayTitle(p.thread)}</span>
             <span className="kzpill">
               <button aria-label="トークメニュー" onClick={() => setMenu(!menu)}>
                 <Menu size={21} />
@@ -203,7 +214,7 @@ export function MymyKakao(p: SkinProps) {
           </form>
           {menu && (
             <div className="mymy-local-menu">
-              <strong>{p.thread}</strong>
+              <strong>{displayTitle(p.thread)}</strong>
               <p>
                 グループメンバー：{[...new Set(messages.map((m) => m.sender))].join("、")}
               </p>
@@ -277,7 +288,7 @@ export function MymyKakao(p: SkinProps) {
                   >
                     <Avatar name={last.sender || g.title} src={last.avatar} />
                     <span className="kzkn">
-                      <b>{g.title}</b>
+                      <b>{displayTitle(g.title)}</b>
                       <small>{tab === "好友" ? last.sender : last.body}</small>
                     </span>
                     <span className="kzkmt">
