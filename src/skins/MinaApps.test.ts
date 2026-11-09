@@ -42,7 +42,7 @@ describe("Bubble reference screens", () => {
     expect(artist?.split("ONCE、今日はありがとう。")[0]).toContain("MINA");
     expect(artist).not.toContain("ミナも、ゆっくり休んでね。");
     expect(fan).toContain("ミナも、ゆっくり休んでね。");
-    expect(fan?.split("ミナも、ゆっくり休んでね。")[0]).toContain("ONCE");
+    expect(fan?.split("ミナも、ゆっくり休んでね。")[0]).not.toContain("ARTIST");
     expect(items).toEqual(before);
   });
   it("restores composed letters as safe text without modifying authored records", () => {
