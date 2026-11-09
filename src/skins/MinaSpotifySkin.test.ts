@@ -30,7 +30,7 @@ describe("Mina's Japanese Spotify demo", () => {
     expect(html).toContain("K-Pop ON!");
     expect(html).toContain("最新リリース");
     expect(html).toContain("ILLIT");
-    expect(html).toContain("You're Under Arrest (Remixes)");
+    expect(html).toContain("You&#x27;re Under Arrest (Remixes)");
     expect(html).toContain("Don't Stop the Clocks");
     expect(html).toContain("今日の人気プレイリスト");
     expect(html).toContain("すべて");
@@ -63,7 +63,7 @@ describe("Mina's Japanese Spotify demo", () => {
       "mina-spotify-created": ["夜のプレイリスト"],
     })));
     expect(library).toContain("夜のプレイリスト");
-    expect(library).toContain("You're Under Arrest");
+    expect(library).toContain("You&#x27;re Under Arrest");
     const create = renderToStaticMarkup(createElement(MinaSpotifySkin, props({
       "mina-spotify-screen": "create",
     })));
