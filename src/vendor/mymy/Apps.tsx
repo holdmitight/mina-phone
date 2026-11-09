@@ -546,7 +546,7 @@ export function MymyInstagram(p: SkinProps) {
                     <button key={i.id} aria-label={i.title + "を見る"} onClick={() => openPost(i)}><Media item={i}/></button>
                   )}</div>
                   {!posts.length && <div className="mina-ig-empty" role="status">
-                    <span><Grid size={28}/></span><h2>まだ投稿がありません</h2><p>写真や動画の投稿はありません。</p>
+                    <span><Grid size={28}/></span><h2>投稿はまだありません</h2><p>写真や動画の投稿はありません。</p>
                   </div>}
                 </>
               )}
