@@ -96,11 +96,19 @@ export function MymyKakao(p: SkinProps) {
     p.items.some((item) => item.id === "kaka-sana-1") &&
     p.items.some((item) => item.id === "kaka-jeongyeon-1");
   const sourceItems = isMinaStory
-    ? [...minaKakao2025Items, ...p.items]
+    ? [...p.items, ...minaKakao2025Items]
     : p.items;
-  const list = grouped(sourceItems),
+  // Preserve existing contact ordering and current last-message previews.
+  const list = grouped(p.items).map((group) => ({
+    ...group,
+    items: sourceItems
+      .filter((item) => item.title === group.title)
+      .sort((a, b) => a.time.localeCompare(b.time)),
+  })),
     messages = [
-      ...sourceItems.filter((i) => i.title === p.thread),
+      ...sourceItems
+        .filter((i) => i.title === p.thread)
+        .sort((a, b) => a.time.localeCompare(b.time)),
       ...sent.flatMap((raw, index) => {
         try {
           const entry: unknown = JSON.parse(raw);
