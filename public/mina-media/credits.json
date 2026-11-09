@@ -1,0 +1,147 @@
+{
+  "notice": "名井南公开活动肖像用于角色辨识；其余图片为虚构故事氛围示意，不是名井南私人照片或真实生活记录。",
+  "portrait": {
+    "file": "portrait.jpg",
+    "title": "Mina H&M Rokh 2",
+    "depicts": "TWICE Mina at the public ROKH X H&M event, 12 April 2024",
+    "author": "TV10",
+    "source": "https://commons.wikimedia.org/wiki/File:Mina_H%26M_Rokh_2.jpg",
+    "original_source": "https://www.youtube.com/watch?v=UVRtCXA9Kys",
+    "license": "CC BY 3.0 Unported",
+    "license_url": "https://creativecommons.org/licenses/by/3.0/",
+    "changes": "Unmodified original downloaded from Wikimedia Commons. Display cropping may occur in app.",
+    "license_review": "Reviewed on Wikimedia Commons by Hiyyihjaleh727 on 2 October 2024.",
+    "width": 684,
+    "height": 1000,
+    "bytes": 103439
+  },
+  "illustrative": [
+    {
+      "file": "lifestyle1.jpg",
+      "title": "A cup of coffee sitting on top of a green table",
+      "author": "Debby Hudson",
+      "source": "https://unsplash.com/photos/a-cup-of-coffee-sitting-on-top-of-a-green-table-vDgHofXoNxc",
+      "download_url": "https://images.unsplash.com/photo-1652703747774-ad1dee765bb3?w=900&q=75&fit=crop&fm=jpg",
+      "license": "Unsplash License",
+      "license_url": "https://unsplash.com/license",
+      "usage": "Illustrative still life only, not Mina’s personal photograph",
+      "changes": "Downloaded as JPEG at width 900px, quality 75; no creative edits.",
+      "width": 900,
+      "height": 720,
+      "bytes": 119068,
+      "card_rendition": {
+        "file": "cards/lifestyle1.jpg",
+        "download_url": "https://images.unsplash.com/photo-1652703747774-ad1dee765bb3?w=420&q=60&fit=crop&fm=jpg",
+        "width": 420,
+        "height": 336,
+        "bytes": 24589,
+        "changes": "CDN size/quality rendition only; no creative edits."
+      }
+    },
+    {
+      "file": "lifestyle2.jpg",
+      "title": "A white table topped with two video game controllers",
+      "author": "Triyansh Gill",
+      "source": "https://unsplash.com/photos/a-white-table-topped-with-two-video-game-controllers-uUmXIGWzPPk",
+      "download_url": "https://images.unsplash.com/photo-1678058331227-6e663ef1c049?w=900&q=75&fit=crop&fm=jpg",
+      "license": "Unsplash License",
+      "license_url": "https://unsplash.com/license",
+      "usage": "Illustrative still life only, not Mina’s personal photograph",
+      "changes": "Downloaded as JPEG at width 900px, quality 75; no creative edits.",
+      "width": 900,
+      "height": 678,
+      "bytes": 76775,
+      "card_rendition": {
+        "file": "cards/lifestyle2.jpg",
+        "download_url": "https://images.unsplash.com/photo-1678058331227-6e663ef1c049?w=420&q=60&fit=crop&fm=jpg",
+        "width": 420,
+        "height": 316,
+        "bytes": 23810,
+        "changes": "CDN size/quality rendition only; no creative edits."
+      }
+    },
+    {
+      "file": "lifestyle3.jpg",
+      "title": "Cream knitwear, denim and a mug",
+      "author": null,
+      "source": "https://images.unsplash.com/photo-1516762689617-e1cffcef479d",
+      "download_url": "https://images.unsplash.com/photo-1516762689617-e1cffcef479d?w=900&q=75&fit=crop&fm=jpg",
+      "note": "Photographer metadata not resolved; not invented.",
+      "license": "Unsplash License",
+      "license_url": "https://unsplash.com/license",
+      "usage": "Illustrative still life only, not Mina’s personal photograph",
+      "changes": "Downloaded as JPEG at width 900px, quality 75; no creative edits.",
+      "width": 900,
+      "height": 1271,
+      "bytes": 220821,
+      "card_rendition": {
+        "file": "cards/lifestyle3.jpg",
+        "download_url": "https://images.unsplash.com/photo-1516762689617-e1cffcef479d?w=420&q=60&fit=crop&fm=jpg",
+        "width": 420,
+        "height": 593,
+        "bytes": 40358,
+        "changes": "CDN size/quality rendition only; no creative edits."
+      }
+    },
+    {
+      "file": "lifestyle4.jpg",
+      "title": "Clouds in a quiet sky",
+      "author": null,
+      "source": "https://images.unsplash.com/photo-1534088568595-a066f410bcda",
+      "download_url": "https://images.unsplash.com/photo-1534088568595-a066f410bcda?w=900&q=75&fit=crop&fm=jpg",
+      "note": "Photographer metadata not resolved; not invented.",
+      "license": "Unsplash License",
+      "license_url": "https://unsplash.com/license",
+      "usage": "Illustrative still life only, not Mina’s personal photograph",
+      "changes": "Downloaded as JPEG at width 900px, quality 75; no creative edits.",
+      "width": 900,
+      "height": 1159,
+      "bytes": 115216,
+      "card_rendition": {
+        "file": "cards/lifestyle4.jpg",
+        "download_url": "https://images.unsplash.com/photo-1534088568595-a066f410bcda?w=420&q=60&fit=crop&fm=jpg",
+        "width": 420,
+        "height": 541,
+        "bytes": 26287,
+        "changes": "CDN size/quality rendition only; no creative edits."
+      }
+    },
+    {
+      "file": "lifestyle5.jpg",
+      "title": "A pair of green knitted mitts next to knitting needles",
+      "author": "Maria Kovalets",
+      "source": "https://unsplash.com/photos/a-pair-of-green-knitted-mitts-next-to-knitting-needles-AMani6JbcPY",
+      "download_url": "https://images.unsplash.com/photo-1737053588905-2005ff5a5fdf?w=900&q=75&fit=crop&fm=jpg",
+      "license": "Unsplash License",
+      "license_url": "https://unsplash.com/license",
+      "usage": "Illustrative still life only, not Mina’s personal photograph",
+      "changes": "Downloaded as JPEG at width 900px, quality 75; no creative edits.",
+      "width": 900,
+      "height": 600,
+      "bytes": 183272,
+      "card_rendition": {
+        "file": "cards/lifestyle5.jpg",
+        "download_url": "https://images.unsplash.com/photo-1737053588905-2005ff5a5fdf?w=420&q=60&fit=crop&fm=jpg",
+        "width": 420,
+        "height": 280,
+        "bytes": 38583,
+        "changes": "CDN size/quality rendition only; no creative edits."
+      }
+    }
+  ],
+  "original_artwork": {
+    "products": "20 original catalogue illustrations, generated for this work; not product photography or endorsements.",
+    "icons": "Six original, simplified app icon illustrations. Not official product assets.",
+    "audio": "Four original 24-second non-vocal instrumental sketches; generated by scripts/make-ambient.py. No artist voice or commercial recording."
+  },
+  "wallpaper": {
+    "file": "wallpaper-tokyo.jpg",
+    "source": "User-provided attachment",
+    "changes": "Original image retained; displayed with CSS cover."
+  },
+  "bubble_references": {
+    "source": "User-provided references",
+    "details": "bubble/credits.json",
+    "note": "Icon and avatar use display crops of original images. Profile background removes screenshot interface overlays."
+  }
+}

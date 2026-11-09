@@ -1,0 +1,637 @@
+/* Mina story app skins. Independent of the shared phone and event engine. */
+.mina-bubble-root,
+.mina-shop-root {
+  position: relative;
+  isolation: isolate;
+  height: 100%;
+  min-height: 0;
+  --mina-hairline: #edf0f3;
+}
+.mina-bubble-root button:focus-visible,
+.mina-shop-root button:focus-visible {
+  outline: 2px solid #65aeb8;
+  outline-offset: -2px;
+}
+.mina-bubble-root {
+  color: #293744;
+  background: #f6fafb;
+}
+.mina-bubble-root .catalog-nav {
+  background: #fff;
+  border: 0;
+}
+.mina-bubble-root .catalog-nav > strong {
+  font-size: 16px;
+  color: #3b5362;
+  font-weight: 600;
+}
+.mina-bubble-header {
+  flex-shrink: 0;
+  background: #fff;
+  border-bottom: 1px solid #e9f1f3;
+}
+.mina-bubble-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #61bdc7;
+  font-size: 25px;
+  letter-spacing: -1.5px;
+  font-weight: 800;
+  padding: 12px 19px 10px;
+}
+.mina-bubble-brand > svg {
+  width: 28px;
+  height: 28px;
+  stroke-width: 2.2;
+  fill: #d7f6f5;
+}
+.mina-bubble-brand > small {
+  margin-left: auto;
+  color: #9aa8b2;
+  font-size: 9px;
+  letter-spacing: .4px;
+  font-weight: 500;
+}
+.mina-bubble-brand > span { display: flex; flex-direction: column; line-height: 1; gap: 4px; }
+.mina-bubble-brand > span > small { font-size: 8px; color: #b0bdc4; letter-spacing: 1.1px; font-weight: 400; }
+.mina-bubble-brand > svg:last-child { width: 19px; height: 19px; margin-left: auto; fill: none; stroke-width: 1.3; color: #a8cbd5; }
+.mina-bubble-profile {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 17px 21px 15px;
+  background: linear-gradient(120deg, #f6fcfc, #f3f0fc);
+  flex-shrink: 0;
+}
+.mina-bubble-profile .catalog-avatar {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(145deg, #b6d7d3, #cec6e3);
+  font-size: 21px;
+  color: #fff;
+  box-shadow: 0 0 0 3px #fff;
+}
+.mina-bubble-profile h2 {
+  margin: 0 0 5px;
+  font-size: 19px;
+  letter-spacing: 1.2px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.mina-bubble-profile h2 > span { margin-left: 8px; padding: 3px 5px; background: #ded9ed; color: #a094b9; border-radius: 4px; font-size: 7px; letter-spacing: .6px; vertical-align: middle; }
+.mina-bubble-profile small {
+  color: #98a3ae;
+  font-size: 10px;
+  letter-spacing: .7px;
+}
+.mina-bubble-profile > svg {
+  margin-left: auto;
+  color: #8bc7c9;
+  width: 22px;
+}
+.mina-bubble-stats {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 11px 21px;
+  background: #fff;
+  color: #8e9eaa;
+  font-size: 10px;
+  border-bottom: 1px solid #edf3f5;
+  flex-shrink: 0;
+}
+.mina-bubble-stats strong { color: #64aab1; font-weight: 600; }
+.mina-bubble-stats > span { display: inline-flex; align-items: center; gap: 5px; }
+.mina-bubble-announcement {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 14px;
+  background: #e9f6f7;
+  color: #7a9aa4;
+  font-size: 9px;
+  line-height: 1.5;
+  flex-shrink: 0;
+}
+.mina-bubble-announcement svg { width: 13px; height: 13px; flex-shrink: 0; }
+.mina-bubble-announcement > span { font-size: 7px; letter-spacing: .7px; color: #a9c1c8; margin-left: auto; white-space: nowrap; }
+.mina-bubble-thread {
+  overflow: auto;
+  min-height: 0;
+  flex: 1;
+  padding: 16px 17px 25px;
+  background: #f3f8fa;
+  scrollbar-width: thin;
+  scrollbar-color: #cbdce1 transparent;
+  overscroll-behavior: contain;
+}
+.mina-bubble-date {
+  width: max-content;
+  margin: 0 auto 22px;
+  padding: 5px 11px;
+  background: #e5eef2;
+  border-radius: 16px;
+  font-size: 9px;
+  color: #99aab3;
+}
+.mina-bubble-message {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  margin: 13px 0;
+  max-width: 85%;
+  gap: 5px;
+}
+.mina-bubble-message > small {
+  font-size: 9px;
+  color: #a0acb6;
+  padding-left: 3px;
+}
+.mina-bubble-message.outgoing {
+  align-items: flex-end;
+  margin-left: auto;
+}
+.mina-bubble-message .minabubble-balloon,
+.mina-bubble-message .mina-bubble-balloon {
+  display: block;
+  width: auto;
+  text-align: left;
+  background: #fff;
+  padding: 12px 13px 9px;
+  font-size: 13px;
+  line-height: 1.75;
+  letter-spacing: .1px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  border: 1px solid #e8eef3;
+  border-radius: 4px 17px 17px;
+  box-shadow: 0 2px 4px #6f879007;
+  color: #405363;
+}
+.mina-bubble-message.outgoing .minabubble-balloon,
+.mina-bubble-message.outgoing .mina-bubble-balloon {
+  background: #d8f1ef;
+  border-color: #d0eae8;
+  border-radius: 17px 4px 17px 17px;
+  color: #3e6465;
+}
+.minabubble-balloon > small,
+.mina-bubble-balloon > small {
+  display: block;
+  text-align: right;
+  color: #a1b1bc;
+  font-size: 8px;
+  margin-top: 4px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.mina-bubble-message.outgoing .minabubble-balloon > small,
+.mina-bubble-message.outgoing .mina-bubble-balloon > small { color: #8ab5b4; }
+.mina-bubble-photo,
+.mina-bubble-photo > img,
+.minabubble-balloon img,
+.mina-bubble-balloon img {
+  display: block;
+  max-width: 220px;
+  width: 100%;
+  max-height: 250px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin: 2px 0 7px;
+}
+.mina-bubble-composer {
+  padding: 11px 13px 10px;
+  background: #fff;
+  border-top: 1px solid #e5eef1;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-shrink: 0;
+}
+.mina-bubble-composer > input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid #e9edf3;
+  padding: 10px 13px;
+  background: #f5f8fb;
+  border-radius: 20px;
+  color: #536576;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.mina-bubble-composer input::placeholder { color: #adb8c1; }
+.mina-bubble-composer > button {
+  background: #7ec7cc;
+  color: #fff;
+  border-radius: 50%;
+  width: 37px;
+  height: 37px;
+  flex-shrink: 0;
+}
+.mina-bubble-composer > button svg { width: 18px; height: 18px; }
+.mina-bubble-composer > button:disabled { opacity: .4; cursor: default; }
+.mina-bubble-note {
+  background: #fff;
+  color: #b0bbc4;
+  font-size: 8px;
+  text-align: center;
+  padding: 0 16px 9px;
+  flex-shrink: 0;
+  line-height: 1.5;
+}
+.mina-shop-root {
+  --shop-accent: #252525;
+  --shop-surface: #f5f6f7;
+  background: var(--shop-surface);
+  color: #272c31;
+}
+.mina-shop-root .catalog-nav {
+  background: #fff;
+  color: #43474e;
+  border-color: #eff0f2;
+}
+.mina-shop-root .catalog-nav > strong { font-size: 15px; font-weight: 600; }
+.mina-shop-root[data-shop="amazonjp"] { --shop-surface: #f1f4f5; }
+.mina-shop-root[data-shop="rakuten"] { --shop-surface: #faf7f7; }
+.mina-shop-root[data-shop="qoo10"] { --shop-surface: #fff6f9; }
+.mina-shop-root[data-shop="coupang"] { --shop-surface: #f4f8fb; }
+.mina-shop-root[data-shop="musinsa"] { --shop-surface: #f4f4f4; }
+.mina-shop-brand {
+  background: #fff;
+  padding: 13px 18px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.mina-shop-brand h1 {
+  font-size: 27px;
+  font-weight: 800;
+  letter-spacing: -1.1px;
+  line-height: 1.2;
+  color: var(--shop-accent);
+  margin: 0;
+}
+.mina-shop-brand > svg { width: 21px; height: 21px; color: var(--shop-accent); }
+.mina-shop-brand small {
+  margin-left: auto;
+  color: #a8acb2;
+  font-size: 8px;
+  line-height: 1.5;
+  letter-spacing: .3px;
+}
+.mina-shop-brand > div { min-width: 0; flex: 1; }
+.mina-shop-brand > div > small { display: block; margin-top: 5px; font-size: 8px; letter-spacing: .3px; }
+.mina-shop-root[data-shop="amazonjp"] .mina-shop-brand {
+  background: #232f3e;
+  color: #fff;
+  border-bottom: 2px solid #ffca69;
+}
+.mina-shop-root[data-shop="amazonjp"] .mina-shop-brand h1,
+.mina-shop-root[data-shop="amazonjp"] .mina-shop-brand > svg { color: #fff; }
+.mina-shop-root[data-shop="amazonjp"] .mina-shop-brand small { color: #a9b5c2; }
+.mina-shop-root[data-shop="musinsa"] .mina-shop-brand {
+  background: #171717;
+  color: #fff;
+  padding-top: 17px;
+  padding-bottom: 15px;
+}
+.mina-shop-root[data-shop="musinsa"] .mina-shop-brand h1,
+.mina-shop-root[data-shop="musinsa"] .mina-shop-brand > svg { color: #fff; }
+.mina-shop-root[data-shop="musinsa"] .mina-shop-brand h1 { font-size: 24px; letter-spacing: 1px; }
+.mina-shop-delivery {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  color: #838d98;
+  padding: 9px 18px;
+  background: #fff;
+  flex-shrink: 0;
+}
+.mina-shop-delivery svg { width: 12px; height: 12px; color: var(--shop-accent); }
+.mina-shop-delivery > span:last-child { margin-left: auto; color: #a6afb7; font-size: 8px; letter-spacing: .4px; }
+.mina-shop-search {
+  padding: 4px 13px 10px;
+  background: #fff;
+  flex-shrink: 0;
+}
+.mina-shop-search .catalog-search {
+  border: 1px solid #e8e9ec;
+  color: #a0a5ae;
+  background: #f7f8fa;
+  border-radius: 7px;
+  margin: 0;
+  padding: 0 11px;
+}
+.mina-shop-search input { font-size: 12px; min-height: 37px; color: #4e5662; padding: 9px 0; }
+.mina-shop-search input::placeholder { color: #a8aeb6; }
+.mina-shop-root .catalog-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #d5dadd transparent;
+  overscroll-behavior: contain;
+}
+.mina-shop-hero {
+  position: relative;
+  overflow: hidden;
+  margin: 13px 13px 0;
+  border-radius: 9px;
+  background: linear-gradient(120deg, #e5eae4, #eef1e9);
+  padding: 19px 18px;
+  min-height: 115px;
+}
+.mina-shop-hero::after {
+  content: "";
+  position: absolute;
+  right: -11px;
+  bottom: -57px;
+  width: 135px;
+  height: 135px;
+  border-radius: 50%;
+  border: 25px solid #ffffff65;
+  pointer-events: none;
+}
+.mina-shop-hero > small {
+  display: block;
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: #899883;
+  margin-bottom: 7px;
+}
+.mina-shop-hero h2 {
+  font-size: 22px;
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: -.4px;
+  margin: 0 0 5px;
+  color: #4d6052;
+  position: relative;
+  z-index: 1;
+}
+.mina-shop-hero p { font-size: 10px; color: #899487; margin: 0; line-height: 1.6; }
+.mina-shop-hero > span {
+  font-size: 8px;
+  color: #83927b;
+  letter-spacing: 1px;
+  display: block;
+  margin-top: 11px;
+}
+.mina-shop-hero > svg { position: absolute; right: 18px; top: 32px; width: 43px; height: 43px; stroke-width: 1; color: #a2b09a70; }
+.mina-shop-root[data-shop="qoo10"] .mina-shop-hero { background: linear-gradient(120deg, #f5dce9, #f9edf2); }
+.mina-shop-root[data-shop="qoo10"] .mina-shop-hero h2 { color: #926179; }
+.mina-shop-root[data-shop="qoo10"] .mina-shop-hero p,
+.mina-shop-root[data-shop="qoo10"] .mina-shop-hero > small,
+.mina-shop-root[data-shop="qoo10"] .mina-shop-hero > span { color: #b48c9f; }
+.mina-shop-root[data-shop="coupang"] .mina-shop-hero { background: linear-gradient(120deg, #dbeaf7, #edf4fb); }
+.mina-shop-root[data-shop="coupang"] .mina-shop-hero h2 { color: #3f6e9b; }
+.mina-shop-root[data-shop="coupang"] .mina-shop-hero p,
+.mina-shop-root[data-shop="coupang"] .mina-shop-hero > small,
+.mina-shop-root[data-shop="coupang"] .mina-shop-hero > span { color: #83a2bd; }
+.mina-shop-root[data-shop="musinsa"] .mina-shop-hero { background: #e5e2db; border-radius: 0; }
+.mina-shop-root[data-shop="musinsa"] .mina-shop-hero h2 { color: #373a36; letter-spacing: -1px; font-size: 24px; }
+.mina-shop-root[data-shop="musinsa"] .mina-shop-hero p,
+.mina-shop-root[data-shop="musinsa"] .mina-shop-hero > small { color: #93958e; }
+.mina-shop-categories {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 13px;
+  overflow: auto;
+  flex-shrink: 0;
+  scrollbar-width: none;
+}
+.mina-shop-categories > button {
+  padding: 7px 12px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  border: 1px solid #e1e5e8;
+  background: #fff;
+  border-radius: 17px;
+  color: #91969c;
+  font-size: 10px;
+  line-height: 1.4;
+}
+.mina-shop-categories > button.selected { background: var(--shop-accent); border-color: var(--shop-accent); color: #fff; }
+.mina-shop-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 0 13px 17px;
+}
+.mina-shop-product {
+  min-width: 0;
+  border-radius: 8px;
+  background: #fff;
+  overflow: hidden;
+  border: 1px solid #edf0f1;
+}
+.mina-shop-open {
+  width: 100%;
+  display: block;
+  text-align: left;
+  padding: 0;
+}
+.mina-shop-open > img,
+.mina-shop-open > .catalog-art {
+  display: block;
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 0;
+  background: #f1f0ec;
+}
+.mina-shop-open > small {
+  display: block;
+  margin: 10px 10px 5px;
+  color: #a8adb0;
+  font-size: 8px;
+  letter-spacing: .4px;
+}
+.mina-shop-open h3 {
+  margin: 0 10px 7px;
+  font-size: 12px;
+  line-height: 1.6;
+  font-weight: 500;
+  color: #4c5359;
+  min-height: 37px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.mina-shop-open > strong { display: block; color: var(--shop-accent); font-size: 15px; margin: 0 10px 9px; font-weight: 700; }
+.mina-shop-product-tools {
+  display: flex;
+  border-top: 1px solid #f0f2f3;
+  min-height: 35px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 7px;
+  gap: 3px;
+}
+.mina-shop-product-tools button { display: inline-flex; align-items: center; min-width: 30px; min-height: 34px; color: #a9b0b6; padding: 5px; font-size: 9px; gap: 4px; }
+.mina-shop-product-tools button:last-child { color: var(--shop-accent); }
+.mina-shop-product-tools svg { width: 15px; height: 15px; }
+.mina-shop-product-tools button.saved,
+.mina-shop-product-tools button[aria-pressed="true"] { color: #d78398; }
+.mina-shop-product-tools button.saved svg,
+.mina-shop-product-tools button[aria-pressed="true"] svg { fill: #f9e5eb; }
+.mina-shop-order {
+  display: block;
+  width: calc(100% - 26px);
+  border: 1px solid #e8ecee;
+  border-radius: 9px;
+  background: #fff;
+  padding: 0;
+  margin: 11px 13px;
+  overflow: hidden;
+  text-align: left;
+}
+.mina-shop-order-top { display: flex; align-items: center; justify-content: space-between; padding: 12px; font-size: 10px; color: #717a83; border-bottom: 1px solid #f1f2f4; }
+.mina-shop-order-top > small { font-size: 9px; color: var(--shop-accent); }
+.mina-shop-order > section { display: flex; align-items: center; padding: 13px 12px; gap: 12px; }
+.mina-shop-order > section > img,
+.mina-shop-order > section > .catalog-art { width: 69px; height: 76px; object-fit: cover; border-radius: 5px; flex-shrink: 0; background: #f3f2ed; }
+.mina-shop-order > section > div { min-width: 0; flex: 1; }
+.mina-shop-order h3 { font-size: 12px; line-height: 1.6; margin: 0 0 4px; font-weight: 500; color: #4a545e; }
+.mina-shop-order p { font-size: 9px; color: #a2abb2; line-height: 1.6; margin: 0 0 6px; }
+.mina-shop-order strong { color: var(--shop-accent); font-size: 13px; }
+.mina-shop-order > footer { font-size: 9px; padding: 10px 12px; background: #fafbfc; color: #9aa5ad; line-height: 1.6; }
+.mina-shop-order > footer { display: flex; align-items: center; gap: 6px; }
+.mina-shop-order > footer > svg { flex-shrink: 0; width: 13px; height: 13px; }
+.mina-shop-order > footer > svg:last-child { margin-left: auto; }
+.mina-shop-tabs { display: flex; align-items: center; justify-content: space-around; flex-shrink: 0; background: #fffffff2; border-top: 1px solid #e9ecef; min-height: 61px; padding: 8px 5px 7px; }
+.mina-shop-tabs button { min-height: 43px; display: flex; align-items: center; flex: 1; flex-direction: column; gap: 4px; position: relative; padding: 0 3px; color: #a5adb4; font-size: 9px; }
+.mina-shop-tabs button svg { width: 21px; height: 21px; stroke-width: 1.65; }
+.mina-shop-tabs button > span { position: relative; display: flex; align-items: center; justify-content: center; }
+.mina-shop-tabs button > small { font-size: 9px; line-height: 1.4; }
+.mina-shop-tabs button.selected { color: var(--shop-accent); }
+.mina-shop-tabs button.selected svg { stroke-width: 2; }
+.mina-shop-count { position: absolute; top: -4px; right: -9px; border-radius: 8px; min-width: 14px; height: 14px; padding: 0 4px; background: var(--shop-accent); color: #fff; font-size: 8px; font-style: normal; display: flex; align-items: center; justify-content: center; border: 1px solid #fff; }
+.mina-shop-empty { text-align: center; padding: 60px 27px; color: #a7afb5; font-size: 12px; line-height: 1.9; }
+.mina-shop-empty > svg { width: 33px; height: 33px; color: #c8cdd1; display: block; margin: 0 auto 14px; stroke-width: 1.2; }
+.mina-shop-message { position: absolute; z-index: 5; bottom: 78px; left: 29px; right: 29px; background: #2f3942ee; color: #fff; padding: 11px 14px; border-radius: 12px; font-size: 11px; text-align: center; line-height: 1.6; box-shadow: 0 4px 18px #15233017; pointer-events: none; }
+.mina-shop-cart-total { display: grid; grid-template-columns: minmax(0, 1fr) auto; flex-shrink: 0; align-items: center; justify-content: space-between; background: #fff; padding: 12px 15px; border-top: 1px solid #e7ebed; gap: 9px; }
+.mina-shop-cart-total p { font-size: 9px; color: #939ea6; margin: 0 0 4px; }
+.mina-shop-cart-total strong { display: block; margin-top: 4px; color: var(--shop-accent); font-size: 18px; }
+.mina-shop-cart-total > button { padding: 11px 16px; min-height: 39px; border-radius: 7px; color: #fff; background: var(--shop-accent); font-size: 11px; font-weight: 500; }
+.mina-shop-cart-total > small { grid-column: 1 / -1; width: 100%; color: #b0b7be; font-size: 8px; text-align: right; line-height: 1.5; }
+.mina-shop-saved-strip { margin: 0 13px 12px; padding: 11px 12px; border-radius: 8px; font-size: 9px; color: #99a4ac; background: #ffffffb0; line-height: 1.7; border: 1px solid #edf0f3; }
+.mina-shop-saved-strip { display: flex; align-items: center; gap: 6px; }
+.mina-shop-saved-strip > span { margin-left: auto; white-space: nowrap; }
+.mina-shop-root[data-shop="musinsa"] .mina-shop-product,
+.mina-shop-root[data-shop="musinsa"] .mina-shop-order,
+.mina-shop-root[data-shop="musinsa"] .mina-shop-cart-total > button { border-radius: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .mina-bubble-root *,
+  .mina-shop-root * { transition: none !important; animation: none !important; }
+}
+
+.mina-bubble-reference-icon { display: block !important; position: relative; width: 34px; height: 34px; flex: 0 0 34px; border-radius: 9px; overflow: hidden; }
+.mina-bubble-reference-icon > img { position: absolute; width: 150.5208%; height: 163.0208%; max-width: none; left: -23.4375%; top: -12.5%; object-fit: fill; }
+.mina-bubble-reference-avatar { position: relative; display: inline-block; width: 53px; height: 53px; flex: 0 0 53px; overflow: hidden; border-radius: 50%; background: #ddd; box-shadow: 0 0 0 2px #ffffff75; }
+.mina-bubble-reference-avatar > img { position: absolute; width: 405.5172%; height: 882.7586%; max-width: none; left: -153.1034%; top: -498.6207%; object-fit: fill; }
+.mina-bubble-reference-avatar.large { width: 96px; height: 96px; flex-basis: 96px; box-shadow: 0 2px 18px #0002; }
+.mina-bubble-profile { width: 100%; min-height: 124px; border: 0; text-align: left; background-size: cover; background-position: center 45%; }
+.mina-bubble-profile h2, .mina-bubble-profile small, .mina-bubble-profile > svg { color: white; text-shadow: 0 1px 6px #0006; }
+.mina-bubble-profile h2 > span, .mina-bubble-artist-badge { color: white; background: linear-gradient(90deg,#8d77ee,#55bedc); }
+.mina-bubble-profile h2 > span { text-shadow: none; }
+.mina-bubble-profile > svg { margin-left: auto; }
+.mina-bubble-artist-page { background-size: cover; background-position: center; color: white; }
+.mina-bubble-artist-page:before { content: ""; position: absolute; inset: 0; background: linear-gradient(transparent 40%,#0002); pointer-events: none; }
+.mina-bubble-profile-close { position: absolute; top: 16px; left: 16px; display: grid; place-items: center; color: white; width: 34px; height: 34px; border: 0; border-radius: 50%; background: #0002; z-index: 1; }
+.mina-bubble-artist-identity { position: absolute; top: 55%; left: 22px; right: 22px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.mina-bubble-artist-identity > div { display: flex; align-items: center; gap: 9px; }
+.mina-bubble-artist-identity h1 { margin: 0; font-size: 17px; font-weight: 500; text-shadow: 0 1px 7px #0004; }
+.mina-bubble-artist-badge { display: inline-block; padding: 3px 6px; border-radius: 8px; font-size: 8px; font-weight: 700; line-height: 1; }
+.mina-bubble-return-chat { display: flex; align-items: center; gap: 7px; padding: 10px 18px; margin-top: 6px; border: 1px solid #ffffff75; border-radius: 22px; color: white; background: #ffffff16; backdrop-filter: blur(12px); font-size: 11px; }
+
+/* Bubble reference supplied in the recording. */
+.bubble-reference-app { position: relative; display: flex; flex-direction: column; width: 100%; height: 100%; min-height: 0; color: #111; font-family: -apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Kaku Gothic ProN",sans-serif; }
+.bubble-reference-app button { color: inherit; }
+.bubble-reference-list { background: linear-gradient(#ccebf4 0,#edf8fb 24%,#fff 39%); }
+.bubble-reference-list-actions { display: flex; gap: 17px; align-items: center; padding: 8px 20px 1px; height: 43px; flex-shrink: 0; }
+.bubble-reference-list-actions > span { flex: 1; }
+.bubble-reference-list-actions > button { width: 24px; height: 30px; display: grid; place-items: center; background: none; border: 0; }
+.bubble-reference-list-scroll { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: none; padding: 0 20px 30px; }
+.bubble-reference-list-scroll > h1 { margin: 11px 0 21px; font-size: 27px; line-height: 1.25; font-weight: 800; letter-spacing: -.8px; }
+.bubble-reference-list-scroll > h2 { font-size: 12px; color: #9ba6ab; margin: 19px 0 14px; line-height: 1.5; font-weight: 600; }
+.bubble-reference-chat-row { width: 100%; border: 0; background: transparent; display: flex; align-items: center; gap: 12px; padding: 3px 0 10px; min-height: 66px; text-align: left; }
+.bubble-reference-row-copy { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 7px; }
+.bubble-reference-row-copy strong { font-size: 15px; line-height: 1.2; font-weight: 600; }
+.bubble-reference-row-copy small { font-size: 11px; line-height: 1.5; color: #a3acb0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bubble-reference-chat-row time { font-size: 9px; color: #a7b0b5; align-self: flex-start; padding-top: 9px; }
+.bubble-reference-chat-row .mina-bubble-reference-avatar { width: 49px; height: 49px; flex-basis: 49px; box-shadow: none; }
+.bubble-reference-list-rule { border-top: 1px solid #e5edf0; margin: 17px 0 8px; }
+.bubble-reference-notice-avatar { display: grid; place-items: center; width: 49px; height: 49px; border: 1px solid #ebebeb; border-radius: 50%; background: #fff; color: #d96dac; font-size: 30px; flex-shrink: 0; }
+.bubble-reference-tabs { display: flex; height: 61px; min-height: 61px; padding: 0 20px; border-radius: 23px 23px 0 0; background: #fff; box-shadow: 0 -1px 6px #131b2309; flex-shrink: 0; }
+.bubble-reference-tabs button { flex: 1; display: grid; place-items: center; border: 0; background: none; color: #25252c; }
+.bubble-reference-search { display: flex; align-items: center; gap: 8px; border-radius: 12px; padding: 10px; margin: 6px 0 18px; background: #ffffffba; }
+.bubble-reference-search input { background: transparent; border: 0; padding: 0; width: 100%; min-width: 0; font-size: 14px; }
+.bubble-reference-friend-profile { width: 100%; display: flex; align-items: center; gap: 13px; text-align: left; background: transparent; border: 0; padding: 7px 0 22px; }
+.bubble-reference-friend-profile > span:last-child { display: flex; flex-direction: column; gap: 6px; }
+.bubble-reference-friend-profile strong { font-size: 17px; }
+.bubble-reference-friend-profile small { color: #9ba7ae; font-size: 11px; }
+.bubble-reference-settings { margin-top: 15px; border-top: 1px solid #e1e8eb; }
+.bubble-reference-settings > button,.bubble-reference-settings > div { display: flex; justify-content: space-between; align-items: center; gap: 10px; width: 100%; padding: 18px 0; border: 0; border-bottom: 1px solid #e8edef; background: none; text-align: left; font-size: 12px; }
+.bubble-reference-settings > div span { color: #99a4ac; }
+.bubble-reference-settings p { font-size: 10px; line-height: 1.9; color: #a2abb0; margin-top: 25px; }
+.bubble-reference-notice-heading { display: flex; align-items: center; gap: 12px; font-size: 15px; }
+.bubble-reference-back-list { display: block; margin: 18px auto; font-size: 12px; border: 0; background: #e9f7fa; border-radius: 18px; padding: 10px 17px; }
+.bubble-reference-empty { font-size: 12px; color: #a3abb1; text-align: center; line-height: 1.9; padding: 24px 8px; }
+.bubble-reference-conversation { background: #eaeaea; }
+.bubble-reference-thread-header { flex-shrink: 0; background: #fff; border-radius: 0 0 13px 13px; padding: 8px 16px 9px; box-shadow: 0 2px 2px #00000008; z-index: 1; }
+.bubble-reference-thread-header > div { display: flex; align-items: center; gap: 14px; height: 31px; }
+.bubble-reference-thread-header button { width: 24px; height: 30px; display: grid; place-items: center; border: 0; background: none; }
+.bubble-reference-thread-header strong { flex: 1; text-align: center; padding-left: 25px; font-size: 16px; font-weight: 600; }
+.bubble-reference-thread-header p { text-align: center; font-size: 12px; font-weight: 600; margin: 9px 0 0; }
+.bubble-reference-thread-header p > i { font-weight: 800; font-style: italic; letter-spacing: -.5px; }
+.bubble-reference-thread-header p > span { color: #ce8bb3; font-size: 16px; vertical-align: -1px; }
+.bubble-reference-conversation > .bubble-reference-search { margin: 8px 12px; flex-shrink: 0; }
+.bubble-reference-app .bubble-reference-messages { flex: 1; min-height: 0; background: #eaeaea; padding: 15px 7px 19px; overflow-y: auto; scrollbar-width: none; }
+.bubble-reference-date { font-size: 9px; color: #a7a7a7; text-align: center; margin: 0 0 18px; }
+.bubble-reference-message { display: flex; align-items: flex-start; gap: 7px; margin: 15px 0; }
+.bubble-reference-message-avatar { padding: 0; border: 0; background: none; width: 39px; flex-shrink: 0; }
+.bubble-reference-message-avatar .mina-bubble-reference-avatar { width: 38px; height: 38px; flex-basis: 38px; box-shadow: 0 0 0 1px #50a5cf,0 0 0 3px #fff; margin: 2px; }
+.bubble-reference-message-content { min-width: 0; max-width: calc(100% - 57px); }
+.bubble-reference-sender { display: flex; align-items: center; gap: 6px; font-size: 11px; height: 20px; margin: -1px 0 3px; }
+.bubble-reference-sender .mina-bubble-artist-badge { font-size: 6px; padding: 2px 5px; }
+.bubble-reference-message-line { display: flex; align-items: flex-end; gap: 5px; }
+.bubble-reference-balloon { min-width: 0; display: block; background: #fff; border: 0; border-radius: 0 16px 16px 16px; padding: 10px 12px; font-size: 13px; line-height: 1.75; white-space: pre-wrap; overflow-wrap: anywhere; text-align: left; }
+.bubble-reference-balloon img { display: block; width: 100%; border-radius: 9px; }
+.bubble-reference-message-line time { font-size: 8px; color: #a4a4a4; flex-shrink: 0; white-space: nowrap; padding-bottom: 2px; }
+.bubble-reference-message.outgoing { justify-content: flex-end; padding: 0 3px; }
+.bubble-reference-message.outgoing .bubble-reference-message-content { max-width: 89%; }
+.bubble-reference-message.outgoing .bubble-reference-message-line { flex-direction: row-reverse; }
+.bubble-reference-message.outgoing .bubble-reference-balloon { background: #5b5b5b; color: #fff; border-radius: 16px 16px 0 16px; }
+.bubble-reference-app .bubble-reference-composer { display: flex; align-items: center; gap: 10px; padding: 8px 12px 10px; background: #fff; border: 0; flex-shrink: 0; }
+.bubble-reference-composer > div { display: flex; align-items: center; flex: 1; min-width: 0; border-radius: 25px; background: #f8f8f8; height: 40px; padding: 0 10px; }
+.bubble-reference-composer > div > input { flex: 1; min-width: 0; border: 0; padding: 0 8px; font-size: 14px; background: none; outline: 0; }
+.bubble-reference-app .bubble-reference-composer button { display: grid; place-items: center; width: 28px; height: 33px; color: #9aa3a9; border: 0; background: none; border-radius: 0; box-shadow: none; }
+.bubble-reference-app .bubble-reference-composer > div > button { color: #34383e; }
+.bubble-reference-app .bubble-reference-composer > button:disabled { opacity: .45; }
+.bubble-reference-drawer-layer { position: absolute; inset: 0; z-index: 8; }
+.bubble-reference-drawer-shade { position: absolute; inset: 0; width: 100%; height: 100%; background: #0009; border: 0; }
+.bubble-reference-drawer { position: absolute; top: 0; bottom: 0; right: 0; width: 62px; background: #fff; display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 55px 7px 15px; box-shadow: -1px 0 6px #0001; }
+.bubble-reference-drawer > button { border: 0; background: none; padding: 0; }
+.bubble-reference-drawer .mina-bubble-reference-avatar { width: 41px; height: 41px; flex-basis: 41px; box-shadow: 0 0 0 1px #45a6d1,0 0 0 3px #fff; }
+.bubble-reference-self { display: grid; place-items: center; width: 37px; height: 37px; border-radius: 50%; background: #5c4742; color: white; font-size: 11px; font-weight: 600; }
+.bubble-reference-drawer > .bubble-reference-ticket { margin-top: 1px; background: #eef9fc; color: #23a5cb; height: 48px; width: 48px; display: grid; place-items: center; border-radius: 13px; }
+.bubble-reference-dialog-shade { position: absolute; inset: 0; display: grid; place-items: center; background: #0006; z-index: 9; padding: 27px; }
+.bubble-reference-dialog { width: 100%; border-radius: 18px; padding: 23px 18px 13px; background: white; }
+.bubble-reference-dialog h2 { font-size: 16px; margin: 0 0 14px; }
+.bubble-reference-dialog p { font-size: 11px; color: #7c858b; line-height: 1.9; }
+.bubble-reference-dialog > div { display: flex; justify-content: flex-end; gap: 18px; margin-top: 18px; }
+.bubble-reference-dialog button { border: 0; background: none; padding: 8px 0; color: #3098b8; font-size: 12px; }
+.story-runtime .skin-bubble:has(.bubble-reference-app[data-view="chats"]) { background: #ccebf4; }
+.story-runtime .skin-bubble:has(.bubble-reference-app[data-view="thread"]) { background: #fff; }
+
+/* This phone belongs to MINA: authored artist messages and local sends are outgoing. */
+.bubble-artist-fan-avatar { display: inline-grid; place-items: center; width: 49px; height: 49px; flex-shrink: 0; border-radius: 50%; background: #fff6fb; border: 1px solid #f4e7ee; color: #d782b4; }
+.bubble-reference-message-avatar .bubble-artist-fan-avatar { width: 38px; height: 38px; }
+.bubble-reference-message.outgoing.artist .bubble-reference-sender { justify-content: flex-end; }
+.bubble-reference-drawer .bubble-artist-self-profile, .bubble-artist-recipient { display: flex; align-items: center; flex-direction: column; gap: 7px; }
+.bubble-artist-self-profile small, .bubble-artist-recipient small { font-size: 8px; color: #89929a; }
+.bubble-artist-recipient .bubble-artist-fan-avatar { width: 38px; height: 38px; }

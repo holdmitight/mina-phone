@@ -1,0 +1,33 @@
+{
+  "source": "User-provided reference images.",
+  "icon": {
+    "file": "icon-reference.jpg",
+    "width": 289,
+    "height": 313,
+    "display_crop": {
+      "x": 45,
+      "y": 24,
+      "width": 192,
+      "height": 192
+    },
+    "changes": "Original retained; CSS display crop only."
+  },
+  "profile": {
+    "file": "profile-reference.jpg",
+    "width": 588,
+    "height": 1280,
+    "avatar_crop": {
+      "x": 222,
+      "y": 723,
+      "width": 145,
+      "height": 145
+    },
+    "changes": "Original retained for exact avatar appearance and reference."
+  },
+  "background": {
+    "file": "background.png",
+    "width": 850,
+    "height": 1850,
+    "changes": "Screenshot interface overlays removed with image editing model; underlying photograph otherwise preserved as reference."
+  }
+}
