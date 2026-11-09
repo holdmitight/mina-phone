@@ -25,9 +25,7 @@
 .mina-line-message{display:flex;align-items:flex-start;margin-bottom:11px;max-width:100%;gap:7px}
 .mina-line-message.mine{justify-content:flex-end}
 .mina-line-message.theirs{justify-content:flex-start}
-.mina-line-small-avatar{flex:0 0 28px;height:28px;width:28px;display:grid;place-items:center;
-  color:#6a5360;background:#f9ebf3;border-radius:50%;font-weight:750;font-size:14px}
-.mina-line-message-line{min-width:0;max-width:calc(100% - 36px);display:flex;align-items:flex-end;gap:5px}
+.mina-line-message-line{min-width:0;max-width:100%;display:flex;align-items:flex-end;gap:5px}
 .mina-line-message.mine .mina-line-message-line{flex-direction:row}
 .mina-line-message.theirs .mina-line-message-line{flex-direction:row}
 .mina-line-time{font-size:9px;line-height:1.2;color:#526779;white-space:nowrap;padding-bottom:1px}
