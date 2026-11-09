@@ -1,0 +1,279 @@
+/* Mina Phone's authored Instagram profile presentation.
+   Leave the Mymy template and its chat/feed functionality intact. */
+.mymy-ui.mymy-instagram .ig {
+  background: #fff;
+  color: #18191d;
+}
+.mymy-ui.mymy-instagram .igh {
+  padding: 9px 15px 10px;
+  gap: 12px;
+  min-height: 54px;
+  border-bottom: 0;
+  background: #fff;
+}
+.mymy-ui.mymy-instagram .igh .igl2 {
+  min-width: 0;
+  font: 750 17px/1.25 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  letter-spacing: -.015em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mymy-ui.mymy-instagram .igh button {
+  border: 0;
+  padding: 5px;
+  display: grid;
+  place-items: center;
+  color: #202124;
+  background: transparent;
+}
+.mymy-ui.mymy-instagram .igh button svg { width: 23px; height: 23px; }
+.mymy-ui.mymy-instagram .mina-ig-profile {
+  display: block;
+  min-height: 100%;
+  background: #fff;
+}
+.mymy-ui.mymy-instagram .mina-ig-profile .pf.mina-ig-stat-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 19px 16px 13px;
+  min-width: 0;
+}
+.mymy-ui.mymy-instagram .mina-ig-avatar {
+  width: 82px;
+  height: 82px;
+  flex: 0 0 82px;
+  padding: 3px;
+  border: 1.5px solid #dedfe3;
+  border-radius: 50%;
+  display: block;
+  background: white;
+}
+.mymy-ui.mymy-instagram .mina-ig-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.mymy-ui.mymy-instagram .mina-ig-profile .ps {
+  display: flex;
+  gap: 2px;
+  flex: 1;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+  min-width: 0;
+}
+.mymy-ui.mymy-instagram .mina-ig-profile .ps > div {
+  flex: 1;
+  min-width: 0;
+}
+.mymy-ui.mymy-instagram .mina-ig-profile .ps b {
+  display: block;
+  color: #16171a;
+  font-weight: 750;
+  font-size: 17px;
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+}
+.mymy-ui.mymy-instagram .mina-ig-profile .ps small {
+  display: block;
+  font-size: 11px;
+  color: #252525;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.mymy-ui.mymy-instagram .mina-ig-bio {
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-line;
+  padding: 0 17px 12px;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.mymy-ui.mymy-instagram .mina-ig-profile-actions {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  padding: 8px 14px 20px;
+}
+.mymy-ui.mymy-instagram .mina-ig-profile-actions button {
+  background: #eff0f2;
+  border: 0;
+  border-radius: 9px;
+  padding: 10px 6px;
+  color: #19191b;
+  font-size: 11px;
+  font-weight: 700;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.mymy-ui.mymy-instagram .mina-ig-profile-actions .mina-ig-add {
+  flex: 0 0 34px;
+  display: grid;
+  place-items: center;
+}
+.mymy-ui.mymy-instagram .mina-ig-notice {
+  color: #65656b;
+  text-align: center;
+  font-size: 11px;
+  padding: 0 15px 12px;
+}
+.mymy-ui.mymy-instagram .mina-ig-content-tabs {
+  display: flex;
+  height: 44px;
+  border-bottom: 1px solid #e9e9e9;
+  align-items: stretch;
+  justify-content: stretch;
+}
+.mymy-ui.mymy-instagram .mina-ig-content-tabs button {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  background: white;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: #7b7f87;
+}
+.mymy-ui.mymy-instagram .mina-ig-content-tabs button.selected {
+  color: #171717;
+  border-bottom-color: #1d1d1d;
+}
+.mymy-ui.mymy-instagram .mina-ig-profile .pg2 button {
+  aspect-ratio: 1 / 1;
+  background: #f2f3f4;
+}
+.mymy-ui.mymy-instagram .mina-ig-profile .pg2 img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+.mymy-ui.mymy-instagram .mina-ig-empty {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 52px 20px 45px;
+  min-height: 220px;
+  color: #1f1f20;
+  text-align: center;
+}
+.mymy-ui.mymy-instagram .mina-ig-empty > span {
+  display: grid;
+  place-items: center;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  width: 65px;
+  height: 65px;
+  margin-bottom: 14px;
+}
+.mymy-ui.mymy-instagram .mina-ig-empty h2 {
+  font-size: 18px;
+  margin: 0 0 6px;
+  font-weight: 750;
+}
+.mymy-ui.mymy-instagram .mina-ig-empty p {
+  margin: 0;
+  color: #888b92;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.mymy-ui.mymy-instagram .mymy-ig-nav {
+  min-height: 53px;
+  height: 53px;
+  background: #fff;
+  border-top: 1px solid #f0f0f1;
+}
+.mymy-ui.mymy-instagram .mymy-ig-nav button {
+  width: 23%;
+  height: 100%;
+  color: #111;
+  background: transparent;
+}
+.mymy-ui.mymy-instagram .mina-ig-nav-avatar {
+  display: block;
+  width: 27px;
+  height: 27px;
+  border: 2px solid #111;
+  border-radius: 50%;
+  padding: 2px;
+}
+.mymy-ui.mymy-instagram .mina-ig-nav-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.mymy-ui.mymy-instagram .mina-ig-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 120;
+  background: #0006;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.mymy-ui.mymy-instagram .mina-ig-modal {
+  width: 100%;
+  max-height: 85%;
+  overflow-y: auto;
+  border-radius: 17px 17px 0 0;
+  padding: 16px 19px 22px;
+  background: #fff;
+  color: #19191a;
+  box-shadow: 0 -10px 26px #0002;
+}
+.mymy-ui.mymy-instagram .mina-ig-modal > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 16px;
+  padding-bottom: 15px;
+}
+.mymy-ui.mymy-instagram .mina-ig-modal > header button {
+  background: none;
+  border: 0;
+  color: inherit;
+}
+.mymy-ui.mymy-instagram .mina-ig-modal form,
+.mymy-ui.mymy-instagram .mina-ig-modal label {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13px;
+}
+.mymy-ui.mymy-instagram .mina-ig-modal textarea {
+  width: 100%;
+  font: inherit;
+  font-size: 14px;
+  padding: 9px;
+  border-radius: 7px;
+  border: 1px solid #d8d8d8;
+  resize: vertical;
+  background: #fff;
+  color: #111;
+}
+.mymy-ui.mymy-instagram .mina-ig-modal p {
+  color: #606169;
+  font-size: 12px;
+  line-height: 1.65;
+}
+.mymy-ui.mymy-instagram .mina-ig-modal form > button,
+.mymy-ui.mymy-instagram .mina-ig-modal-menu > button {
+  display: block;
+  width: 100%;
+  padding: 11px;
+  color: white;
+  background: #222;
+  border: 0;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 650;
+}
