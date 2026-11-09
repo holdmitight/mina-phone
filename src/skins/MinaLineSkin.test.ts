@@ -2,17 +2,18 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import type { Props } from "./shared";
+import type { Item } from "../schema";
 import { MinaLineSkin } from "./MinaLineSkin";
 import { minaLineMemories, minaLineLastMessage, minaLineThreadName } from "./minaLineMemories";
 
-function props(thread = ""): Props {
+function props(thread = "", items: Item[] = []): Props {
   return {
     appId: "line",
     name: "LINE",
     owner: "名井南",
     profileName: "名井南",
     thread,
-    items: [],
+    items,
     creator: false,
     onBack: vi.fn(),
     onAdd: vi.fn(),
@@ -29,6 +30,7 @@ describe("Mina's 2014–2015 LINE archive", () => {
     expect(html).toContain("うさぎちゃん 🐰");
     expect(html).not.toContain("A ♡");
     expect(html).not.toContain('class="mina-line-avatar">A');
+    expect(html).toContain('class="mina-line-avatar empty"');
     expect(html).toContain("2015/11/06");
     expect(html).toContain("来年、一緒にハワイに行こうね。");
   });
@@ -90,9 +92,62 @@ describe("Mina's 2014–2015 LINE archive", () => {
     });
   });
 
+  it("renders all LINE contacts with matching avatar frames and no letter-avatar for the archived contact", () => {
+    const item = {
+      id: "sana-1",
+      title: "Sana",
+      body: "おつかれ！",
+      sender: "Sana",
+      time: "2025-11-08T20:18",
+      avatar: "",
+      outgoing: false,
+      kind: "text",
+    } as Item;
+    const html = renderToStaticMarkup(createElement(MinaLineSkin, props("", [item])));
+    expect(html).toContain('class="mina-line-avatar empty"');
+    expect(html).toContain('class="mina-line-avatar"');
+    expect(html).toContain("Sana");
+    expect(html).not.toContain("A ♡");
+  });
+
+  it("uses the same message bubble, date, and time markup for other LINE threads", () => {
+    const other = [
+      {
+        id: "sana-in",
+        title: "Sana",
+        body: "やっほー",
+        sender: "Sana",
+        time: "2025-11-08T20:18",
+        outgoing: false,
+        kind: "text",
+      },
+      {
+        id: "sana-out",
+        title: "Sana",
+        body: "元気だよ！",
+        sender: "名井南",
+        time: "2025-11-08T20:20",
+        outgoing: true,
+        kind: "text",
+      },
+    ] as Item[];
+    const html = renderToStaticMarkup(createElement(MinaLineSkin, props("Sana", other)));
+    expect(html).toContain('data-view="thread"');
+    expect(html).toContain('data-archive="false"');
+    expect(html).toContain("mina-line-message mine");
+    expect(html).toContain("mina-line-message theirs");
+    expect(html).toContain("mina-line-balloon");
+    expect(html).toContain("2025年11月8日");
+    expect(html).toContain("20:18");
+    expect(html).toContain("20:20");
+    expect(html).not.toContain("catalog-bubbles");
+    expect(html).not.toContain("mina-line-small-avatar");
+  });
+
   it("renders incoming messages on the left without avatars and Mina on the right", () => {
     const html = renderToStaticMarkup(createElement(MinaLineSkin, props(minaLineThreadName)));
-    expect(html).toContain('data-view="memory"');
+    expect(html).toContain('data-view="thread"');
+    expect(html).toContain('data-archive="true"');
     expect(html).toContain("mina-line-message mine");
     expect(html).toContain("mina-line-message theirs");
     expect(html).not.toContain("mina-line-small-avatar");
