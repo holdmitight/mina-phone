@@ -1,0 +1,122 @@
+.mina-amazon-app {
+  --amazon-yellow:#ffda12;
+  display:flex;flex-direction:column;min-height:0;height:100%;background:#fff;color:#151515;
+  font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Hiragino Kaku Gothic ProN",sans-serif;
+}
+.mina-amazon-app button { font:inherit;color:inherit;cursor:pointer;border:0; }
+.mina-amazon-app button:focus-visible,.mina-amazon-app input:focus-visible {outline:2px solid #0078a2;outline-offset:2px;}
+.mina-amazon-app .amazon-top { flex-shrink:0;padding:9px 12px 13px;
+  background:repeating-linear-gradient(90deg,#eebd86 0,#eebd86 5px,#f3c895 6px,#f3c895 13px); }
+.mina-amazon-app .amazon-search-row{display:flex;align-items:center;gap:6px;min-height:44px;}
+.mina-amazon-app .amazon-back{flex:0 0 20px;display:grid;place-items:center;padding:0;background:none;}
+.mina-amazon-app .amazon-back-home{opacity:.6;}
+.mina-amazon-app .amazon-search-pill {
+  flex:1;min-width:0;display:flex;align-items:center;gap:8px;min-height:43px;background:#fff;border:1px solid #8ba4aa;
+  border-radius:26px;padding:0 10px;box-shadow:0 1px 2px #00000012;
+}
+.mina-amazon-app .amazon-search-pill button {flex-shrink:0;display:grid;place-items:center;background:transparent;padding:0;}
+.mina-amazon-app .amazon-search-pill input {display:block;flex:1;min-width:0;border:0;outline:0;background:#fff;font-size:14px;}
+.mina-amazon-app .amazon-search-pill input::placeholder {color:#777;}
+.mina-amazon-app .amazon-image-search{position:relative;}
+.mina-amazon-app .amazon-image-search > svg:last-child {position:absolute;right:-2px;top:-5px;fill:white;}
+.mina-amazon-app .amazon-scroll {flex:1;overflow-y:auto;min-height:0;padding-bottom:12px;overscroll-behavior:contain;}
+.mina-amazon-app .amazon-notice {flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:9px;margin:0;padding:9px 14px;color:#246e57;background:#e8f7ef;font-size:11px;}
+.mina-amazon-app .amazon-notice button {background:none;padding:2px;display:grid;place-items:center;}
+.mina-amazon-app .amazon-location{display:flex;gap:8px;align-items:center;width:100%;background:#d9f5f6;padding:9px 13px;text-align:left;font-size:12px;color:#1d393e;}
+.mina-amazon-app .amazon-location > svg {margin-left:auto;}
+.mina-amazon-app .amazon-home-hero{display:flex;gap:8px;min-height:195px;padding:18px 15px;
+  background:linear-gradient(135deg,#023c2f 0%,#09664e 70%,#00a58d 100%);color:#fff;overflow:hidden;}
+.mina-amazon-app .amazon-sale-title{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px;}
+.mina-amazon-app .amazon-sale-title small{font-size:17px;font-weight:850;letter-spacing:-.4px;line-height:1.3;}
+.mina-amazon-app .amazon-sale-title strong{font-size:27px;font-weight:900;line-height:1.13;letter-spacing:-.6px;}
+.mina-amazon-app .amazon-sale-title > span{font-size:10px;opacity:.85;margin-top:7px;}
+.mina-amazon-app .amazon-sale-illustration{position:relative;flex:0 0 44%;min-width:0;min-height:140px;}
+.mina-amazon-app .amazon-sale-illustration span{position:absolute;filter:drop-shadow(0 5px 6px #001b1a70);}
+.mina-amazon-app .amazon-sale-illustration span:nth-child(1){font-size:70px;left:0;bottom:0;transform:rotate(-12deg);}
+.mina-amazon-app .amazon-sale-illustration span:nth-child(2){font-size:50px;right:0;bottom:20px;transform:rotate(13deg);}
+.mina-amazon-app .amazon-sale-illustration span:nth-child(3){font-size:41px;right:10px;top:0;}
+.mina-amazon-app .amazon-sale-illustration span:nth-child(4){font-size:40px;left:6px;top:12px;transform:rotate(22deg);}
+.mina-amazon-app .amazon-login-prompt{padding:13px 13px 17px;border-bottom:1px solid #ddd;}
+.mina-amazon-app .amazon-login-prompt p{font-size:12px;font-weight:650;margin:0 0 9px;}
+.mina-amazon-app .amazon-login-prompt button{background:var(--amazon-yellow);border-radius:25px;padding:10px;display:block;width:100%;font-size:13px;}
+.mina-amazon-app .amazon-home-section{padding:14px 13px;border-bottom:8px solid #f4f4f4;}
+.mina-amazon-app .amazon-home-section h2{font-size:14px;display:flex;justify-content:space-between;align-items:center;margin:0 0 12px;font-weight:750;}
+.mina-amazon-app .amazon-category-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+.mina-amazon-app .amazon-category-grid button{background:none;padding:0;text-align:left;min-width:0;}
+.mina-amazon-app .amazon-category-picture{display:grid;place-items:center;font-size:45px;border-radius:8px;width:100%;aspect-ratio:1.35/1;}
+.mina-amazon-app .amazon-category-grid small{display:block;font-size:10px;color:#252525;margin:5px 0 8px;line-height:1.4;}
+.mina-amazon-app .amazon-recommended{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+.mina-amazon-app .amazon-recommended button{padding:7px;border-radius:7px;background:#f6f6f6;text-align:center;}
+.mina-amazon-app .amazon-recommended img{display:block;max-width:100%;width:100%;height:135px;object-fit:contain;}
+.mina-amazon-app .amazon-recommended strong{display:block;font-size:13px;margin:6px 0;}
+.mina-amazon-app .amazon-see-cart{margin:14px auto;display:flex;align-items:center;gap:8px;padding:11px 14px;border-radius:21px;background:var(--amazon-yellow);font-size:12px;}
+.mina-amazon-app .amazon-cart-summary{padding:13px 13px 15px;background:#fff;position:sticky;top:0;z-index:2;box-shadow:0 1px 0 #e4e4e4;}
+.mina-amazon-app .amazon-subtotal{font-size:18px;margin:1px 0 3px;display:flex;align-items:baseline;gap:7px;}
+.mina-amazon-app .amazon-subtotal strong{font-size:29px;letter-spacing:-.6px;font-weight:750;}
+.mina-amazon-app .amazon-earned{font-size:13px;margin:0 0 18px;}
+.mina-amazon-app .amazon-earned span{color:#e11829;}
+.mina-amazon-app .amazon-checkout{display:block;width:100%;border-radius:25px;background:var(--amazon-yellow);font-size:14px;padding:15px 7px;line-height:1.4;white-space:normal;}
+.mina-amazon-app .amazon-cart-products{display:flex;flex-direction:column;gap:8px;padding:12px 8px 3px;}
+.mina-amazon-app .amazon-cart-card{background:#f6f7f8;border-radius:4px;padding:9px 9px 12px;min-width:0;}
+.mina-amazon-app .amazon-cart-card-main{display:grid;grid-template-columns:42% minmax(0,1fr);gap:9px;}
+.mina-amazon-app .amazon-cart-card-main > img {display:block;width:100%;height:172px;object-fit:contain;object-position:center top;}
+.mina-amazon-app .amazon-cart-details{min-width:0;overflow:hidden;}
+.mina-amazon-app .amazon-cart-details h3{font-size:12px;font-weight:450;line-height:1.55;margin:0 0 9px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.mina-amazon-app .amazon-cart-details > strong{display:block;font-size:23px;letter-spacing:-.5px;line-height:1.4;font-weight:750;}
+.mina-amazon-app .amazon-cart-details p{font-size:11px;line-height:1.5;margin:3px 0 0;}
+.mina-amazon-app .amazon-cart-details .amazon-in-stock{color:#159057;}
+.mina-amazon-app .amazon-cart-details .amazon-delivery-delay{color:#dd6000;}
+.mina-amazon-app .amazon-points-small span{color:#db1929;}
+.mina-amazon-app .amazon-cart-actions{display:flex;flex-wrap:wrap;align-items:center;gap:7px 8px;margin-top:6px;}
+.mina-amazon-app .amazon-quantity{display:flex;height:38px;width:128px;align-items:center;justify-content:space-between;border:3px solid #ffda12;border-radius:23px;background:#fff;overflow:hidden;}
+.mina-amazon-app .amazon-quantity button{width:36px;height:34px;display:grid;place-items:center;background:none;font-weight:700;font-size:20px;}
+.mina-amazon-app .amazon-quantity > span{font-size:15px;line-height:1;}
+.mina-amazon-app .amazon-outline{display:inline-block;background:#fff;border:1px solid #97999b;border-radius:22px;padding:9px 12px;line-height:1.2;font-size:12px;white-space:nowrap;}
+.mina-amazon-app .amazon-share{flex-basis:auto;}
+.mina-amazon-app .amazon-cart-empty{padding:52px 16px;display:flex;flex-direction:column;align-items:center;gap:14px;color:#777;font-size:14px;}
+.mina-amazon-app .amazon-disclaimer{color:#a0a0a0;font-size:10px;line-height:1.7;margin:16px;padding:0 4px;}
+.mina-amazon-app .amazon-later-list{padding:12px;border-top:7px solid #eee;}
+.mina-amazon-app .amazon-later-list h2{font-size:17px;margin:0 0 9px;}
+.mina-amazon-app .amazon-later-list > div{display:flex;align-items:center;gap:10px;border-bottom:1px solid #eee;padding:8px 0;font-size:11px;}
+.mina-amazon-app .amazon-later-list img{width:62px;height:66px;object-fit:contain;flex-shrink:0;}
+.mina-amazon-app .amazon-later-list span{flex:1;min-width:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.mina-amazon-app .amazon-later-list strong{display:block;font-size:13px;margin-top:4px;}
+.mina-amazon-app .amazon-later-list button{background:var(--amazon-yellow);border-radius:16px;padding:6px 9px;font-size:10px;}
+.mina-amazon-app .amazon-bottom-nav{flex-shrink:0;display:flex;align-items:center;justify-content:space-around;min-height:56px;border-top:1px solid #cfd4d6;background:#fff;}
+.mina-amazon-app .amazon-bottom-nav button{flex:1;display:grid;place-items:center;min-width:0;min-height:53px;background:none;position:relative;}
+.mina-amazon-app .amazon-bottom-nav button[aria-pressed="true"]:after{content:"";position:absolute;top:0;left:27%;right:27%;height:3px;border-radius:4px;background:#111;}
+.mina-amazon-app .amazon-cart-nav > span{position:absolute;top:5px;left:calc(50% + 4px);font-size:12px;font-weight:700;color:#111;background:#fff;min-width:15px;text-align:center;}
+.mina-amazon-app .amazon-assistant-symbol{position:relative;display:block;width:26px;height:27px;}
+.mina-amazon-app .amazon-assistant-symbol i{position:absolute;border-radius:70% 70% 20% 20%;}
+.mina-amazon-app .amazon-assistant-symbol i:nth-child(1){background:#ff7300;width:17px;height:20px;left:0;top:5px;}
+.mina-amazon-app .amazon-assistant-symbol i:nth-child(2){background:#068ef1;width:12px;height:12px;right:0;bottom:0;}
+.mina-amazon-app .amazon-assistant-symbol i:nth-child(3){background:#023f8a;width:7px;height:7px;right:1px;top:1px;transform:rotate(45deg);border-radius:0;}
+.mina-amazon-app .amazon-search-content{flex:1;min-height:0;overflow-y:auto;background:#fff;}
+.mina-amazon-app .amazon-search-history-row{display:flex;align-items:center;border-bottom:1px solid #d5d5d5;min-height:47px;padding:0 11px;gap:12px;}
+.mina-amazon-app .amazon-search-history-row > button:first-child{flex:1;display:flex;align-items:center;gap:14px;background:none;padding:10px 0;text-align:left;min-width:0;font-size:16px;font-weight:650;}
+.mina-amazon-app .amazon-search-history-row > button:last-child{display:grid;place-items:center;padding:6px;background:none;}
+.mina-amazon-app .amazon-typed-search{padding:15px;display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:#fff;font-size:13px;}
+.mina-amazon-app .amazon-empty-note{font-size:13px;color:#777;padding:20px;}
+.mina-amazon-app .amazon-results{padding:16px 12px;}
+.mina-amazon-app .amazon-results h2{font-size:18px;margin:0;}
+.mina-amazon-app .amazon-results > p{font-size:12px;color:#777;}
+.mina-amazon-app .amazon-results article{display:flex;align-items:flex-start;gap:13px;border-bottom:1px solid #eee;padding:13px 0;}
+.mina-amazon-app .amazon-results article img{width:40%;max-height:140px;object-fit:contain;}
+.mina-amazon-app .amazon-results article > div{flex:1;min-width:0;}
+.mina-amazon-app .amazon-results article h3{font-size:12px;font-weight:500;line-height:1.5;margin:0 0 10px;}
+.mina-amazon-app .amazon-results article strong{display:block;font-size:19px;}
+.mina-amazon-app .amazon-results article button{margin-top:9px;border-radius:20px;padding:8px 11px;background:var(--amazon-yellow);font-size:11px;}
+.mina-amazon-app .amazon-account{padding:55px 18px;text-align:center;}
+.mina-amazon-app .amazon-account svg{color:#697b80;}
+.mina-amazon-app .amazon-account h2{font-size:18px;}
+.mina-amazon-app .amazon-account p{color:#777;font-size:12px;line-height:1.7;}
+.mina-amazon-app .amazon-account button{padding:9px 18px;background:var(--amazon-yellow);border-radius:22px;}
+.mina-amazon-app .amazon-menu{padding:20px 15px;}
+.mina-amazon-app .amazon-menu h2{font-size:20px;}
+.mina-amazon-app .amazon-menu button{width:100%;padding:14px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between;background:none;font-size:14px;}
+@media(max-width:355px){
+  .mina-amazon-app .amazon-cart-card-main{grid-template-columns:39% minmax(0,1fr);}
+  .mina-amazon-app .amazon-cart-card-main > img {height:144px;}
+  .mina-amazon-app .amazon-outline{padding:8px 9px;font-size:11px;}
+  .mina-amazon-app .amazon-quantity{width:120px;}
+}
