@@ -34,6 +34,14 @@ function BubbleAvatar({ large = false }: { large?: boolean }) {
 function FanAvatar() {
   return <span className="bubble-artist-fan-avatar" aria-label="ONCE"><Heart size={23} fill="currentColor" strokeWidth={0}/></span>;
 }
+/** Optional in-story messages from MINA. Never sent to the real Bubble service. */
+export const minaBubbleMessagePresets = [
+  "오늘도 잘 지냈어? 💗",
+  "밥 꼭 챙겨 먹어 🍚",
+  "오늘 하늘이 너무 예뻐서 사진 찍고 싶었어 ☁️",
+  "오늘도 수고했어. 푹 쉬어 🌙",
+  "보고 싶었어 🫶",
+] as const;
 export function BubbleSkin(p: Props) {
   const [letters, setLetters] = useSkinState<string[]>(p, "bubble-letters", []);
   const [screen, setScreen] = useSkinState<string>(p, "bubble-screen", "chats");
@@ -45,6 +53,8 @@ export function BubbleSkin(p: Props) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
   const [profileReturn, setProfileReturn] = useState("thread");
+  const [minaOptionsOpen, setMinaOptionsOpen] = useState(false);
+  const [sendNotice, setSendNotice] = useState("");
   const stream = useRef<HTMLDivElement>(null);
   const authored = p.items.filter((item) => !item.folder || item.folder === "聊天" || item.folder === "ONCE");
   const ownerName = p.owner?.includes("名井") ? "MINA" : p.owner || "MINA";
@@ -57,14 +67,17 @@ export function BubbleSkin(p: Props) {
   useEffect(() => {
     if (stream.current && !query) stream.current.scrollTop = stream.current.scrollHeight;
   }, [authored.length, letters.length, screen, query]);
-  function go(next: string) { setScreen(next); setSearchOpen(false); setQuery(""); setDrawerOpen(false); }
+  function go(next: string) { setScreen(next); setSearchOpen(false); setQuery(""); setDrawerOpen(false); setMinaOptionsOpen(false); setSendNotice(""); }
   function openProfile(from: string) { setProfileReturn(from); go("profile"); }
-  function sendLetter() {
-    const text = draft.trim();
+  function sendAsMina(value: string) {
+    const text = value.trim().slice(0, 1000);
     if (!text) return;
-    setLetters(previous => [...previous, text.slice(0, 1000)]);
+    setLetters(previous => [...previous, text]);
     setDraft("");
+    setMinaOptionsOpen(false);
+    setSendNotice("MINAのメッセージを追加しました");
   }
+  function sendLetter() { sendAsMina(draft); }
   const footer = <nav className="bubble-reference-tabs" aria-label="bubbleのナビゲーション">{[{id:"friends",label:"プロフィール",Icon:UserRound},{id:"chats",label:"トーク",Icon:MessageCircle},{id:"more",label:"その他",Icon:MoreVertical}].map(({id,label,Icon}) => <button key={id} aria-label={label} aria-pressed={screen===id} onClick={() => go(id)}><Icon size={25} fill={screen===id&&id==="chats"?"currentColor":"none"} /></button>)}</nav>;
   const artistRow = <button className="bubble-reference-chat-row" aria-label="ONCEへのトークを開く" onClick={() => go("thread")}><FanAvatar /><span className="bubble-reference-row-copy"><strong>ONCE</strong><small>{lastText}</small></span><time>{lastDate}</time></button>;
   if (screen === "profile") return (
@@ -76,6 +89,15 @@ export function BubbleSkin(p: Props) {
   if (screen === "thread") return (
     <section className="catalog-skin mina-bubble-root bubble-reference-app bubble-reference-conversation" data-view="thread" aria-label="ONCEへのトーク">
       <header className="bubble-reference-thread-header"><div><button aria-label="トーク一覧に戻る" onClick={() => go("chats")}><ChevronLeft size={25} /></button><strong>ONCE</strong><button aria-label="トーク内を検索" onClick={() => {setSearchOpen(!searchOpen);setQuery("");}}><Search size={23} /></button><button aria-label="トークメニューを開く" onClick={() => setDrawerOpen(true)}><MoreVertical size={23} /></button></div><p><i>bubble</i> <span>♥</span> {ownerName}からONCEへ</p></header>
+      <div className="mina-bubble-sendbar">
+        <span><span className="mina-bubble-artist-badge">ARTIST</span> MINAとして送信</span>
+        <button type="button" aria-expanded={minaOptionsOpen} aria-controls="mina-bubble-quick-messages" onClick={() => { setMinaOptionsOpen((open) => !open); setSendNotice(""); }}><MessageCircle size={14} /> {minaOptionsOpen ? "閉じる" : "メッセージを送る"}</button>
+      </div>
+      {minaOptionsOpen && <section id="mina-bubble-quick-messages" className="mina-bubble-quick-messages" aria-label="MINAのメッセージ候補">
+        <p>MINAがONCEに送るメッセージを選んでください。</p>
+        <div>{minaBubbleMessagePresets.map(text => <button key={text} type="button" onClick={() => sendAsMina(text)}>{text}<Send size={13} /></button>)}</div>
+        <small>選ぶと、この作品の中だけで送信されます。</small>
+      </section>}
       {searchOpen&&<div className="bubble-reference-search"><Search size={17}/><input autoFocus value={query} onChange={e=>setQuery(e.target.value)} placeholder="トーク内を検索" aria-label="トーク内の検索文字" /></div>}
       <div className="mina-bubble-thread bubble-reference-messages" ref={stream}>
         <p className="bubble-reference-date">{lastDate}</p>
@@ -87,7 +109,8 @@ export function BubbleSkin(p: Props) {
         {!history.length&&!localLetters.length&&<p className="bubble-reference-empty">メッセージはまだありません</p>}
         {query&&!visibleHistory.length&&!visibleLetters.length&&<p className="bubble-reference-empty">一致するメッセージがありません</p>}
       </div>
-      <form className="mina-bubble-composer bubble-reference-composer" onSubmit={event=>{event.preventDefault();sendLetter();}}><div><input value={draft} onChange={event=>setDraft(event.target.value)} aria-label="ONCEへのメッセージ" placeholder="ONCEへのメッセージ…" maxLength={1000}/><button type="button" aria-label="絵文字を追加" onClick={()=>setDraft(value=>value+"☺") }><Smile size={23}/></button></div><button type="submit" aria-label="ONCEに送信" disabled={!draft.trim()}><Send size={24}/></button></form>
+      {sendNotice && <p className="mina-bubble-send-notice" role="status">{sendNotice}</p>}
+      <form className="mina-bubble-composer bubble-reference-composer" onSubmit={event=>{event.preventDefault();sendLetter();}}><div><input value={draft} onChange={event=>{setDraft(event.target.value);setSendNotice("");}} aria-label="MINAからONCEへのメッセージ" placeholder="MINAからメッセージを送る…" maxLength={1000}/><button type="button" aria-label="絵文字を追加" onClick={()=>setDraft(value=>value+"☺") }><Smile size={23}/></button></div><button type="submit" aria-label="ONCEに送信" disabled={!draft.trim()}><Send size={24}/></button></form>
       {drawerOpen&&<div className="bubble-reference-drawer-layer"><button className="bubble-reference-drawer-shade" aria-label="トークメニューを閉じる" onClick={()=>setDrawerOpen(false)}/><aside className="bubble-reference-drawer" aria-label="トークメニュー"><button className="bubble-artist-self-profile" aria-label="自分のプロフィールを開く" onClick={()=>openProfile("thread")}><BubbleAvatar/><small>{ownerName}</small></button><span className="bubble-artist-recipient"><FanAvatar/><small>ONCE</small></span><button className="bubble-reference-ticket" aria-label="トーク情報" onClick={()=>go("more")}><Tag size={21}/></button></aside></div>}
     </section>
   );
