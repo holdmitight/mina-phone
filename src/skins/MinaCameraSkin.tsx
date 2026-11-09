@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
+import type { Props } from "./shared";
 import { ArrowLeft, Camera, CameraOff, Download, RefreshCw, RotateCcw, SwitchCamera } from "lucide-react";
 import "./mina-camera.css";
 
@@ -26,7 +27,7 @@ const errorMessages: Record<Exclude<CameraState, "loading" | "ready">, string> =
 };
 
 /** Real, permission-based local camera. Images never leave this browser through app code. */
-export function MinaCameraSkin({ onBack }: { onBack: () => void }) {
+export function MinaCameraSkin(p: Props) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const nativeCameraRef = useRef<HTMLInputElement | null>(null);
@@ -150,7 +151,7 @@ export function MinaCameraSkin({ onBack }: { onBack: () => void }) {
     }
   }
 
-  function openNativePhoto(event: React.ChangeEvent<HTMLInputElement>) {
+  function openNativePhoto(event: ChangeEvent<HTMLInputElement>) {
     const file = event.currentTarget.files?.[0];
     if (!file || !file.type.startsWith("image/")) return;
     const reader = new FileReader();
@@ -169,7 +170,7 @@ export function MinaCameraSkin({ onBack }: { onBack: () => void }) {
   return (
     <section className="catalog-skin mina-live-camera" aria-label="ライブカメラ">
       <header className="mina-live-camera-header">
-        <button aria-label="カメラを閉じる" onClick={() => { stopCamera(); onBack(); }}>
+        <button aria-label="カメラを閉じる" onClick={() => { stopCamera(); p.onBack(); }}>
           <ArrowLeft size={21} /> 戻る
         </button>
         <strong>カメラ</strong>
