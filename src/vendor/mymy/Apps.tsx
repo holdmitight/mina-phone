@@ -513,8 +513,8 @@ export function MymyInstagram(p: SkinProps) {
                 </span>
                 <div className="ps">
                   <div><b>{posts.length}</b><small>投稿</small></div>
-                  <div><b>124</b><small>フォロワー</small></div>
-                  <div><b>392</b><small>フォロー中</small></div>
+                  <div><b>—</b><small>フォロワー</small></div>
+                  <div><b>—</b><small>フォロー中</small></div>
                 </div>
               </div>
               {profileBio && <p className="mina-ig-bio">{profileBio}</p>}
