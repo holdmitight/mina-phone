@@ -17,6 +17,7 @@ import {
   MoreVertical,
   Search,
   Send,
+  Pencil,
   Smile,
   Tag,
   UserRound,
@@ -25,6 +26,7 @@ import { useSkinState } from "../skinState";
 import type { Item } from "../schema";
 import { Header, Media, SearchBox, meta, type Props } from "./shared";
 import "./mina-apps.css";
+import "./mina-bubble-reference.css";
 
 /** Bubble reference layout: chat list, conversation, member drawer and artist profile. */
 const bubbleAssets = "./mina-media/bubble/";
@@ -34,14 +36,6 @@ function BubbleAvatar({ large = false }: { large?: boolean }) {
 function FanAvatar() {
   return <span className="bubble-artist-fan-avatar" aria-label="ONCE"><Heart size={23} fill="currentColor" strokeWidth={0}/></span>;
 }
-/** Optional in-story messages from MINA. Never sent to the real Bubble service. */
-export const minaBubbleMessagePresets = [
-  "오늘도 잘 지냈어? 💗",
-  "밥 꼭 챙겨 먹어 🍚",
-  "오늘 하늘이 너무 예뻐서 사진 찍고 싶었어 ☁️",
-  "오늘도 수고했어. 푹 쉬어 🌙",
-  "보고 싶었어 🫶",
-] as const;
 export function BubbleSkin(p: Props) {
   const [letters, setLetters] = useSkinState<string[]>(p, "bubble-letters", []);
   const [screen, setScreen] = useSkinState<string>(p, "bubble-screen", "chats");
@@ -53,64 +47,138 @@ export function BubbleSkin(p: Props) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
   const [profileReturn, setProfileReturn] = useState("thread");
-  const [minaOptionsOpen, setMinaOptionsOpen] = useState(false);
-  const [sendNotice, setSendNotice] = useState("");
+  const [editingLetter, setEditingLetter] = useState<number | null>(null);
+  const [showIntro, setShowIntro] = useState(true);
   const stream = useRef<HTMLDivElement>(null);
   const authored = p.items.filter((item) => !item.folder || item.folder === "聊天" || item.folder === "ONCE");
   const ownerName = p.owner?.includes("名井") ? "MINA" : p.owner || "MINA";
   const history = cleared ? [] : authored;
   const localLetters = cleared ? letters.slice(Math.max(0, Math.floor(hiddenThrough))) : letters;
   const visibleHistory = history.filter(item => item.body.includes(query));
-  const visibleLetters = localLetters.filter(text => text.includes(query));
+  const visibleLetters = localLetters.map((text, index) => ({
+    text,
+    index: cleared ? index + Math.max(0, Math.floor(hiddenThrough)) : index,
+  })).filter(entry => entry.text.includes(query));
   const lastText = localLetters.at(-1) || (cleared ? "メッセージはありません" : authored.at(-1)?.body || "トークを開く");
   const lastDate = authored.at(-1)?.time.slice(0, 10).replaceAll("-", "/") || "";
   useEffect(() => {
     if (stream.current && !query) stream.current.scrollTop = stream.current.scrollHeight;
   }, [authored.length, letters.length, screen, query]);
-  function go(next: string) { setScreen(next); setSearchOpen(false); setQuery(""); setDrawerOpen(false); setMinaOptionsOpen(false); setSendNotice(""); }
-  function openProfile(from: string) { setProfileReturn(from); go("profile"); }
-  function sendAsMina(value: string) {
-    const text = value.trim().slice(0, 1000);
-    if (!text) return;
-    setLetters(previous => [...previous, text]);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setShowIntro(false), 950);
+    return () => window.clearTimeout(timer);
+  }, []);
+  function go(next: string) {
+    setScreen(next);
+    setSearchOpen(false);
+    setQuery("");
+    setDrawerOpen(false);
+    setEditingLetter(null);
     setDraft("");
-    setMinaOptionsOpen(false);
-    setSendNotice("MINAのメッセージを追加しました");
+    setShowIntro(false);
   }
-  function sendLetter() { sendAsMina(draft); }
+  function openProfile(from: string) { setProfileReturn(from); go("profile"); }
+  function editLetter(index: number, text: string) {
+    setEditingLetter(index);
+    setDraft(text);
+    setSearchOpen(false);
+    setQuery("");
+  }
+  function sendLetter() {
+    const text = draft.trim().slice(0, 1000);
+    if (!text) return;
+    if (editingLetter !== null) {
+      setLetters(previous => previous.map((item, index) => index === editingLetter ? text : item));
+      setEditingLetter(null);
+    } else {
+      setLetters(previous => [...previous, text]);
+    }
+    setDraft("");
+  }
+  const intro = showIntro ? <button type="button" className="mina-bubble-intro" aria-label="bubbleを開く" onClick={() => setShowIntro(false)}>
+    <strong>bubble</strong>
+    <span className="mina-bubble-intro-cross">×</span>
+    <span className="mina-bubble-intro-jyp">JYP</span>
+    <small>© DearU</small>
+  </button> : null;
   const footer = <nav className="bubble-reference-tabs" aria-label="bubbleのナビゲーション">{[{id:"friends",label:"プロフィール",Icon:UserRound},{id:"chats",label:"トーク",Icon:MessageCircle},{id:"more",label:"その他",Icon:MoreVertical}].map(({id,label,Icon}) => <button key={id} aria-label={label} aria-pressed={screen===id} onClick={() => go(id)}><Icon size={25} fill={screen===id&&id==="chats"?"currentColor":"none"} /></button>)}</nav>;
-  const artistRow = <button className="bubble-reference-chat-row" aria-label="ONCEへのトークを開く" onClick={() => go("thread")}><FanAvatar /><span className="bubble-reference-row-copy"><strong>ONCE</strong><small>{lastText}</small></span><time>{lastDate}</time></button>;
+  const artistRow = <button className="bubble-reference-chat-row" aria-label="MINAのトークを開く" onClick={() => go("thread")}><BubbleAvatar /><span className="bubble-reference-row-copy"><strong>묘~🌸🤟</strong><small>{lastText}</small></span><time>{lastDate}</time></button>;
   if (screen === "profile") return (
     <section className="catalog-skin mina-bubble-root bubble-reference-app mina-bubble-artist-page" data-view="profile" aria-label="自分のプロフィール" style={{ backgroundImage: `url("${bubbleAssets}background.png")` }}>
       <button className="mina-bubble-profile-close" aria-label="プロフィールを閉じる" onClick={() => go(profileReturn)}><X size={25} /></button>
+      {intro}
       <div className="mina-bubble-artist-identity"><BubbleAvatar large /><div><span className="mina-bubble-artist-badge">ARTIST</span><h1>{ownerName}</h1></div><button className="mina-bubble-return-chat" onClick={() => go("thread")}><MessageCircle size={18} />トークに戻る</button></div>
     </section>
   );
   if (screen === "thread") return (
-    <section className="catalog-skin mina-bubble-root bubble-reference-app bubble-reference-conversation" data-view="thread" aria-label="ONCEへのトーク">
-      <header className="bubble-reference-thread-header"><div><button aria-label="トーク一覧に戻る" onClick={() => go("chats")}><ChevronLeft size={25} /></button><strong>ONCE</strong><button aria-label="トーク内を検索" onClick={() => {setSearchOpen(!searchOpen);setQuery("");}}><Search size={23} /></button><button aria-label="トークメニューを開く" onClick={() => setDrawerOpen(true)}><MoreVertical size={23} /></button></div><p><i>bubble</i> <span>♥</span> {ownerName}からONCEへ</p></header>
-      <div className="mina-bubble-sendbar">
-        <span><span className="mina-bubble-artist-badge">ARTIST</span> MINAとして送信</span>
-        <button type="button" aria-expanded={minaOptionsOpen} aria-controls="mina-bubble-quick-messages" onClick={() => { setMinaOptionsOpen((open) => !open); setSendNotice(""); }}><MessageCircle size={14} /> {minaOptionsOpen ? "閉じる" : "メッセージを送る"}</button>
-      </div>
-      {minaOptionsOpen && <section id="mina-bubble-quick-messages" className="mina-bubble-quick-messages" aria-label="MINAのメッセージ候補">
-        <p>MINAがONCEに送るメッセージを選んでください。</p>
-        <div>{minaBubbleMessagePresets.map(text => <button key={text} type="button" onClick={() => sendAsMina(text)}>{text}<Send size={13} /></button>)}</div>
-        <small>選ぶと、この作品の中だけで送信されます。</small>
-      </section>}
+    <section className="catalog-skin mina-bubble-root bubble-reference-app bubble-reference-conversation" data-view="thread" aria-label="MINAとのトーク">
+      <header className="bubble-reference-thread-header">
+        <div>
+          <button aria-label="トーク一覧に戻る" onClick={() => go("chats")}><ChevronLeft size={25} /></button>
+          <strong>묘~🌸🤟</strong>
+          <button aria-label="トーク内を検索" onClick={() => { setSearchOpen(!searchOpen); setQuery(""); }}><Search size={23} /></button>
+          <button aria-label="トークメニューを開く" onClick={() => setDrawerOpen(true)}><MoreVertical size={23} /></button>
+        </div>
+        <p><i>bubble</i> <span>♥</span> + 63</p>
+      </header>
+      {intro}
       {searchOpen&&<div className="bubble-reference-search"><Search size={17}/><input autoFocus value={query} onChange={e=>setQuery(e.target.value)} placeholder="トーク内を検索" aria-label="トーク内の検索文字" /></div>}
       <div className="mina-bubble-thread bubble-reference-messages" ref={stream}>
         <p className="bubble-reference-date">{lastDate}</p>
         {visibleHistory.map(item => {
           const artist = item.outgoing || item.sender === p.owner || item.sender === ownerName;
-          return <div className={`bubble-reference-message ${artist?"outgoing artist":"fan"}`} key={item.id}>{!artist&&<span className="bubble-reference-message-avatar"><FanAvatar/></span>}<div className="bubble-reference-message-content"><span className="bubble-reference-sender">{artist&&<span className="mina-bubble-artist-badge">ARTIST</span>}{artist?ownerName:"ONCE"}</span><div className="bubble-reference-message-line"><button className="bubble-reference-balloon" onClick={()=>p.creator?p.onItem(item):p.onRead(item.id)}>{item.media?<Media item={item} />:item.body}</button><time>{item.time.slice(-5)}</time></div></div></div>;
+          const translation = item.meta.translation || item.meta.translated || "";
+          return (
+            <div className={`bubble-reference-message ${artist ? "outgoing artist" : "fan"}`} key={item.id}>
+              {artist && <span className="bubble-reference-message-avatar"><BubbleAvatar /></span>}
+              <div className="bubble-reference-message-content">
+                {artist && <span className="bubble-reference-sender"><span className="mina-bubble-artist-badge">ARTIST</span> {ownerName}</span>}
+                <div className="bubble-reference-message-line">
+                  <button className="bubble-reference-balloon" onClick={() => p.creator ? p.onItem(item) : p.onRead(item.id)}>
+                    {item.media ? <Media item={item} /> : item.body}
+                    {translation && <span className="mina-bubble-translation">{translation}</span>}
+                  </button>
+                  <time>{item.time.slice(-5)}</time>
+                </div>
+              </div>
+            </div>
+          );
         })}
-        {visibleLetters.map((text,index)=><div className="bubble-reference-message outgoing artist" key={`local-${index}`}><div className="bubble-reference-message-content"><span className="bubble-reference-sender"><span className="mina-bubble-artist-badge">ARTIST</span>{ownerName}</span><div className="bubble-reference-message-line"><div className="bubble-reference-balloon">{text}</div><time>{p.virtualTime?.slice(-5)||"今"}</time></div></div></div>)}
+        {visibleLetters.map(({ text, index }) =>
+          <div className="bubble-reference-message outgoing artist" key={`local-${index}`}>
+            <span className="bubble-reference-message-avatar"><BubbleAvatar /></span>
+            <div className="bubble-reference-message-content">
+              <span className="bubble-reference-sender"><span className="mina-bubble-artist-badge">ARTIST</span> {ownerName}</span>
+              <div className="bubble-reference-message-line">
+                <div className="bubble-reference-balloon">{text}</div>
+                <time>{p.virtualTime?.slice(-5) || "今"}</time>
+              </div>
+              <button className="mina-bubble-edit-letter" type="button" onClick={() => editLetter(index, text)}>
+                <Pencil size={12} /> 編集
+              </button>
+            </div>
+          </div>
+        )}
         {!history.length&&!localLetters.length&&<p className="bubble-reference-empty">メッセージはまだありません</p>}
         {query&&!visibleHistory.length&&!visibleLetters.length&&<p className="bubble-reference-empty">一致するメッセージがありません</p>}
       </div>
-      {sendNotice && <p className="mina-bubble-send-notice" role="status">{sendNotice}</p>}
-      <form className="mina-bubble-composer bubble-reference-composer" onSubmit={event=>{event.preventDefault();sendLetter();}}><div><input value={draft} onChange={event=>{setDraft(event.target.value);setSendNotice("");}} aria-label="MINAからONCEへのメッセージ" placeholder="MINAからメッセージを送る…" maxLength={1000}/><button type="button" aria-label="絵文字を追加" onClick={()=>setDraft(value=>value+"☺") }><Smile size={23}/></button></div><button type="submit" aria-label="ONCEに送信" disabled={!draft.trim()}><Send size={24}/></button></form>
+      {editingLetter !== null && <div className="mina-bubble-editing" role="status">
+        <span>MINAのメッセージを編集中</span>
+        <button type="button" onClick={() => { setEditingLetter(null); setDraft(""); }}>キャンセル</button>
+      </div>}
+      <form className="mina-bubble-composer bubble-reference-composer" onSubmit={event => { event.preventDefault(); sendLetter(); }}>
+        <div>
+          <input
+            value={draft}
+            onChange={event => setDraft(event.target.value)}
+            aria-label="MINAとして送るメッセージを入力"
+            placeholder="メッセージを入力…"
+            maxLength={1000}
+          />
+          <button type="button" aria-label="絵文字を追加" onClick={() => setDraft(value => value + "☺")}><Smile size={23} /></button>
+        </div>
+        <button type="submit" aria-label={editingLetter !== null ? "編集内容を保存" : "MINAとして送信"} disabled={!draft.trim()}><Send size={24} /></button>
+      </form>
       {drawerOpen&&<div className="bubble-reference-drawer-layer"><button className="bubble-reference-drawer-shade" aria-label="トークメニューを閉じる" onClick={()=>setDrawerOpen(false)}/><aside className="bubble-reference-drawer" aria-label="トークメニュー"><button className="bubble-artist-self-profile" aria-label="自分のプロフィールを開く" onClick={()=>openProfile("thread")}><BubbleAvatar/><small>{ownerName}</small></button><span className="bubble-artist-recipient"><FanAvatar/><small>ONCE</small></span><button className="bubble-reference-ticket" aria-label="トーク情報" onClick={()=>go("more")}><Tag size={21}/></button></aside></div>}
     </section>
   );
@@ -118,14 +186,15 @@ export function BubbleSkin(p: Props) {
     <section className="catalog-skin mina-bubble-root bubble-reference-app bubble-reference-list" data-view={screen}>
       <header className="bubble-reference-list-actions"><span/>{screen==="chats"&&<><button aria-label="トークを検索" onClick={()=>{setSearchOpen(!searchOpen);setQuery("");}}><Search size={23}/></button><button aria-label="トーク履歴を整理" onClick={()=>setConfirmClear(true)}><Trash2 size={23}/></button></>}</header>
       <div className="bubble-reference-list-scroll">
-        <h1>{screen==="friends"?"プロフィール":screen==="more"?"その他":screen==="notice"?"お知らせ":"トーク"}</h1>
+        <h1>{screen==="friends"?"プロフィール":screen==="more"?"その他":screen==="notice"?"お知らせ":"CHATS"}</h1>
         {searchOpen&&<div className="bubble-reference-search"><Search size={17}/><input autoFocus value={query} onChange={event=>setQuery(event.target.value)} placeholder="トークを検索" aria-label="トークの検索文字"/></div>}
-        {(screen==="chats"||!["friends","more","notice"].includes(screen))&&<><h2>お気に入りのトーク</h2>{(ownerName+lastText).toLowerCase().includes(query.toLowerCase())?artistRow:<p className="bubble-reference-empty">一致するトークがありません</p>}<div className="bubble-reference-list-rule"/><h2>最近のトーク</h2><button className="bubble-reference-chat-row bubble-reference-notice-row" onClick={()=>go("notice")}><span className="bubble-reference-notice-avatar">♥</span><span className="bubble-reference-row-copy"><strong>bubble for JYPnation</strong><small>新しいお知らせはありません</small></span></button></>}
+        {(screen==="chats"||!["friends","more","notice"].includes(screen))&&<><h2>Favorite Chat List</h2>{(ownerName+lastText).toLowerCase().includes(query.toLowerCase())?artistRow:<p className="bubble-reference-empty">一致するトークがありません</p>}<div className="bubble-reference-list-rule"/><h2>Recent Chat Room</h2><button className="bubble-reference-chat-row bubble-reference-notice-row" onClick={()=>go("notice")}><span className="bubble-reference-notice-avatar">♥</span><span className="bubble-reference-row-copy"><strong>bubble for JYPnation</strong><small>新しいお知らせはありません</small></span></button></>}
         {screen==="friends"&&<><h2>マイプロフィール</h2><button className="bubble-reference-friend-profile" onClick={()=>openProfile("friends")}><BubbleAvatar/><span><strong>{ownerName}</strong><small>プロフィールを見る</small></span></button><h2>送信先</h2>{artistRow}</>}
         {screen==="more"&&<><button className="bubble-reference-friend-profile" onClick={()=>openProfile("more")}><BubbleAvatar/><span><strong>{ownerName}</strong><small>プロフィールを見る</small></span></button><div className="bubble-reference-settings"><button onClick={()=>openProfile("more")}>自分のプロフィール<ChevronRight size={18}/></button><div>言語<span>日本語</span></div><button onClick={()=>go("notice")}>お知らせ<ChevronRight size={18}/></button><button onClick={()=>setConfirmClear(true)}>トーク履歴を整理<ChevronRight size={18}/></button>{cleared&&<button onClick={()=>setCleared(false)}>保存された履歴を表示<ChevronRight size={18}/></button>}<p>この作品内のシミュレーションです。<br/>メッセージの送信や課金は行いません。</p></div></>}
         {screen==="notice"&&<><div className="bubble-reference-notice-heading"><span className="bubble-reference-notice-avatar">♥</span><strong>bubble for JYPnation</strong></div><p className="bubble-reference-empty">新しいお知らせはありません</p><button className="bubble-reference-back-list" onClick={()=>go("chats")}>トーク一覧に戻る</button></>}
       </div>
       {footer}
+      {intro}
       {confirmClear&&<div className="bubble-reference-dialog-shade"><div role="dialog" aria-modal="true" aria-label="トーク履歴の整理" className="bubble-reference-dialog"><h2>トーク履歴を整理しますか？</h2><p>この作品内で表示する履歴を非表示にします。保存された履歴は「その他」から再表示できます。</p><div><button onClick={()=>setConfirmClear(false)}>キャンセル</button><button onClick={()=>{setHiddenThrough(letters.length);setCleared(true);setConfirmClear(false);}}>非表示にする</button></div></div></div>}
     </section>
   );
