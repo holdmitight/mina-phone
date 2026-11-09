@@ -17,7 +17,7 @@ export const catalogSkins = {
   instagram: skin(mymy, "MymyInstagram"),
   phone: skin(system, "PhoneSkin"),
   contacts: skin(system, "ContactsSkin"),
-  photos: skin(system, "PhotosSkin"),
+  photos: skin(() => import("./MinaPhotosSkin"), "MinaPhotosSkin"),
   camera: skin(system, "CameraSkin"),
   safari: skin(system, "SafariSkin"),
   notes: skin(system, "NotesSkin"),
