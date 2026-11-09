@@ -187,7 +187,7 @@ export function MinaAmazonSkin(p: Props) {
       </div>
     </header>
     <input ref={imageRef} type="file" accept="image/*" capture="environment" onChange={onImageSelected} hidden aria-label="画像を選択"/>
-    {screen !== "search" && screen !== "results" && notice && <p className="amazon-notice" role="status">{notice}<button aria-label="閉じる" onClick={() => setNotice("")}><X size={13}/></button></p>}
+    {notice && <p className="amazon-notice" role="status">{notice}<button aria-label="閉じる" onClick={() => setNotice("")}><X size={13}/></button></p>}
     {screen === "search" && <div className="amazon-search-content">
       {(searchTerm.trim() ? history.filter((item) => item.toLowerCase().includes(searchTerm.toLowerCase())) : history).map((item) =>
         <div className="amazon-search-history-row" key={item}>
@@ -237,7 +237,7 @@ export function MinaAmazonSkin(p: Props) {
         {laterEntries.length > 0 && <section className="amazon-later-list"><h2>あとで買う（{laterEntries.length}）</h2>{laterEntries.map((item) =>
           <div key={item.id}><img src={item.image} alt=""/><span>{item.title}<strong>{yen(item.price)}</strong></span><button onClick={() => restore(item.id)}>カートに戻す</button></div>
         )}</section>}
-        <p className="amazon-disclaimer">Mina Phone内のサンプル画面です。商品の購入、決済、Amazonとの同期はできません。</p>
+        <p className="amazon-disclaimer">Mina Phone内のサンプル画面です。実際の注文・決済は行われません。Amazonとの同期もありません。</p>
       </>}
       {screen === "results" && <section className="amazon-results">
         <h2>「{activeQuery}」の検索結果</h2>
@@ -245,7 +245,7 @@ export function MinaAmazonSkin(p: Props) {
         {results.map((product) => <article key={product.id}>
           <img src={product.image} alt=""/>
           <div><h3>{product.title}</h3><strong>{yen(product.price)}</strong>
-            <button onClick={() => {adjust(product.id,1); setNotice("カートに追加しました"); navigate("cart");}}>カートに追加</button>
+            <button onClick={() => {adjust(product.id,1); navigate("cart"); setNotice("カートに追加しました");}}>カートに追加</button>
           </div>
         </article>)}
         {!results.length && <p className="amazon-empty-note">該当する商品はありません。</p>}
