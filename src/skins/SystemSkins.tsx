@@ -303,6 +303,13 @@ export function CameraSkin(p: Props) {
     </div>
   );
 }
+// Mina's fictional browser history: clues to the LEGO ring she is making for A.
+export const minaSafariRingSearches = [
+  "指輪の図面",
+  "指輪の作り方",
+  "かわいい指輪",
+] as const;
+
 export function SafariSkin(p: Props) {
   const [q, setQ] = useState(""),
     [tab, setTab] = useState("书签");
@@ -317,23 +324,52 @@ export function SafariSkin(p: Props) {
         ? i.favorite || i.folder !== "历史记录"
         : i.folder === "历史记录",
     );
+  const ringSearches = tab === "历史记录"
+    ? minaSafariRingSearches.filter((term) => term.toLowerCase().includes(q.trim().toLowerCase()))
+    : [];
+  const hasResults = items.length > 0 || ringSearches.length > 0;
+
   return (
     <div className="catalog-skin native-safari">
       <Header p={p} />
       <div className="catalog-scroll">
         <h1>{ja(tab)}</h1>
-        <div className="safari-favorites">
-          {items.map((i) => (
-            <button key={i.id} onClick={() => p.onItem(i)}>
-              <span>
-                <Globe size={28} />
-              </span>
-              <strong>{i.title}</strong>
-              <small>{meta(i, "url")}</small>
-            </button>
-          ))}
-        </div>
-        <Empty items={items} label="一致するページがありません" />
+        {tab === "历史记录" && ringSearches.length > 0 && (
+          <section className="safari-search-history" aria-label="検索履歴">
+            <h2>検索履歴</h2>
+            <div className="safari-search-history-list">
+              {ringSearches.map((term) => (
+                <button
+                  key={term}
+                  type="button"
+                  aria-label={`検索履歴: ${term}`}
+                  onClick={() => setQ(term)}
+                >
+                  <span className="safari-search-icon"><Search size={17} /></span>
+                  <span className="safari-search-entry">
+                    <strong>{term}</strong>
+                    <small>Google 検索 · google.com</small>
+                  </span>
+                  <ChevronRight size={17} className="safari-search-chevron" />
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
+        {items.length > 0 && (
+          <div className="safari-favorites">
+            {items.map((i) => (
+              <button key={i.id} onClick={() => p.onItem(i)}>
+                <span>
+                  <Globe size={28} />
+                </span>
+                <strong>{i.title}</strong>
+                <small>{meta(i, "url")}</small>
+              </button>
+            ))}
+          </div>
+        )}
+        {!hasResults && <Empty items={[]} label="一致するページがありません" />}
       </div>
       <label className="safari-address">
         <LockKeyhole size={13} />
@@ -346,7 +382,13 @@ export function SafariSkin(p: Props) {
             if (e.key === "Enter" && items[0]) p.onItem(items[0]);
           }}
         />
-        <Search size={16} />
+        {q ? (
+          <button type="button" aria-label="検索をクリア" onClick={() => setQ("")}>
+            <Search size={16} />
+          </button>
+        ) : (
+          <Search size={16} />
+        )}
       </label>
       <Tabs
         tabs={["书签", "历史记录"]}
