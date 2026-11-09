@@ -47,7 +47,7 @@ export const catalogSkins = {
   reddit: skin(social, "RedditSkin"),
   forum: skin(social, "ForumSkin"),
   snapchat: skin(social, "SnapchatSkin"),
-  spotify: skin(media, "SpotifySkin"),
+  spotify: skin(() => import("./MinaSpotifySkin"), "MinaSpotifySkin"),
   netease: skin(media, "NeteaseSkin"),
   youtube: skin(media, "YouTubeSkin"),
   bilibili: skin(media, "BilibiliSkin"),
