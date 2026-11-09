@@ -84,7 +84,7 @@ export function MymyKakao(p: SkinProps) {
   // authored titles/senders that drive conversation lookup and story triggers.
   const isHeartContact = (name: string) =>
     (Boolean(partnerTitle) && name === partnerTitle) ||
-    /^(?:(?:💗|💖|💕|♡)\\s*)?君(?:\\s*(?:💗|💖|💕|♡))?$/u.test(name.trim());
+    /^(?:(?:💗|💖|💕|♡)\s*)?君(?:\s*(?:💗|💖|💕|♡))?$/u.test(name.trim());
   const displayTitle = (title: string) =>
     isHeartContact(title) ? "💗" : title;
   const displaySender = (sender: string) =>
