@@ -51,7 +51,7 @@ export function BubbleSkin(p: Props) {
   const [showIntro, setShowIntro] = useState(true);
   const stream = useRef<HTMLDivElement>(null);
   const authored = p.items.filter((item) => !item.folder || item.folder === "聊天" || item.folder === "ONCE");
-  const ownerName = p.owner?.includes("名井") ? "MINA" : p.owner || "MINA";
+  const ownerName = "묘"; // Mina’s display name inside this fictional Bubble account.
   const history = cleared ? [] : authored;
   const localLetters = cleared ? letters.slice(Math.max(0, Math.floor(hiddenThrough))) : letters;
   const visibleHistory = history.filter(item => item.body.includes(query));
@@ -126,7 +126,7 @@ export function BubbleSkin(p: Props) {
       <div className="mina-bubble-thread bubble-reference-messages" ref={stream}>
         <p className="bubble-reference-date">{lastDate}</p>
         {visibleHistory.map(item => {
-          const artist = item.outgoing || item.sender === p.owner || item.sender === ownerName;
+          const artist = item.outgoing || item.sender === p.owner || ["묘", "MINA", "名井南"].includes(item.sender);
           const translation = item.meta.translation || item.meta.translated || "";
           return (
             <div className={`bubble-reference-message ${artist ? "outgoing artist" : "fan"}`} key={item.id}>
@@ -161,7 +161,7 @@ export function BubbleSkin(p: Props) {
         {query&&!visibleHistory.length&&!visibleLetters.length&&<p className="bubble-reference-empty">一致するメッセージがありません</p>}
       </div>
       {editingLetter !== null && <div className="mina-bubble-editing" role="status">
-        <span>MINAのメッセージを編集中</span>
+        <span>{ownerName}のメッセージを編集中</span>
         <button type="button" onClick={() => { setEditingLetter(null); setDraft(""); }}>キャンセル</button>
       </div>}
       <form className="mina-bubble-composer bubble-reference-composer" onSubmit={event => { event.preventDefault(); sendLetter(); }}>
@@ -169,13 +169,13 @@ export function BubbleSkin(p: Props) {
           <input
             value={draft}
             onChange={event => setDraft(event.target.value)}
-            aria-label="MINAとして送るメッセージを入力"
+            aria-label="묘として送るメッセージを入力"
             placeholder="メッセージを入力…"
             maxLength={1000}
           />
           <button type="button" aria-label="絵文字を追加" onClick={() => setDraft(value => value + "☺")}><Smile size={23} /></button>
         </div>
-        <button type="submit" aria-label={editingLetter !== null ? "編集内容を保存" : "MINAとして送信"} disabled={!draft.trim()}><Send size={24} /></button>
+        <button type="submit" aria-label={editingLetter !== null ? "編集内容を保存" : "묘として送信"} disabled={!draft.trim()}><Send size={24} /></button>
       </form>
       {drawerOpen&&<div className="bubble-reference-drawer-layer"><button className="bubble-reference-drawer-shade" aria-label="トークメニューを閉じる" onClick={()=>setDrawerOpen(false)}/><aside className="bubble-reference-drawer" aria-label="トークメニュー"><button className="bubble-artist-self-profile" aria-label="自分のプロフィールを開く" onClick={()=>openProfile("thread")}><BubbleAvatar/><small>{ownerName}</small></button><span className="bubble-artist-recipient"><FanAvatar/><small>ONCE</small></span><button className="bubble-reference-ticket" aria-label="トーク情報" onClick={()=>go("more")}><Tag size={21}/></button></aside></div>}
     </section>
