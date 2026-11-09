@@ -36,7 +36,7 @@ export const catalogSkins = {
   qq: skin(messaging, "QQSkin"),
   telegram: skin(messaging, "TelegramSkin"),
   discord: skin(messaging, "DiscordSkin"),
-  line: skin(messaging, "LineSkin"),
+  line: skin(() => import("./MinaLineSkin"), "MinaLineSkin"),
   messenger: skin(messaging, "MessengerSkin"),
   weibo: skin(social, "WeiboSkin"),
   twitter: skin(mymy, "MymyX"),
