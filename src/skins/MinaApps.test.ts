@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { makeItem } from "../schema";
 import { registry } from "../registry";
 import type { Props } from "./shared";
-import { BubbleSkin, MinaShoppingSkin } from "./MinaApps";
+import { BubbleSkin, MinaShoppingSkin, minaBubbleMessagePresets } from "./MinaApps";
 
 function props(overrides: Partial<Props> = {}): Props {
   return {
@@ -63,6 +63,27 @@ describe("Bubble reference screens", () => {
     expect(html).not.toContain("Separate private record");
     expect(p.items).toEqual(before);
     expect(p.onUi).not.toHaveBeenCalled();
+  });
+
+  it("offers an explicit in-story MINA message action without changing the authored thread", () => {
+    const items = [
+      makeItem({ id: "mina-sent", sender: "名井南", body: "사랑해 💗", outgoing: true, folder: "ONCE" }),
+    ];
+    const html = renderToStaticMarkup(createElement(BubbleSkin, props({
+      items, ui: { "bubble-screen": "thread" },
+    })));
+    expect(html).toContain("MINAとして送信");
+    expect(html).toContain("メッセージを送る");
+    expect(html).toContain('aria-label="MINAからONCEへのメッセージ"');
+    expect(html).toContain("사랑해 💗");
+    expect(html).not.toContain("오늘도 잘 지냈어? 💗"); // options open only when tapped
+  });
+
+  it("provides distinct Korean quick messages and keeps all choices inside the story", () => {
+    expect(minaBubbleMessagePresets).toHaveLength(5);
+    expect(new Set(minaBubbleMessagePresets).size).toBe(5);
+    expect(minaBubbleMessagePresets).toContain("오늘도 잘 지냈어? 💗");
+    expect(minaBubbleMessagePresets.every((message) => message.length <= 1000)).toBe(true);
   });
 
   it("ignores an invalid saved letter value and starts with an empty composer", () => {
