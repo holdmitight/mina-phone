@@ -1,0 +1,24 @@
+.mina-photo-gallery{display:flex;flex-direction:column;background:#fff;color:#252525;min-height:0;height:100%}
+.mina-photo-gallery button{cursor:pointer}
+.mina-photo-gallery .catalog-nav{flex-shrink:0}
+.mina-photo-list{flex:1;min-height:0;overflow-y:auto;padding:16px 0 20px}
+.mina-photo-heading{padding:4px 19px 13px}.mina-photo-heading small{font-size:10px;letter-spacing:.2em;color:#9c9a9d}.mina-photo-heading h1{font-size:32px;font-weight:760;margin:3px 0 0;line-height:1.2}
+.mina-photo-tabs{display:flex;margin:0 17px 23px;background:#f3f3f5;border-radius:12px;padding:3px;gap:4px}
+.mina-photo-tabs button{flex:1;border:0;background:transparent;color:#686871;border-radius:9px;padding:9px 3px;font-weight:600;font-size:12px}
+.mina-photo-tabs button.active{background:#fff;color:#242428;box-shadow:0 1px 4px #00000018}
+.mina-photo-album-label{display:flex;align-items:center;justify-content:space-between;padding:0 17px 11px;font-size:15px;font-weight:650}
+.mina-photo-album-label span{display:flex;gap:8px;align-items:center}
+.mina-photo-album-label small{font-size:11px;font-weight:400;color:#999}
+.mina-photo-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px}
+.mina-photo-tiles button{padding:0;border:0;position:relative;aspect-ratio:1;background:#f0e4e5;overflow:hidden}
+.mina-photo-tiles img{display:block;width:100%;height:100%;object-fit:cover}
+.mina-photo-tiles svg{position:absolute;right:6px;bottom:6px;color:white;filter:drop-shadow(0 1px 3px #0007)}
+.mina-photo-bottom{flex-shrink:0;border-top:1px solid #eee;text-align:center;padding:10px;color:#8f8c93;font-size:11px}
+.mina-photo-empty{font-size:12px;color:#999;text-align:center;padding:30px 12px}
+.mina-photo-view-header{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-bottom:1px solid #eee;min-height:48px;flex-shrink:0}
+.mina-photo-view-header button{border:0;background:none;display:flex;align-items:center;gap:5px;font-size:14px;color:#434343;padding:4px}
+.mina-photo-view-header span{color:#777;font-size:12px}
+.mina-photo-view{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;background:#181617;overflow:hidden}
+.mina-photo-view img{display:block;width:100%;height:100%;object-fit:contain}
+.mina-photo-view-footer{flex-shrink:0;padding:13px 16px;font-size:14px;text-align:center;font-weight:600}
+.mina-photo-view-footer small{display:block;font-size:9px;letter-spacing:.1em;margin-top:3px;color:#999;font-weight:400}
