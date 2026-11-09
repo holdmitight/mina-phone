@@ -66,6 +66,22 @@
 .mymy-ui.mymy-kakao:has(.msgs) {
   background: #b2c7da;
 }
+/* Quiet date markers separate the older KakaoTalk archive from current chats. */
+.mymy-ui.mymy-kakao .kakao-date-separator {
+  align-self: center;
+  width: max-content;
+  max-width: 100%;
+  margin: 18px auto 11px;
+  padding: 5px 10px;
+  border-radius: 14px;
+  background: #8da6beaa;
+  color: #fff;
+  text-align: center;
+  font-size: 10px;
+  line-height: 1.4;
+  letter-spacing: .03em;
+  font-variant-numeric: tabular-nums;
+}
 .mymy-ui .msgs {
   flex: 1;
   min-height: 0;
