@@ -49,7 +49,7 @@ describe("Mina's ten-year-old LINE conversation", () => {
 
   it("includes A's rain vocabulary slip and Mina's gentle correction in July 2014", () => {
     const rainy = minaLineMemories.filter((item) => item.id.startsWith("2014-07-04-rain-"));
-    expect(rainy).toHaveLength(6);
+    expect(rainy).toHaveLength(12);
     expect(rainy[0]).toMatchObject({ from: "a", text: "雨が大きいね！☔️" });
     expect(rainy[1].text).toContain("雨が強い");
     expect(rainy[3].text).toContain("かわいい間違い");
