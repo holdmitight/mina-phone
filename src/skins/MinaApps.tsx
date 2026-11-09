@@ -102,24 +102,24 @@ export function BubbleSkin(p: Props) {
     <small>© DearU</small>
   </button> : null;
   const footer = <nav className="bubble-reference-tabs" aria-label="bubbleのナビゲーション">{[{id:"friends",label:"プロフィール",Icon:UserRound},{id:"chats",label:"トーク",Icon:MessageCircle},{id:"more",label:"その他",Icon:MoreVertical}].map(({id,label,Icon}) => <button key={id} aria-label={label} aria-pressed={screen===id} onClick={() => go(id)}><Icon size={25} fill={screen===id&&id==="chats"?"currentColor":"none"} /></button>)}</nav>;
-  const artistRow = <button className="bubble-reference-chat-row" aria-label="MINAのトークを開く" onClick={() => go("thread")}><BubbleAvatar /><span className="bubble-reference-row-copy"><strong>묘~🌸🤟</strong><small>{lastText}</small></span><time>{lastDate}</time></button>;
+  const onceChatRow = <button className="bubble-reference-chat-row" aria-label="ONCEとのトークを開く" onClick={() => go("thread")}><FanAvatar /><span className="bubble-reference-row-copy"><strong>ONCE</strong><small>{lastText}</small></span><time>{lastDate}</time></button>;
   if (screen === "profile") return (
-    <section className="catalog-skin mina-bubble-root bubble-reference-app mina-bubble-artist-page" data-view="profile" aria-label="自分のプロフィール" style={{ backgroundImage: `url("${bubbleAssets}background.png")` }}>
+    <section className="catalog-skin mina-bubble-root bubble-reference-app mina-bubble-artist-page" data-perspective="mina" data-view="profile" aria-label="自分のプロフィール" style={{ backgroundImage: `url("${bubbleAssets}background.png")` }}>
       <button className="mina-bubble-profile-close" aria-label="プロフィールを閉じる" onClick={() => go(profileReturn)}><X size={25} /></button>
       {intro}
       <div className="mina-bubble-artist-identity"><BubbleAvatar large /><div><span className="mina-bubble-artist-badge">ARTIST</span><h1>{ownerName}</h1></div><button className="mina-bubble-return-chat" onClick={() => go("thread")}><MessageCircle size={18} />トークに戻る</button></div>
     </section>
   );
   if (screen === "thread") return (
-    <section className="catalog-skin mina-bubble-root bubble-reference-app bubble-reference-conversation" data-view="thread" aria-label="MINAとのトーク">
+    <section className="catalog-skin mina-bubble-root bubble-reference-app bubble-reference-conversation" data-perspective="mina" data-view="thread" aria-label="ONCEとのトーク">
       <header className="bubble-reference-thread-header">
         <div>
           <button aria-label="トーク一覧に戻る" onClick={() => go("chats")}><ChevronLeft size={25} /></button>
-          <strong>묘~🌸🤟</strong>
+          <strong>ONCE</strong>
           <button aria-label="トーク内を検索" onClick={() => { setSearchOpen(!searchOpen); setQuery(""); }}><Search size={23} /></button>
           <button aria-label="トークメニューを開く" onClick={() => setDrawerOpen(true)}><MoreVertical size={23} /></button>
         </div>
-        <p><i>bubble</i> <span>♥</span> + 63</p>
+        <p><i>bubble</i> <span>♥</span> {ownerName} → ONCE</p>
       </header>
       {intro}
       {searchOpen&&<div className="bubble-reference-search"><Search size={17}/><input autoFocus value={query} onChange={e=>setQuery(e.target.value)} placeholder="トーク内を検索" aria-label="トーク内の検索文字" /></div>}
@@ -130,9 +130,9 @@ export function BubbleSkin(p: Props) {
           const translation = item.meta.translation || item.meta.translated || "";
           return (
             <div className={`bubble-reference-message ${artist ? "outgoing artist" : "fan"}`} key={item.id}>
-              {artist && <span className="bubble-reference-message-avatar"><BubbleAvatar /></span>}
+              {!artist && <span className="bubble-reference-message-avatar"><FanAvatar /></span>}
               <div className="bubble-reference-message-content">
-                {artist && <span className="bubble-reference-sender"><span className="mina-bubble-artist-badge">ARTIST</span> {ownerName}</span>}
+                {!artist && <span className="bubble-reference-sender">ONCE</span>}
                 <div className="bubble-reference-message-line">
                   <button className="bubble-reference-balloon" onClick={() => p.creator ? p.onItem(item) : p.onRead(item.id)}>
                     {item.media ? <Media item={item} /> : item.body}
@@ -146,9 +146,7 @@ export function BubbleSkin(p: Props) {
         })}
         {visibleLetters.map(({ text, index }) =>
           <div className="bubble-reference-message outgoing artist" key={`local-${index}`}>
-            <span className="bubble-reference-message-avatar"><BubbleAvatar /></span>
             <div className="bubble-reference-message-content">
-              <span className="bubble-reference-sender"><span className="mina-bubble-artist-badge">ARTIST</span> {ownerName}</span>
               <div className="bubble-reference-message-line">
                 <div className="bubble-reference-balloon">{text}</div>
                 <time>{p.virtualTime?.slice(-5) || "今"}</time>
@@ -183,13 +181,13 @@ export function BubbleSkin(p: Props) {
     </section>
   );
   return (
-    <section className="catalog-skin mina-bubble-root bubble-reference-app bubble-reference-list" data-view={screen}>
+    <section className="catalog-skin mina-bubble-root bubble-reference-app bubble-reference-list" data-perspective="mina" data-view={screen}>
       <header className="bubble-reference-list-actions"><span/>{screen==="chats"&&<><button aria-label="トークを検索" onClick={()=>{setSearchOpen(!searchOpen);setQuery("");}}><Search size={23}/></button><button aria-label="トーク履歴を整理" onClick={()=>setConfirmClear(true)}><Trash2 size={23}/></button></>}</header>
       <div className="bubble-reference-list-scroll">
         <h1>{screen==="friends"?"プロフィール":screen==="more"?"その他":screen==="notice"?"お知らせ":"CHATS"}</h1>
         {searchOpen&&<div className="bubble-reference-search"><Search size={17}/><input autoFocus value={query} onChange={event=>setQuery(event.target.value)} placeholder="トークを検索" aria-label="トークの検索文字"/></div>}
-        {(screen==="chats"||!["friends","more","notice"].includes(screen))&&<><h2>Favorite Chat List</h2>{(ownerName+lastText).toLowerCase().includes(query.toLowerCase())?artistRow:<p className="bubble-reference-empty">一致するトークがありません</p>}<div className="bubble-reference-list-rule"/><h2>Recent Chat Room</h2><button className="bubble-reference-chat-row bubble-reference-notice-row" onClick={()=>go("notice")}><span className="bubble-reference-notice-avatar">♥</span><span className="bubble-reference-row-copy"><strong>bubble for JYPnation</strong><small>新しいお知らせはありません</small></span></button></>}
-        {screen==="friends"&&<><h2>マイプロフィール</h2><button className="bubble-reference-friend-profile" onClick={()=>openProfile("friends")}><BubbleAvatar/><span><strong>{ownerName}</strong><small>プロフィールを見る</small></span></button><h2>送信先</h2>{artistRow}</>}
+        {(screen==="chats"||!["friends","more","notice"].includes(screen))&&<><h2>Favorite Chat List</h2>{("ONCE"+lastText).toLowerCase().includes(query.toLowerCase())?onceChatRow:<p className="bubble-reference-empty">一致するトークがありません</p>}<div className="bubble-reference-list-rule"/><h2>Recent Chat Room</h2><button className="bubble-reference-chat-row bubble-reference-notice-row" onClick={()=>go("notice")}><span className="bubble-reference-notice-avatar">♥</span><span className="bubble-reference-row-copy"><strong>bubble for JYPnation</strong><small>新しいお知らせはありません</small></span></button></>}
+        {screen==="friends"&&<><h2>マイプロフィール</h2><button className="bubble-reference-friend-profile" onClick={()=>openProfile("friends")}><BubbleAvatar/><span><strong>{ownerName}</strong><small>プロフィールを見る</small></span></button><h2>送信先</h2>{onceChatRow}</>}
         {screen==="more"&&<><button className="bubble-reference-friend-profile" onClick={()=>openProfile("more")}><BubbleAvatar/><span><strong>{ownerName}</strong><small>プロフィールを見る</small></span></button><div className="bubble-reference-settings"><button onClick={()=>openProfile("more")}>自分のプロフィール<ChevronRight size={18}/></button><div>言語<span>日本語</span></div><button onClick={()=>go("notice")}>お知らせ<ChevronRight size={18}/></button><button onClick={()=>setConfirmClear(true)}>トーク履歴を整理<ChevronRight size={18}/></button>{cleared&&<button onClick={()=>setCleared(false)}>保存された履歴を表示<ChevronRight size={18}/></button>}<p>この作品内のシミュレーションです。<br/>メッセージの送信や課金は行いません。</p></div></>}
         {screen==="notice"&&<><div className="bubble-reference-notice-heading"><span className="bubble-reference-notice-avatar">♥</span><strong>bubble for JYPnation</strong></div><p className="bubble-reference-empty">新しいお知らせはありません</p><button className="bubble-reference-back-list" onClick={()=>go("chats")}>トーク一覧に戻る</button></>}
       </div>
