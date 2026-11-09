@@ -36,6 +36,7 @@ import { makeItem, type Item } from "../../schema";
 import "./ui.css";
 import "./adapter.css";
 import { minaInstagramAvatar } from "../../skins/mina-instagram-avatar";
+import { kakaoDefaultAvatar } from "./kakao-default-avatar";
 import "../../skins/mina-instagram.css";
 function grouped(items: Item[]) {
   return [...new Set(items.map((i) => i.title))].map((title) => ({
@@ -146,7 +147,7 @@ export function MymyKakao(p: SkinProps) {
                   {!m.outgoing && run.first && (
                     <>
                       <div className="kzmav">
-                        <Avatar name={m.sender} src={m.avatar} />
+                        <Avatar name={m.sender} src={kakaoDefaultAvatar} />
                       </div>
                       <div className="kzmn">{m.sender}</div>
                     </>
@@ -286,7 +287,7 @@ export function MymyKakao(p: SkinProps) {
                     key={g.title}
                     onClick={() => p.onThread(g.title)}
                   >
-                    <Avatar name={last.sender || g.title} src={last.avatar} />
+                    <Avatar name={last.sender || g.title} src={kakaoDefaultAvatar} />
                     <span className="kzkn">
                       <b>{displayTitle(g.title)}</b>
                       <small>{tab === "好友" ? last.sender : last.body}</small>
