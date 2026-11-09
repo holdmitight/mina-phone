@@ -213,3 +213,116 @@
 .bubble-reference-app .bubble-reference-composer > button:not(:disabled) {
   color: #7d8186;
 }
+
+/* Mina-as-owner perspective and full-height layout fix. */
+/* Keep the iOS status bar, but let Bubble use the entire remaining phone viewport. */
+.app-screen.skin-bubble:has(.mina-bubble-root) {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding-top: 45px;
+  padding-bottom: 0;
+  overflow: hidden;
+}
+.app-screen.skin-bubble > .catalog-slot:not([hidden]) {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: 100%;
+  overflow: hidden;
+}
+.app-screen.skin-bubble > .catalog-slot > .mina-bubble-root.bubble-reference-app {
+  display: flex;
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+.app-screen.skin-bubble .bubble-reference-list-scroll,
+.app-screen.skin-bubble .bubble-reference-messages {
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 0;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.app-screen.skin-bubble .bubble-reference-tabs {
+  height: 76px;
+  min-height: 76px;
+  padding-bottom: 15px;
+}
+.app-screen.skin-bubble .bubble-reference-composer {
+  min-height: 77px;
+  padding-bottom: 21px;
+}
+/* Self (Mina) sends on the RIGHT; incoming ONCE messages sit on the LEFT. */
+.bubble-reference-app[data-perspective="mina"] .bubble-reference-message.outgoing.artist {
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding: 0 3px 0 18px;
+  gap: 0;
+}
+.bubble-reference-app[data-perspective="mina"] .bubble-reference-message.outgoing.artist .bubble-reference-message-content {
+  max-width: 88%;
+  margin-left: auto;
+}
+.bubble-reference-app[data-perspective="mina"] .bubble-reference-message.outgoing.artist .bubble-reference-message-line {
+  flex-direction: row-reverse;
+}
+.bubble-reference-app[data-perspective="mina"] .bubble-reference-message.outgoing.artist .bubble-reference-balloon {
+  background: #5b5b5b;
+  color: #fff;
+  border-radius: 15px 15px 0 15px;
+}
+.bubble-reference-app[data-perspective="mina"] .bubble-reference-message.fan {
+  justify-content: flex-start;
+  padding: 0 12px 0 1px;
+  gap: 7px;
+}
+.bubble-reference-app[data-perspective="mina"] .bubble-reference-message.fan .bubble-reference-message-content {
+  max-width: calc(100% - 56px);
+  margin-left: 0;
+}
+.bubble-reference-app[data-perspective="mina"] .bubble-reference-message.fan .bubble-reference-sender {
+  display: flex;
+  justify-content: flex-start;
+  color: #61666b;
+}
+.bubble-reference-app[data-perspective="mina"] .bubble-reference-message.fan .bubble-reference-message-line {
+  flex-direction: row;
+}
+.bubble-reference-app[data-perspective="mina"] .bubble-reference-message.fan .bubble-reference-balloon {
+  background: #fff;
+  color: #18181b;
+  border-radius: 0 15px 15px 15px;
+}
+.bubble-reference-app[data-perspective="mina"] .bubble-reference-message-avatar .bubble-artist-fan-avatar {
+  display: inline-grid;
+  width: 38px;
+  height: 38px;
+  margin: 2px;
+  box-shadow: 0 0 0 1px #d4a8c0, 0 0 0 3px #fff;
+}
+.bubble-reference-app[data-perspective="mina"] .mina-bubble-edit-letter {
+  display: flex;
+  width: max-content;
+  margin-left: auto;
+}
+/* Match the background of the system status strip to Bubble's current page. */
+.phone-screen:has(.skin-bubble .bubble-reference-list) .status-bar {
+  background: #c4e5f4;
+  color: #15191b;
+}
+.phone-screen:has(.skin-bubble .bubble-reference-conversation) .status-bar {
+  background: #fff;
+  color: #15191b;
+}
+.phone-screen:has(.skin-bubble .mina-bubble-artist-page) .status-bar {
+  background: transparent;
+  color: #fff;
+}
