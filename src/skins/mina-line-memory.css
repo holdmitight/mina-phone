@@ -1,4 +1,4 @@
-/* LINE memories: 2015 chat, from Mina's own phone. */
+/* Unified LINE conversations and 2014–2015 memories on Mina's phone. */
 .mina-line{
   display:flex;flex-direction:column;min-height:0;height:100%;width:100%;overflow:hidden;
   background:#fff;color:#191a1b;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN",sans-serif;
@@ -22,23 +22,93 @@
   font-size:11px;letter-spacing:.1em;color:#526473;background:#d9e3edaa}
 .mina-line-date{margin:19px auto 18px;border-radius:12px;padding:5px 10px;width:max-content;
   color:#fff;background:#8ea8c1b9;font-size:10px;font-weight:650}
-.mina-line-message{display:flex;align-items:flex-start;margin-bottom:11px;max-width:100%;gap:7px}
+/* All threads use the same spacing, bubbles and time placement. */
+.mina-line-message{
+  display:flex;
+  align-items:flex-end;
+  max-width:100%;
+  margin-bottom:10px;
+}
 .mina-line-message.mine{justify-content:flex-end}
 .mina-line-message.theirs{justify-content:flex-start}
-.mina-line-message-line{min-width:0;max-width:100%;display:flex;align-items:flex-end;gap:5px}
-.mina-line-message.mine .mina-line-message-line{flex-direction:row}
-.mina-line-message.theirs .mina-line-message-line{flex-direction:row}
-.mina-line-time{font-size:9px;line-height:1.2;color:#526779;white-space:nowrap;padding-bottom:1px}
-.mina-line-balloon{
-  display:flex;flex-direction:column;gap:7px;border-radius:15px;padding:9px 11px;
-  max-width:min(76vw,250px);min-width:0;font-size:12px;line-height:1.55;font-weight:450;
-  white-space:pre-wrap;overflow-wrap:anywhere;background:#fff;color:#21282a;
-  box-shadow:0 1px 1px #233b480e;
+.mina-line-message-line{
+  display:flex;
+  align-items:flex-end;
+  gap:6px;
+  min-width:0;
+  max-width:100%;
 }
-.mina-line-message.mine .mina-line-balloon{background:#a5ec6b;border-radius:14px 14px 3px 14px}
-.mina-line-message.theirs .mina-line-balloon{border-radius:14px 14px 14px 3px}
-.mina-line-translation{display:block;font-size:10px;line-height:1.55;white-space:pre-wrap;color:#5a666b;
-  padding-top:6px;border-top:1px solid #00000016}
+.mina-line-time{
+  flex-shrink:0;
+  min-width:25px;
+  font-size:10px;
+  line-height:1.3;
+  padding-bottom:2px;
+  color:#526779;
+  font-variant-numeric:tabular-nums;
+  text-align:center;
+  white-space:nowrap;
+}
+.mina-line .mina-line-balloon{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:7px;
+  box-sizing:border-box;
+  max-width:min(73vw,250px);
+  min-width:0;
+  padding:9px 12px;
+  border:0;
+  border-radius:15px 15px 15px 4px;
+  background:#fff;
+  color:#21282a;
+  text-align:left;
+  font-size:12px;
+  line-height:1.65;
+  font-weight:450;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  word-break:normal;
+  box-shadow:0 1px 2px #233b4810;
+}
+.mina-line .mina-line-message.mine .mina-line-balloon{
+  background:#a5ec6b;
+  color:#1f3321;
+  border-radius:15px 15px 4px 15px;
+}
+.mina-line .mina-line-message.theirs .mina-line-balloon{
+  background:#fff;
+  color:#21282a;
+}
+.mina-line .mina-line-balloon>span{
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+}
+.mina-line .mina-line-balloon img,
+.mina-line .mina-line-balloon video,
+.mina-line .mina-line-balloon .catalog-art{
+  max-width:100%;
+  width:210px;
+  height:auto;
+  max-height:240px;
+  object-fit:cover;
+  border-radius:8px;
+}
+.mina-line .mina-line-balloon audio{
+  width:200px;
+  max-width:100%;
+  height:36px;
+}
+.mina-line-translation{
+  display:block;
+  font-size:10px;
+  line-height:1.55;
+  width:100%;
+  padding-top:6px;
+  border-top:1px solid #00000016;
+  white-space:pre-wrap;
+  color:#5a666b;
+}
 .mina-line-message.mine .mina-line-translation{color:#547040}
 .mina-line-end-spacer{height:23px}
 .mina-line-reply-archive{
@@ -49,6 +119,21 @@
   border-radius:18px;padding:0 12px;color:#aaa;font-size:11px;background:#f9f9f9}
 .mina-line-reply-archive button{width:27px;display:grid;place-items:center}
 .mina-line-reply-archive button:disabled{opacity:.45;cursor:default}
+.mina-line-reply-archive .native-compose-field{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  flex:1;
+  min-height:34px;
+  padding:0 12px;
+  border:1px solid #e5e5e5;
+  border-radius:18px;
+  background:#f9f9f9;
+  color:#818890;
+  text-align:left;
+  font-size:11px;
+}
+
 .mina-line-list-header{display:flex;align-items:center;gap:10px;padding:10px 12px;min-height:50px;
   flex-shrink:0;border-bottom:1px solid #f0f0f0}
 .mina-line-list-header>strong{flex:1;text-align:left;font-weight:800;font-size:21px}
@@ -62,9 +147,32 @@
 .mina-line-list-label{font-size:11px;color:#96999c;padding:6px 17px 8px;margin:0}
 .mina-line-chat-row{width:100%;display:flex;gap:10px;align-items:center;text-align:left;padding:11px 13px!important;
   border-bottom:1px solid #f3f3f3!important}
-.mina-line-avatar{width:47px;height:47px;flex:0 0 47px;display:grid;place-items:center;background:#e9d8e6;
-  color:#784d6c;border-radius:50%;font-size:18px;font-weight:650}
-.mina-line-avatar.secondary{background:#e9eef4;color:#587087}
+/* Uniform 46px circular avatars in list rows; the archived contact has no picture. */
+.mina-line-avatar{
+  width:46px;
+  height:46px;
+  flex:0 0 46px;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  border-radius:50%;
+  background:#e9eef4;
+  color:#587087;
+  font-size:18px;
+  font-weight:650;
+  line-height:1;
+}
+.mina-line-avatar>img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  border-radius:inherit;
+}
+.mina-line-avatar.empty{
+  border:1px solid #e7e9ed;
+  background:#f2f3f5;
+}
 .mina-line-chat-summary{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
 .mina-line-chat-summary strong{font-weight:750;font-size:14px}
 .mina-line-chat-summary small{display:block;max-width:100%;color:#87898b;font-size:11px;white-space:nowrap;
