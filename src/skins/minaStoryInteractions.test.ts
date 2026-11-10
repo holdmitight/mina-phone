@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { readFileSync } from "node:fs";
+import actualMinaStory from "../../stories/template/story.json";
 import { compileStory } from "../story-engine/compiler";
 import { initialRuntime, type Work } from "../schema";
 import {
@@ -24,13 +24,7 @@ const fixture = {
 describe("Mina cross-app discoveries", () => {
 
   it("recognizes actual published Mina story data, not only the tiny mock", () => {
-    const json = JSON.parse(
-      readFileSync(
-        new URL("../../stories/template/story.json", import.meta.url),
-        "utf8",
-      ),
-    );
-    const actual = compileStory(json).work;
+    const actual = compileStory(actualMinaStory).work;
     expect(actual.phone.owner).toBe("名井南");
     expect(isMinaStoryWork(actual)).toBe(true);
     expect(actual.data.maps.some((item) => item.id === "maps-cafe")).toBe(true);
