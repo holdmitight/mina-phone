@@ -143,6 +143,11 @@ function PhoneRuntime({
   const [recent, setRecent] = useState<string[]>([]);
   const appSnapshots = useRef(new Map<string, HTMLElement>());
   const [banner, setBanner] = useState("");
+  const [noticeThread, setNoticeThread] = useState<{
+    appId: string;
+    thread: string;
+    seq: number;
+  } | null>(null);
   const noticesSeen = useRef(0);
   const [contextApp, setContextApp] = useState("");
   const [deviceScale, setDeviceScale] = useState(0.84);
@@ -282,6 +287,27 @@ function PhoneRuntime({
     setPanel("");
     onOpen?.(id);
     event("openApp", id);
+  };
+  const openFromNotification = (notice: string) => {
+    if (locked) {
+      beginUnlock();
+      return;
+    }
+    const target = notificationContent(notice, work.apps).appId;
+    if (work.apps.some((a) => a.id === target && a.installed)) {
+      if (target === "kakao" && notice.includes("Sana：")) {
+        setNoticeThread((previous) => ({
+          appId: target,
+          thread: "Sana",
+          seq: (previous?.seq ?? 0) + 1,
+        }));
+      }
+      open(target);
+    } else if (work.apps.some((a) => a.id === "messages" && a.installed)) {
+      open("messages");
+    } else {
+      setPanel("notification");
+    }
   };
   const installedApps = work.apps.filter((a) => a.installed);
   const apps = installedApps.filter((a) => a.visible);
@@ -462,6 +488,8 @@ function PhoneRuntime({
                   state={s}
                   onRead={(id) => event("read", id)}
                   onClue={recordMinaClue}
+                  noticeThread={noticeThread}
+                  onNoticeThreadHandled={() => setNoticeThread(null)}
                   onEdit={(item) => onEdit?.(app, item)}
                   onAdd={() => onAdd?.(app)}
                   onBack={() => setApp("")}
@@ -566,15 +594,7 @@ function PhoneRuntime({
                       apps={work.apps}
                       onOpen={(index) => {
                         setPanel("");
-                        if (locked) {
-                          beginUnlock();
-                          return;
-                        }
-                        const notice = s.notifications[index] || "";
-                        const target = notificationContent(notice, work.apps).appId;
-                        if (installedApps.some((a) => a.id === target)) open(target);
-                        else if (installedApps.some((a) => a.id === "messages"))
-                          open("messages");
+                        openFromNotification(s.notifications[index] || "");
                       }}
                       onDismiss={dismissNotice}
                     />
@@ -697,11 +717,9 @@ function PhoneRuntime({
             <button
               className="device-banner"
               onClick={() => {
-                const target = notificationContent(banner, work.apps).appId;
+                openFromNotification(banner);
                 setBanner("");
-                if (installedApps.some((a) => a.id === target)) open(target);
-                else setPanel("notification");
-              }}
+              }
             >
               <AppIcon
                 id={notificationContent(banner, work.apps).appId}
@@ -879,6 +897,8 @@ function AppContent({
   state,
   onRead,
   onClue,
+  noticeThread,
+  onNoticeThreadHandled,
   onEdit,
   onAdd,
   onBack,
@@ -893,6 +913,8 @@ function AppContent({
   state: Runtime;
   onRead: (id: string) => void;
   onClue?: (key: string) => void;
+  noticeThread?: { appId: string; thread: string; seq: number } | null;
+  onNoticeThreadHandled?: () => void;
   onEdit: (item: Item) => void;
   onAdd: () => void;
   onBack: () => void;
@@ -908,6 +930,12 @@ function AppContent({
   const [unlocks, setUnlocks] = useState<string[]>([]);
   const [pwError, setPwError] = useState("");
   const [likes, setLikes] = useState<string[]>([]);
+  useEffect(() => {
+    if (noticeThread && noticeThread.appId === app.id) {
+      setThread(noticeThread.thread);
+      onNoticeThreadHandled?.();
+    }
+  }, [noticeThread, app.id, onNoticeThreadHandled]);
   const shown = items
     .filter((i) => creator || visible(i, state))
     .filter((i) =>
