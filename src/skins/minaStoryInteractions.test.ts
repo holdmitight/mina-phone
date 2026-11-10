@@ -142,7 +142,7 @@ describe("Mina cross-app discoveries", () => {
     const healed = discoverMinaClue(partial, clues.oldLine);
     expect(healed.messages.notes).toHaveLength(1);
     expect(healed.messages.notes[0].body).toBe(
-      "雨が強い。\\n\\n……今なら、ちゃんと言えるのに。",
+      "雨が強い。\n\n……今なら、ちゃんと言えるのに。",
     );
     expect(discoverMinaClue(healed, clues.balletDetails)).toBe(healed);
   });
