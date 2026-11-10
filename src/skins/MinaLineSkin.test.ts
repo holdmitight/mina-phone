@@ -23,7 +23,7 @@ function props(thread = "", items: Item[] = []): Props {
   };
 }
 
-describe("Mina's 2014–2015 LINE archive", () => {
+describe("Mina's summer-to-November 2015 LINE archive", () => {
   it("shows Mina's saved private nickname without an A avatar in the chat list", () => {
     const html = renderToStaticMarkup(createElement(MinaLineSkin, props()));
     expect(minaLineThreadName).toBe("うさぎちゃん 🐰");
@@ -35,12 +35,12 @@ describe("Mina's 2014–2015 LINE archive", () => {
     expect(html).toContain("来年、一緒にハワイに行こうね。");
   });
 
-  it("preserves the 2014 first meeting and Mina's December departure", () => {
+  it("preserves A's 2015 ballet meeting, departure and the original message IDs", () => {
     expect(minaLineMemories.length).toBeGreaterThan(90);
-    expect(minaLineMemories[0]).toMatchObject({ day: "2014-06-16", from: "a" });
-    expect(minaLineMemories.find((m) => m.id === "2014-11-19-03")?.text).toContain("年末には韓国に戻る");
-    expect(minaLineMemories.find((m) => m.id === "2014-12-04-06")?.text).toBe("着いたよ。");
-    expect(minaLineMemories.filter((m) => m.day.startsWith("2014")).some((m) => /好きだよ|付き合おう|恋人/.test(m.text))).toBe(false);
+    expect(minaLineMemories[0]).toMatchObject({ id: "2014-06-16-01", day: "2015-06-16", from: "a" });
+    expect(minaLineMemories.find((m) => m.id === "2014-11-19-03")).toMatchObject({ day: "2015-09-14" });
+    expect(minaLineMemories.find((m) => m.id === "2014-12-04-06")?.day).toBe("2015-09-20");
+    expect(minaLineMemories.every((m) => m.day.startsWith("2015"))).toBe(true);
     const times = minaLineMemories.map((m) => m.day + "T" + m.time);
     expect(times).toEqual([...times].sort());
   });
@@ -55,22 +55,24 @@ describe("Mina's 2014–2015 LINE archive", () => {
     expect(minaLineMemories.some((m) => m.id === "2015-07-04-03")).toBe(false);
   });
 
-  it("changes the August 2015 scene to A buying a large pretty LEGO and asking Mina to guess", () => {
-    const august = minaLineMemories.filter((m) => m.day === "2015-08-09");
-    expect(august).toHaveLength(4);
-    expect(august.every((m) => m.from === "a")).toBe(true);
-    expect(august.map((m) => m.text).join(" ")).toContain("大きくて、きれいなレゴ");
-    expect(august.map((m) => m.text).join(" ")).toContain("買っちゃった");
-    expect(august.map((m) => m.text).join(" ")).toContain("当ててみて");
-    expect(august.at(-1)?.text).toContain("忙しいから");
-    expect(august.map((m) => m.text).join(" ")).not.toContain("レゴの指輪、まだ覚えてる");
+  it("preserves the toy-store LEGO promise and the later unanswered gift photos", () => {
+    const toyStore = minaLineMemories.filter((m) => m.id.startsWith("2014-08-09"));
+    expect(toyStore).toHaveLength(6);
+    expect(toyStore.every((m) => m.day === "2015-08-09")).toBe(true);
+    expect(toyStore.find((m) => m.id === "2014-08-09-03")?.text).toContain("レゴの指輪");
+    const later = minaLineMemories.filter((m) => m.id.startsWith("2015-08-09"));
+    expect(later).toHaveLength(4);
+    expect(later.every((m) => m.day === "2015-10-14")).toBe(true);
+    expect(later.every((m) => m.from === "a")).toBe(true);
+    expect(later.at(-1)?.text).toContain("忙しいから");
   });
 
-  it("shows 2015 as increasingly one-sided messages, with only four Mina replies", () => {
-    const messages = minaLineMemories.filter((m) => m.day.startsWith("2015"));
-    expect(messages.filter((m) => m.from === "a").length).toBeGreaterThan(20);
-    expect(messages.filter((m) => m.from === "mina")).toHaveLength(4);
-    expect(messages.filter((m) => m.day >= "2015-10-20").every((m) => m.from === "a")).toBe(true);
+  it("shows distance growing after her September departure and no reply after debut", () => {
+    const october = minaLineMemories.filter((m) => m.day >= "2015-10-21");
+    expect(october.every((m) => m.from === "a")).toBe(true);
+    const postDeparture = minaLineMemories.filter((m) => m.day >= "2015-09-20");
+    expect(postDeparture.filter((m) => m.from === "a").length)
+      .toBeGreaterThan(postDeparture.filter((m) => m.from === "mina").length);
   });
 
   it("ends in 'don't ignore me', 'okay', 'I hate you', then the unanswered Hawaii promise", () => {
