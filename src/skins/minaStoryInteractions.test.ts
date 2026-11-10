@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
+import { compileStory } from "../story-engine/compiler";
 import { initialRuntime, type Work } from "../schema";
 import {
   discoverMinaClue,
@@ -20,6 +22,38 @@ const fixture = {
 } as unknown as Work;
 
 describe("Mina cross-app discoveries", () => {
+
+  it("recognizes actual published Mina story data, not only the tiny mock", () => {
+    const json = JSON.parse(
+      readFileSync(
+        new URL("../../stories/template/story.json", import.meta.url),
+        "utf8",
+      ),
+    );
+    const actual = compileStory(json).work;
+    expect(actual.phone.owner).toBe("名井南");
+    expect(isMinaStoryWork(actual)).toBe(true);
+    expect(actual.data.maps.some((item) => item.id === "maps-cafe")).toBe(true);
+    expect(actual.data.kakao.some((item) => item.id === "kaka-jeongyeon-1")).toBe(true);
+
+    const historyThenChat = discoverMinaClue(
+      discoverMinaClue(initialRuntime(actual), clues.cafeVisit),
+      clues.jeongyeonTalk,
+    );
+    const chatThenHistory = discoverMinaClue(
+      discoverMinaClue(initialRuntime(actual), clues.jeongyeonTalk),
+      clues.cafeVisit,
+    );
+    for (const state of [historyThenChat, chatThenHistory]) {
+      expect(state.clues).toContain(clues.cafeResolved);
+      expect(state.messages.kakao.some(
+        (item) => item.id === "mina-story-cafe-sana-ping",
+      )).toBe(true);
+      expect(state.notifications).toContain(
+        "KakaoTalk: Sana：みーたん、まだ起きてる？",
+      );
+    }
+  });
   it("activates only for the specific Mina Phone story", () => {
     expect(isMinaStoryWork(fixture)).toBe(true);
     expect(isMinaStoryWork({
