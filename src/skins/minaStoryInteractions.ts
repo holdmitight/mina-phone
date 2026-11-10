@@ -111,7 +111,7 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
       ];
     }
     if (!(messages.kakao ?? []).some((m) => m.id === "mina-story-cafe-sana-ping")) {
-      const currentDate = runtime.date || "2026-11-09";
+      const currentDate = (runtime.date || "2025-11-09").replace(/^2026-11-/u, "2025-11-");
       const currentTime = runtime.time || "21:09";
       const ping = makeItem({
         id: "mina-story-cafe-sana-ping",
@@ -250,7 +250,7 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
         title: "Jeongyeon",
         sender: "Jeongyeon",
         body: "야, 그거 이번엔 성공했어?ㅋㅋ",
-        time: `${runtime.date || "2026-11-09"} ${runtime.time || "21:09"}`,
+        time: `${(runtime.date || "2025-11-09").replace(/^2026-11-/u, "2025-11-")} ${runtime.time || "21:09"}`,
         outgoing: false,
         read: false,
         folder: "聊天",
