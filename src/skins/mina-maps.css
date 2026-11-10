@@ -1,0 +1,361 @@
+/* Mina Phone story maps: fictional, in-app, interactive pins and visit history. */
+.catalog-skin.mina-maps {
+  display:flex;
+  flex-direction:column;
+  flex:1;
+  min-height:0;
+  overflow:hidden;
+  background:#e8e9e7;
+  color:#1f2933;
+}
+.mina-maps button { cursor:pointer; }
+.mina-maps button:focus-visible,.mina-maps input:focus-visible {
+  outline:2px solid #427af0;
+  outline-offset:2px;
+}
+.mina-maps .catalog-nav {
+  background:#fbfbfc;
+  color:#24272c;
+  border-bottom:1px solid #e3e4e8;
+  position:relative;
+  z-index:4;
+}
+.mina-map-stage {
+  flex:1 1 auto;
+  min-height:130px;
+  position:relative;
+  overflow:hidden;
+  background:#edece8;
+}
+.mina-map-drawing {
+  width:100%;
+  height:100%;
+  display:block;
+}
+.mina-map-region-tag {
+  position:absolute;
+  top:13px;
+  left:13px;
+  border-radius:17px;
+  background:#fffefaeb;
+  color:#596269;
+  font-size:11px;
+  padding:8px 11px;
+  box-shadow:0 2px 8px #3948550e;
+}
+.mina-map-marker {
+  --pin-color:#557fd9;
+  position:absolute;
+  z-index:2;
+  border:0;
+  background:transparent;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:4px;
+  transform:translate(-50%,-53%);
+  padding:4px;
+  color:#2c3d4f;
+  max-width:160px;
+}
+.mina-map-marker>span {
+  display:grid;
+  place-items:center;
+  width:37px;
+  height:37px;
+  border:3px solid #fff;
+  border-radius:50%;
+  background:var(--pin-color);
+  color:#fff;
+  box-shadow:0 2px 7px #00000037;
+  transition:transform .14s ease,background .14s ease;
+}
+.mina-map-marker.cafe{--pin-color:#ac7960}
+.mina-map-marker.active>span{
+  transform:scale(1.11);
+  box-shadow:0 2px 0 5px #ffffff58,0 4px 9px #00000042;
+}
+.mina-map-marker>small{
+  display:block;
+  max-width:160px;
+  background:#fffefa;
+  border-radius:5px;
+  padding:5px 7px;
+  font-size:10px;
+  font-weight:650;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  box-shadow:0 2px 8px #00000026;
+}
+.mina-map-fiction-label {
+  position:absolute;
+  right:8px;
+  bottom:22px;
+  z-index:1;
+  font-size:9px;
+  color:#848a8f;
+  background:#ffffffb8;
+  padding:4px 6px;
+  border-radius:5px;
+}
+.mina-map-sheet {
+  flex:0 0 auto;
+  display:flex;
+  flex-direction:column;
+  background:#fafbfc;
+  position:relative;
+  z-index:3;
+  min-height:220px;
+  max-height:57%;
+  border-radius:18px 18px 0 0;
+  margin-top:-16px;
+  box-shadow:0 -6px 22px #253a4c1c;
+  padding:0 0 10px;
+  overflow:hidden;
+}
+.mina-map-handle {
+  width:34px;
+  height:5px;
+  margin:9px auto 12px;
+  flex-shrink:0;
+  border-radius:10px;
+  background:#d5d8dd;
+}
+.mina-map-search {
+  margin:0 15px 17px;
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:9px 12px;
+  background:#edf0f4;
+  border-radius:11px;
+  color:#8d939b;
+  min-height:37px;
+  flex-shrink:0;
+}
+.mina-map-search input{
+  flex:1;
+  min-width:0;
+  border:0;
+  outline:0;
+  background:transparent;
+  color:#2d3339;
+  font-size:13px;
+}
+.mina-map-search>button {
+  display:grid;
+  place-items:center;
+  color:#91979e;
+  border:0;
+  background:transparent;
+  padding:0;
+}
+.mina-map-list-head {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin:0 17px 7px;
+}
+.mina-map-list-head strong{font-size:15px;font-weight:700}
+.mina-map-list-head small{font-size:11px;color:#92979e}
+.mina-map-place-list {
+  min-height:0;
+  flex:1 1 auto;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.mina-map-place-row {
+  display:flex;
+  align-items:center;
+  gap:11px;
+  width:100%;
+  border:0;
+  border-bottom:1px solid #eceef1;
+  padding:10px 15px;
+  text-align:left;
+  background:#fff;
+  color:#2c343c;
+}
+.mina-map-place-row>span:nth-child(2){
+  display:flex;
+  min-width:0;
+  flex:1;
+  flex-direction:column;
+  gap:4px;
+}
+.mina-map-place-row strong{font-size:12px;font-weight:700}
+.mina-map-place-row small{font-size:10px;color:#87909a}
+.mina-map-place-row>svg{color:#adb3b9;flex-shrink:0}
+.mina-map-list-icon,.mina-map-detail-icon{
+  display:grid;
+  place-items:center;
+  flex-shrink:0;
+  width:37px;
+  height:37px;
+  border-radius:12px;
+  background:#e8efff;
+  color:#537fdb;
+}
+.mina-map-list-icon.cafe,.mina-map-detail-icon.cafe{
+  color:#9b6c55;
+  background:#f8eae0;
+}
+.mina-map-empty{
+  padding:24px 16px;
+  text-align:center;
+  color:#87909a;
+  font-size:12px;
+}
+.mina-map-detail-head {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:9px;
+  flex-shrink:0;
+  padding:0 15px 10px;
+  border-bottom:1px solid #eceef1;
+  font-size:11px;
+  color:#90959b;
+}
+.mina-map-detail-head>button{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  flex:1;
+  border:0;
+  background:transparent;
+  color:#537fdb;
+  font-size:12px;
+  padding:4px 0;
+}
+.mina-map-detail-head>svg{flex:1;max-width:19px}
+.mina-map-detail-scroll{
+  min-height:0;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  padding:13px 16px 21px;
+}
+.mina-map-detail-title{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:10px;
+}
+.mina-map-detail-title>div:last-child{min-width:0}
+.mina-map-detail-title h2{
+  font-size:17px;
+  line-height:1.35;
+  font-weight:750;
+  margin:0 0 4px;
+}
+.mina-map-detail-title small{
+  font-size:10px;
+  color:#848b93;
+}
+.mina-map-location{
+  font-size:10px;
+  color:#879098;
+  padding:0 0 10px;
+  margin:0;
+}
+.mina-map-description{
+  color:#53606b;
+  margin:0 0 15px;
+  font-size:11px;
+  line-height:1.75;
+}
+.mina-map-history{
+  border:1px solid #e8ebef;
+  border-radius:13px;
+  overflow:hidden;
+  background:#fff;
+}
+.mina-map-history-toggle {
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  border:0;
+  background:#fff;
+  padding:13px;
+  text-align:left;
+  color:#536070;
+}
+.mina-map-history-toggle>svg:first-child{color:#5779ae}
+.mina-map-history-toggle>span{
+  min-width:0;
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.mina-map-history-toggle strong{
+  font-size:12px;
+  color:#2c333a;
+  font-weight:700;
+}
+.mina-map-history-toggle small{font-size:10px;color:#8b9199}
+.mina-map-history-toggle .expanded{transform:rotate(90deg)}
+.mina-map-visit-list{border-top:1px solid #eaecf1}
+.mina-map-visit-list>button{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  width:100%;
+  border:0;
+  border-bottom:1px solid #f1f2f4;
+  padding:11px 13px;
+  background:#fff;
+  text-align:left;
+  color:#46515e;
+}
+.mina-map-visit-list>button[aria-pressed=true]{background:#f1f6ff}
+.mina-map-visit-dot{
+  display:block;
+  flex-shrink:0;
+  width:8px;
+  height:8px;
+  border:2px solid #6791db;
+  border-radius:50%;
+}
+.mina-map-visit-list>button>span:nth-child(2){
+  display:flex;
+  flex:1;
+  flex-direction:column;
+  gap:3px;
+}
+.mina-map-visit-list strong{font-size:11px;font-weight:650}
+.mina-map-visit-list small{font-size:9px;color:#949da7}
+.mina-map-visit-list time{
+  color:#66747f;
+  font-size:10px;
+  font-variant-numeric:tabular-nums;
+}
+.mina-map-visit-list>button>svg{color:#b2b7bd}
+.mina-map-visit-selected{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:5px;
+  padding:11px 13px;
+  background:#f7f9fc;
+  font-size:10px;
+  color:#6b7b8e;
+}
+.mina-map-visit-selected strong{
+  color:#3e4b59;
+  margin-left:auto;
+  font-size:10px;
+}
+@media(max-height:650px){
+  .mina-map-sheet{max-height:62%}
+  .mina-map-stage{min-height:104px}
+  .mina-map-detail-scroll{padding-top:10px}
+}
+@media(max-width:340px){
+  .mina-map-marker>small{max-width:118px;font-size:9px}
+  .mina-map-sheet{max-height:59%}
+  .mina-map-detail-title h2{font-size:15px}
+  .mina-map-place-row{padding:9px 12px}
+}
