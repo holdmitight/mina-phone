@@ -26,7 +26,7 @@ import {
 import { AppArtwork, hasNativeArtwork } from "./AppArtwork";
 import { getFields } from "./fields";
 import { catalogSkins } from "./skins/catalog";
-import { discoverMinaClue, isMinaStoryWork } from "./skins/minaStoryInteractions";
+import { discoverMinaClue, isMinaStoryWork, normalizeMinaStoryWork, normalizeMinaStoryRuntime } from "./skins/minaStoryInteractions";
 import "./skins/skins.css";
 import "./ios18.css";
 import "./device-system.css";
@@ -39,6 +39,7 @@ import {
   useEffect,
   useState,
   useRef,
+  useMemo,
   Suspense,
   type CSSProperties,
 } from "react";
@@ -104,7 +105,13 @@ export function AppIcon({
 }
 type PhoneProps = Omit<Parameters<typeof PhoneRuntime>[0], "deviceLayout">;
 export function Phone(props: PhoneProps) {
-  const deviceLayout = useDeviceLayout(props.work, props.creator);
+  // Present the established 2015–2025 fiction without rewriting the user's
+  // editable story JSON or resetting a saved playthrough.
+  const narrativeWork = useMemo(
+    () => props.creator ? props.work : normalizeMinaStoryWork(props.work),
+    [props.work, props.creator],
+  );
+  const deviceLayout = useDeviceLayout(narrativeWork, props.creator);
   return (
     <PhoneRuntime
       {...props}
@@ -168,7 +175,9 @@ function PhoneRuntime({
   const [pinError, setPinError] = useState("");
   const [folder, setFolder] = useState("");
   const [panel, setPanel] = useState("");
-  const [own, setOwn] = useState(() => initialRuntime(work));
+  const normalizeStorySave = (value: Runtime) =>
+    !creator && isMinaStoryWork(work) ? normalizeMinaStoryRuntime(value) : value;
+  const [own, setOwn] = useState(() => normalizeStorySave(initialRuntime(work)));
   const [ready, setReady] = useState(creator || !!external);
   const [loadError, setLoadError] = useState("");
   useEffect(() => {
@@ -199,9 +208,10 @@ function PhoneRuntime({
   const runtimeRef = useRef(s);
   runtimeRef.current = s;
   const update = (next: Runtime) => {
-    runtimeRef.current = next;
-    setOwn(next);
-    onRuntime?.(next);
+    const normalized = normalizeStorySave(next);
+    runtimeRef.current = normalized;
+    setOwn(normalized);
+    onRuntime?.(normalized);
   };
   useEffect(() => {
     let active = true;
@@ -211,15 +221,15 @@ function PhoneRuntime({
       .then((saved) => {
         if (!active) return;
         if (saved && saved.state.revision === work.updatedAt)
-          setOwn(saved.state);
+          setOwn(normalizeStorySave(saved.state));
         else {
-          setOwn(dispatch(work, initialRuntime(work), "start"));
+          setOwn(normalizeStorySave(dispatch(work, initialRuntime(work), "start")));
           if (saved) setLoadError("作品が更新されたため、新しく開始しました。");
         }
         setReady(true);
       })
       .catch(() => {
-        setOwn(dispatch(work, initialRuntime(work), "start"));
+        setOwn(normalizeStorySave(dispatch(work, initialRuntime(work), "start")));
         setLoadError("保存データを読み込めませんでした。このまま遊べます。");
         setReady(true);
       });
