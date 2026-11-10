@@ -159,6 +159,13 @@ export function MymyKakao(p: SkinProps) {
     const node = scroll.current;
     if (node) node.scrollTop = node.scrollHeight;
   }, [p.thread, messages.length]);
+  // Opening the Jeongyeon conversation itself counts as reading the clue.
+  // This also handles a chat restored directly after app navigation, rather
+  // than requiring the player to click a particular row in the chat list.
+  useEffect(() => {
+    if (isMinaStory && p.thread === "Jeongyeon")
+      p.onClue?.(minaClueKeys.jeongyeonTalk);
+  }, [isMinaStory, p.thread, p.onClue]);
   return (
     <div className="mymy-ui mymy-kakao" data-mymy="kakao">
       {p.thread ? (
@@ -353,8 +360,6 @@ export function MymyKakao(p: SkinProps) {
                     key={g.title}
                     onClick={() => {
                       p.onThread(g.title);
-                      if (isMinaStory && g.title === "Jeongyeon")
-                        p.onClue?.(minaClueKeys.jeongyeonTalk);
                       if (isMinaStory && g.title === "Sana")
                         p.onClue?.(minaClueKeys.sanaTalk);
                     }}
