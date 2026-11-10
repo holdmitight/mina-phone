@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import type { Props } from "./shared";
 import { makeItem } from "../schema";
-import { MinaAmazonSkin, amazonCartCatalog, amazonInitialHistory } from "./MinaAmazonSkin";
+import { MinaAmazonSkin, amazonCartCatalog, amazonInitialHistory, amazonMiniPartsSuggestions, matchesAmazonGiftPartsSearch } from "./MinaAmazonSkin";
 
 function props(ui: Props["ui"] = {}, unlocked = false): Props {
   return {
@@ -61,6 +61,24 @@ describe("Mina's Amazon screenshot-based offline replica", () => {
     expect(before).not.toContain("レゴ 小さいパーツ 白 ピンク");
     expect(after).toContain("レゴ 小さいパーツ 白 ピンク");
     for (const original of amazonInitialHistory) expect(after).toContain(original);
+  });
+
+  it("shows useful small-parts search results without changing the original four-item cart", () => {
+    expect(matchesAmazonGiftPartsSearch("レゴ 小さいパーツ 白 ピンク")).toBe(true);
+    expect(matchesAmazonGiftPartsSearch("lego small parts")).toBe(true);
+    expect(matchesAmazonGiftPartsSearch("ミニブロック パーツ")).toBe(true);
+    expect(matchesAmazonGiftPartsSearch("レゴ フェラーリ")).toBe(false);
+    expect(amazonMiniPartsSuggestions).toHaveLength(2);
+    const html = renderToStaticMarkup(createElement(MinaAmazonSkin, props({
+      "amazon-screen": "results",
+      "amazon-active-query": "レゴ 小さいパーツ 白 ピンク",
+    }, true)));
+    expect(html).toContain("ミニブロック パーツ 1×2 ホワイト");
+    expect(html).toContain("ミニブロック パーツ 1×1 パステルピンク");
+    expect(html).toContain("2件の商品");
+    expect(html).not.toContain("該当する商品はありません");
+    expect(amazonCartCatalog).toHaveLength(4);
+    expect(amazonCartCatalog.reduce((sum, item) => sum + item.price, 0)).toBe(35881);
   });
 
   it("allows empty carts with a zero total and never performs a live checkout", () => {
