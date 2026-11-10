@@ -719,7 +719,7 @@ function PhoneRuntime({
               onClick={() => {
                 openFromNotification(banner);
                 setBanner("");
-              }
+              }}
             >
               <AppIcon
                 id={notificationContent(banner, work.apps).appId}
