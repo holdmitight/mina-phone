@@ -10,6 +10,7 @@ import {
   minaSanaChoices,
   minaSanaInteractiveMessages,
   parseSanaAttempts,
+  recoverSanaAttemptHistory,
   type SanaStage,
 } from "./mina-sana-replies";
 
@@ -56,6 +57,11 @@ describe("free-text Sana KakaoTalk replies", () => {
 
   it.each([
     ["まだ寝てないよ。", "awake"],
+    ["まだです", "awake"],
+    ["まだです！", "awake"],
+    ["まだ", "awake"],
+    ["嗯", "awake"],
+    ["嗯嗯", "awake"],
     ["うん、起きてるよ！", "awake"],
     ["没睡呢", "awake"],
     ["还没睡觉呀", "awake"],
@@ -70,6 +76,8 @@ describe("free-text Sana KakaoTalk replies", () => {
     ["I'm fine", "deny"],
     ["아무것도 아니야", "deny"],
     ["……なんでそう思うの？", "why"],
+    ["?", "why"],
+    ["？？", "why"],
     ["どうしてそう思った？", "why"],
     ["你怎么知道我心事的", "why"],
     ["为什么这么说呢", "why"],
@@ -164,6 +172,51 @@ describe("free-text Sana KakaoTalk replies", () => {
     expect(story.map((line) => line.body)).toContain("ん？まだ起きてる？笑");
     expect(story.map((line) => line.body)).toContain("え、どういうこと？笑 もう少し教えて〜");
     expect(story.map((line) => line.time)).toEqual([...story.map((line) => line.time)].sort());
+  });
+
+  it("recovers a stuck chat with the exact messages まだです / 嗯 / ?", () => {
+    const attempts = parseSanaAttempts([
+      JSON.stringify(["", "まだです"]),
+      JSON.stringify(["", "嗯"]),
+      JSON.stringify(["", "?"]),
+    ]);
+    const recovered = recoverSanaAttemptHistory("", "", "", attempts);
+    expect(recovered).toMatchObject({
+      recovered: true,
+      stage: "why",
+      awakeText: "まだです",
+      replyText: "?",
+      attempts: [{ phase: "awake", text: "嗯" }],
+    });
+    const story = minaSanaInteractiveMessages(
+      ping, recovered.stage, recovered.awakeText,
+      recovered.replyText, recovered.attempts,
+    );
+    expect(story.find((item) => item.id === "mina-sana-interactive-awake")?.body).toBe("まだです");
+    expect(story.find((item) => item.id === "mina-sana-interactive-choice-why")?.body).toBe("?");
+    expect(story.some((item) => item.body === "だって、最近ずっとスマホ見てるし。")).toBe(true);
+    expect(story.some((item) => item.body === "ん？まだ起きてる？笑")).toBe(false);
+    const olderSave = props();
+    olderSave.ui = {
+      ...olderSave.ui,
+      minaSanaAttempts: attempts.map((attempt) => JSON.stringify([attempt.phase, attempt.text])),
+    };
+    const html = renderToStaticMarkup(createElement(MymyKakao, olderSave));
+    expect(html).toContain("最近、みーたん一人で考え込んでること多くない？");
+    expect(html).toContain("だって、最近ずっとスマホ見てるし。");
+    expect(html).not.toContain("ん？まだ起きてる？笑");
+  });
+
+  it("varies replies instead of repeating the identical fallback", () => {
+    const attempts = [
+      { phase: "" as const, text: "お茶でも飲もうか" },
+      { phase: "" as const, text: "..." },
+      { phase: "" as const, text: "どうしよう" },
+    ];
+    const replies = minaSanaInteractiveMessages(ping, "", "", "", attempts)
+      .filter((item) => !item.outgoing)
+      .map((item) => item.body);
+    expect(new Set(replies).size).toBe(3);
   });
 
   it("never adds free-text story prompts into other people's phones", () => {
