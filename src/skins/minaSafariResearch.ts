@@ -30,9 +30,14 @@ export function minaSafariSearchHistory(giftResearchUnlocked: boolean): string[]
 }
 
 export function isMinaSafariResearchTerm(term: string): boolean {
-  return [...minaSafariPartsSearches, ...minaSafariRingSearches].includes(
-    term.trim() as typeof minaSafariRingSearches[number],
-  );
+  const query = term.normalize("NFKC").trim().toLowerCase().replace(/\\s+/gu, "");
+  if (!query) return false;
+  if ([...minaSafariPartsSearches, ...minaSafariRingSearches].some(
+    (item) => item.normalize("NFKC").toLowerCase().replace(/\\s+/gu, "") === query,
+  )) return true;
+  if (/(?:指輪|リング)/u.test(query) && /(?:作り方|図面|設計|かわいい|サイズ|作る)/u.test(query)) return true;
+  return /(?:レゴ|lego|ブロック)/iu.test(query) &&
+    /(?:小さ|ミニ|パーツ|外れ|固定|サイズ|白|ピンク|parts|small)/iu.test(query);
 }
 
 const hobbyArticles: readonly MinaSafariArticle[] = [
