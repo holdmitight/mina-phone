@@ -46,7 +46,7 @@ function normalizeReply(text: string): string {
   return text
     .normalize("NFKC")
     .toLowerCase()
-    .replace(/[\\s\\p{P}\\p{S}]/gu, "");
+    .replace(/[\s\p{P}\p{S}]/gu, "");
 }
 
 export function matchSanaFreeText(text: string, stage: SanaStage): "awake" | SanaBranch | null {
