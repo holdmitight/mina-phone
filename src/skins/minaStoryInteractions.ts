@@ -27,66 +27,79 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
   if (!Object.values(minaClueKeys).includes(clue as (typeof minaClueKeys)[keyof typeof minaClueKeys])) {
     return runtime;
   }
-  if (runtime.clues.includes(clue)) return runtime;
 
-  const clues = [...runtime.clues, clue];
-  let next: Runtime = { ...runtime, clues };
+  const clues = [...runtime.clues];
+  let changed = false;
+  if (!clues.includes(clue)) {
+    clues.push(clue);
+    changed = true;
+  }
+  let messages = runtime.messages;
+  let notifications = runtime.notifications;
 
+  // Reconcile saved games from older builds: both clues may already be
+  // recorded even if their unlocked content was never inserted.
   const cafeLinked =
     clues.includes(minaClueKeys.cafeVisit) &&
     clues.includes(minaClueKeys.jeongyeonTalk);
-  if (cafeLinked && !clues.includes(minaClueKeys.cafeResolved)) {
-    clues.push(minaClueKeys.cafeResolved);
-    const currentDate = runtime.date || "2026-11-09";
-    const currentTime = runtime.time || "21:09";
-    const newMessage = makeItem({
-      id: "mina-story-cafe-sana-ping",
-      title: "Sana",
-      sender: "Sana",
-      body: "みーたん、まだ起きてる？",
-      time: `${currentDate} ${currentTime}`,
-      outgoing: false,
-      read: false,
-      folder: "聊天",
-      meta: { story: "cafe-crosscheck" },
-    });
-    next = {
-      ...next,
-      clues,
-      messages: {
-        ...next.messages,
-        kakao: [...(next.messages.kakao ?? []), newMessage],
-      },
-      notifications: [
-        ...next.notifications,
+  if (cafeLinked) {
+    const wasUnlocked = clues.includes(minaClueKeys.cafeResolved);
+    if (!wasUnlocked) {
+      clues.push(minaClueKeys.cafeResolved);
+      changed = true;
+      notifications = [
+        ...notifications,
         "KakaoTalk: Sana：みーたん、まだ起きてる？",
-      ],
-    };
+      ];
+    }
+    if (!(messages.kakao ?? []).some((m) => m.id === "mina-story-cafe-sana-ping")) {
+      const currentDate = runtime.date || "2026-11-09";
+      const currentTime = runtime.time || "21:09";
+      const ping = makeItem({
+        id: "mina-story-cafe-sana-ping",
+        title: "Sana",
+        sender: "Sana",
+        body: "みーたん、まだ起きてる？",
+        time: `${currentDate} ${currentTime}`,
+        outgoing: false,
+        read: false,
+        folder: "聊天",
+        meta: { story: "cafe-crosscheck" },
+      });
+      messages = {
+        ...messages,
+        kakao: [...(messages.kakao ?? []), ping],
+      };
+      changed = true;
+    }
   }
 
   const memoryLinked =
     clues.includes(minaClueKeys.oldLine) &&
     clues.includes(minaClueKeys.balletDetails);
-  if (memoryLinked && !clues.includes(minaClueKeys.memoryResolved)) {
-    clues.push(minaClueKeys.memoryResolved);
-    const newNote = makeItem({
-      id: "mina-story-rain-unsent-note",
-      title: "書きかけ",
-      body: "雨が強い。\n\n……今なら、ちゃんと言えるのに。",
-      time: "2026-11-09 20:41",
-      sender: "名井南",
-      kind: "note",
-      folder: "备忘录",
-      meta: { story: "unsent-rain" },
-    });
-    next = {
-      ...next,
-      clues,
-      messages: {
-        ...next.messages,
-        notes: [...(next.messages.notes ?? []), newNote],
-      },
-    };
+  if (memoryLinked) {
+    if (!clues.includes(minaClueKeys.memoryResolved)) {
+      clues.push(minaClueKeys.memoryResolved);
+      changed = true;
+    }
+    if (!(messages.notes ?? []).some((m) => m.id === "mina-story-rain-unsent-note")) {
+      const newNote = makeItem({
+        id: "mina-story-rain-unsent-note",
+        title: "書きかけ",
+        body: "雨が強い。\\n\\n……今なら、ちゃんと言えるのに。",
+        time: "2026-11-09 20:41",
+        sender: "名井南",
+        kind: "note",
+        folder: "备忘录",
+        meta: { story: "unsent-rain" },
+      });
+      messages = {
+        ...messages,
+        notes: [...(messages.notes ?? []), newNote],
+      };
+      changed = true;
+    }
   }
-  return next;
+
+  return changed ? { ...runtime, clues, messages, notifications } : runtime;
 }
