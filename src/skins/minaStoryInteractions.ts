@@ -155,6 +155,7 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
         ...messages,
         notes: [...(messages.notes ?? []), newNote],
       };
+      changed = true;
     }
     if (!(messages.photos ?? []).some((item) => item.id === "mina-story-summer-album-unlocked")) {
       messages = {
@@ -168,7 +169,6 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
           meta: { story: "summer-archive" },
         })],
       };
-      changed = true;
       changed = true;
     }
   }
