@@ -7,6 +7,7 @@ import {
 import { useSkinState } from "../skinState";
 import type { Props } from "./shared";
 import { spotifyReferenceArt } from "./spotifyReferenceArt";
+import { minaClueKeys } from "./minaStoryInteractions";
 import "./mina-spotify.css";
 
 type SpotifyScreen = "home" | "search" | "library" | "create";
@@ -35,9 +36,17 @@ export const spotifyInitialSearches = [
   "Energetic K-Pop Mix",
   "Don't Stop the Clocks",
 ] as const;
-const allEntries: Entry[] = [...quickPlaylists, ...featuredPlaylists, ...recommended];
+const summerEntry: Entry = { id: "summer2015", title: "2015, summer.", subtitle: "非公開 · 名井南", artwork: "pages" };
+const allEntries: Entry[] = [...quickPlaylists, ...featuredPlaylists, ...recommended, summerEntry];
 const resolveEntry = (id: string) => allEntries.find((entry) => entry.id === id);
+const summerTracks = [
+  { id: "rain", title: "雨が強い", subtitle: "夏のメモ · 2015.07.04" },
+  { id: "ballet", title: "帰り道", subtitle: "夏のメモ · 2015.06.16" },
+  { id: "sea", title: "いつか、海へ", subtitle: "夏のメモ · 2015.08.09" },
+] as const;
 function Artwork({ item, className = "" }: { item: Entry; className?: string }) {
+  if (item.id === summerEntry.id)
+    return <div className={className + " mina-spotify-summer-art"} role="img" aria-label="夕暮れの海のプレイリストアート"><span>2015,<br/>summer.</span></div>;
   return <img className={className} src={spotifyReferenceArt[item.artwork]} alt={item.title + " のアートワーク"} />;
 }
 
@@ -54,10 +63,12 @@ export function MinaSpotifySkin(p: Props) {
   const [selected, setSelected] = useState("");
   const [draftName, setDraftName] = useState("");
   const [notice, setNotice] = useState("");
-  const current = resolveEntry(currentId) ?? recommended[1];
-  const selectedEntry = resolveEntry(selected);
+  const summerUnlocked = p.owner === "名井南" && p.items.some((item) => item.id === "mina-story-spotify-summer-unlocked");
+  const visibleEntries = allEntries.filter((entry) => entry.id !== summerEntry.id || summerUnlocked);
+  const current = visibleEntries.find((entry) => entry.id === currentId) ?? recommended[1];
+  const selectedEntry = visibleEntries.find((entry) => entry.id === selected);
   const searched = query.trim().toLocaleLowerCase();
-  const results = allEntries.filter((entry) =>
+  const results = visibleEntries.filter((entry) =>
     (entry.title + " " + (entry.subtitle ?? "")).toLocaleLowerCase().includes(searched)
   );
   const historyEntries = history.filter((value) => !searched || value.toLocaleLowerCase().includes(searched));
@@ -78,6 +89,7 @@ export function MinaSpotifySkin(p: Props) {
     setSearchEdit(true);
   }
   function viewEntry(entry: Entry) {
+    if (entry.id === summerEntry.id && summerUnlocked) p.onClue?.(minaClueKeys.summerPlaylistSeen);
     setSelected(entry.id);
     setNotice("");
   }
@@ -131,13 +143,27 @@ export function MinaSpotifySkin(p: Props) {
             </button>
             <button className="mina-spotify-large-play" aria-label="デモの再生状態を切り替える" onClick={() => setSong(selectedEntry)}><Play size={25} fill="currentColor"/></button>
           </div>
-          <p className="mina-spotify-detail-caption">おすすめの曲</p>
-          {(p.items.length ? p.items.slice(0,6).map((item) => ({
-            id: "story-"+item.id,title:item.title,subtitle:item.sender,artwork:selectedEntry.artwork,
-          })) : [recommended[1],recommended[0],recommended[2]]).map((item) =>
-            <button className="mina-spotify-detail-song" key={item.id} onClick={() => setSong(item as Entry)}>
-              <Artwork item={item as Entry}/><span><strong>{item.title}</strong><small>{item.subtitle || "Spotify"}</small></span><Play size={17}/>
-            </button>)}
+          <p className="mina-spotify-detail-caption">{selectedEntry.id === summerEntry.id ? "この夏の記憶" : "おすすめの曲"}</p>
+          {selectedEntry.id === summerEntry.id ? (
+            <>
+              <p className="mina-spotify-summer-caption">昔のメモに残っていた、三つの小さな記憶。</p>
+              {summerTracks.map((track, index) => (
+                <button className="mina-spotify-detail-song" key={track.id}
+                  onClick={() => setNotice("保存された思い出のメモです。音声は再生されません。")}>
+                  <span className="mina-spotify-summer-number">{index + 1}</span>
+                  <span><strong>{track.title}</strong><small>{track.subtitle}</small></span>
+                  <MoreHorizontal size={16}/>
+                </button>
+              ))}
+            </>
+          ) : (
+            (p.items.length ? p.items.filter((item) => item.id !== "mina-story-spotify-summer-unlocked").slice(0,6).map((item) => ({
+              id: "story-"+item.id,title:item.title,subtitle:item.sender,artwork:selectedEntry.artwork,
+            })) : [recommended[1],recommended[0],recommended[2]]).map((item) =>
+              <button className="mina-spotify-detail-song" key={item.id} onClick={() => setSong(item as Entry)}>
+                <Artwork item={item as Entry}/><span><strong>{item.title}</strong><small>{item.subtitle || "Spotify"}</small></span><Play size={17}/>
+              </button>)
+          )}
         </div>
       ) : screen === "home" ? (
         <>
@@ -145,6 +171,16 @@ export function MinaSpotifySkin(p: Props) {
             <div className="mina-spotify-quick-grid">{quickPlaylists.map((item) =>
               <button key={item.id} onClick={() => viewEntry(item)}><Artwork item={item}/><strong>{item.title}</strong></button>
             )}</div>
+            {summerUnlocked && (
+              <section className="mina-spotify-private-row">
+                <small>あなたのプレイリスト</small>
+                <button onClick={() => viewEntry(summerEntry)} aria-label="2015, summer. のプレイリストを開く">
+                  <Artwork item={summerEntry}/>
+                  <span><strong>2015, summer.</strong><small>非公開 · 昔のプレイリスト</small></span>
+                  <ChevronRight size={16}/>
+                </button>
+              </section>
+            )}
             <button className="mina-spotify-ai" onClick={() => setNotice("このデモではAIプレイリストの作成には対応していません。")}>
               <AudioLines size={19}/><span>次に聴きたい曲をSpotifyに伝えよう</span><small>ベータ版</small><Mic2 size={17}/>
             </button>
@@ -212,9 +248,10 @@ export function MinaSpotifySkin(p: Props) {
         <div className="mina-spotify-library">
           <h1>マイライブラリ</h1>
           <div className="mina-spotify-library-actions"><button onClick={()=>openScreen("create")}><Plus size={16}/>プレイリストを作成</button></div>
-          {saved.map((id)=>{const entry=resolveEntry(id);return entry && <button className="mina-spotify-library-row" key={id} onClick={()=>viewEntry(entry)}><Artwork item={entry}/><span><strong>{entry.title}</strong><small>保存済み</small></span><ChevronRight size={18}/></button>})}
+          {summerUnlocked && <button className="mina-spotify-library-row" onClick={() => viewEntry(summerEntry)} aria-label="2015, summer. を開く"><Artwork item={summerEntry}/><span><strong>{summerEntry.title}</strong><small>非公開 · 2015年に保存</small></span><ChevronRight size={18}/></button>}
+          {saved.filter((id) => id !== summerEntry.id).map((id)=>{const entry=resolveEntry(id);return entry && <button className="mina-spotify-library-row" key={id} onClick={()=>viewEntry(entry)}><Artwork item={entry}/><span><strong>{entry.title}</strong><small>保存済み</small></span><ChevronRight size={18}/></button>})}
           {created.map((name)=><div className="mina-spotify-library-row" key={name}><span className="mina-spotify-custom-art"><ListMusic size={26}/></span><span><strong>{name}</strong><small>マイプレイリスト</small></span></div>)}
-          {!saved.length && !created.length && <p className="mina-spotify-no-results">保存されたプレイリストはありません。</p>}
+          {!saved.length && !created.length && !summerUnlocked && <p className="mina-spotify-no-results">保存されたプレイリストはありません。</p>}
         </div>
       ) : (
         <div className="mina-spotify-create">
