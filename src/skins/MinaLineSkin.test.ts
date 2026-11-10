@@ -68,8 +68,10 @@ describe("Mina's summer-to-November 2015 LINE archive", () => {
   });
 
   it("shows distance growing after her September departure and no reply after debut", () => {
-    const october = minaLineMemories.filter((m) => m.day >= "2015-10-21");
-    expect(october.every((m) => m.from === "a")).toBe(true);
+    const unanswered = minaLineMemories.filter((m) => m.day >= "2015-11-04");
+    expect(unanswered.every((m) => m.from === "a")).toBe(true);
+    expect(minaLineMemories.find((m) => m.id === "2015-11-03-breakup-a")?.text).toContain("別れたほう");
+    expect(minaLineMemories.find((m) => m.id === "2015-11-03-breakup-mina")?.text).toBe("ごめんね。");
     const postDeparture = minaLineMemories.filter((m) => m.day >= "2015-09-20");
     expect(postDeparture.filter((m) => m.from === "a").length)
       .toBeGreaterThan(postDeparture.filter((m) => m.from === "mina").length);
