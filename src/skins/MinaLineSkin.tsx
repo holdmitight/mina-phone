@@ -20,6 +20,7 @@ import {
   minaLineMemories,
   minaLineThreadName,
 } from "./minaLineMemories";
+import { minaClueKeys } from "./minaStoryInteractions";
 import "./mina-line-memory.css";
 
 const formatDay = (day: string) => {
@@ -327,6 +328,7 @@ export function MinaLineSkin(p: Props) {
                 className="mina-line-chat-row"
                 onClick={() => {
                   p.onThread(minaLineThreadName);
+                  p.onClue?.(minaClueKeys.oldLine);
                   setMenuOpen(false);
                 }}
               >
