@@ -31,7 +31,6 @@ import { download } from "../io";
 import { safeMedia, type Item } from "../schema";
 import { minaClueKeys } from "./minaStoryInteractions";
 import {
-  minaSafariRingSearches,
   minaSafariSearchHistory,
   isMinaSafariResearchTerm,
   minaSafariResearchResults,
