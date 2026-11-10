@@ -1,4 +1,5 @@
 import { makeItem, type Runtime, type Work } from "../schema";
+import { minaUnsentLetter } from "./minaUnsentArchive";
 
 export const minaClueKeys = {
   cafeVisit: "mina:map:cafe-visit",
@@ -16,6 +17,12 @@ export const minaClueKeys = {
   safariResearchSeen: "mina:safari:miniature-research",
   legoPhotoSeen: "mina:photos:lego-work",
   giftTrailResolved: "mina:unlocked:gift-trail",
+  lineBreakupSeen: "mina:line:last-message-read",
+  summerAlbumRead: "mina:photos:summer-detail",
+  summerPlaylistSeen: "mina:spotify:summer-playlist",
+  unsentBreakupReady: "mina:unlocked:2015-unsent",
+  unsentLaterReady: "mina:unlocked:2018-unsent",
+  unsentReunionReady: "mina:unlocked:2025-unsent",
 } as const;
 
 export function isMinaStoryWork(work: Work): boolean {
@@ -24,6 +31,49 @@ export function isMinaStoryWork(work: Work): boolean {
     (work.data.maps ?? []).some((item) => item.id === "maps-cafe") &&
     (work.data.kakao ?? []).some((item) => item.id === "kaka-sana-1")
   );
+}
+
+/** Render the author's 2025 reunion consistently without mutating the
+ * original editable source work. All existing story item IDs remain stable.
+ */
+export function normalizeMinaStoryWork(work: Work): Work {
+  if (!isMinaStoryWork(work)) return work;
+  const data = Object.fromEntries(
+    Object.entries(work.data).map(([app, items]) => [
+      app,
+      items.map((item) => ({
+        ...item,
+        time: item.time.replace(/^2026-11-/u, "2025-11-"),
+      })),
+    ]),
+  );
+  return {
+    ...work,
+    phone: {
+      ...work.phone,
+      date: work.phone.date?.replace(/^2026-11-/u, "2025-11-") ?? "2025-11-09",
+    },
+    data,
+  };
+}
+
+/** Migrate already-started saves in place. Do not reset choices, chats,
+ * notifications, or the author's stored progress when updating the date.
+ */
+export function normalizeMinaStoryRuntime(runtime: Runtime): Runtime {
+  const date = runtime.date?.replace(/^2026-11-/u, "2025-11-");
+  let changed = date !== runtime.date;
+  const messages = Object.fromEntries(
+    Object.entries(runtime.messages).map(([app, items]) => [
+      app,
+      items.map((item) => {
+        const time = item.time.replace(/^2026-11-/u, "2025-11-");
+        if (time !== item.time) changed = true;
+        return time === item.time ? item : { ...item, time };
+      }),
+    ]),
+  );
+  return changed ? { ...runtime, date, messages } : runtime;
 }
 
 /**
@@ -95,7 +145,7 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
         id: "mina-story-rain-unsent-note",
         title: "書きかけ",
         body: "雨が強い。\n\n……今なら、ちゃんと言えるのに。",
-        time: "2026-11-09 20:41",
+        time: "2025-11-04 20:41",
         sender: "名井南",
         kind: "note",
         folder: "备忘录",
@@ -105,10 +155,65 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
         ...messages,
         notes: [...(messages.notes ?? []), newNote],
       };
+    }
+    if (!(messages.photos ?? []).some((item) => item.id === "mina-story-summer-album-unlocked")) {
+      messages = {
+        ...messages,
+        photos: [...(messages.photos ?? []), makeItem({
+          id: "mina-story-summer-album-unlocked",
+          title: "2015, summer.",
+          body: "昔の写真",
+          sender: "名井南",
+          time: "2015-08-09 16:29",
+          meta: { story: "summer-archive" },
+        })],
+      };
+      changed = true;
       changed = true;
     }
   }
 
+
+  // Hidden drafts become visible through actual exploration, not a chapter
+  // button or automatic exposition. Both discovery orders are supported.
+  const breakupLinked =
+    clues.includes(minaClueKeys.lineBreakupSeen) &&
+    clues.includes(minaClueKeys.balletDetails);
+  const addLetter = (key: "breakup" | "later" | "reunion", clueKey: string) => {
+    const id = {
+      breakup: "mina-story-unsent-2015",
+      later: "mina-story-unsent-2018",
+      reunion: "mina-story-unsent-2025",
+    }[key];
+    if (!clues.includes(clueKey)) {
+      clues.push(clueKey);
+      changed = true;
+    }
+    if (!(messages.notes ?? []).some((item) => item.id === id)) {
+      messages = { ...messages, notes: [...(messages.notes ?? []), minaUnsentLetter(key)] };
+      changed = true;
+    }
+  };
+  if (breakupLinked) addLetter("breakup", minaClueKeys.unsentBreakupReady);
+
+  if (clues.includes(minaClueKeys.summerAlbumRead)) {
+    if (!(messages.spotify ?? []).some((item) => item.id === "mina-story-spotify-summer-unlocked")) {
+      messages = {
+        ...messages,
+        spotify: [...(messages.spotify ?? []), makeItem({
+          id: "mina-story-spotify-summer-unlocked",
+          title: "2015, summer.",
+          body: "個人のプレイリスト",
+          time: "2015-08-09 16:29",
+          sender: "名井南",
+          meta: { story: "summer-playlist" },
+        })],
+      };
+      changed = true;
+    }
+  }
+  if (breakupLinked && clues.includes(minaClueKeys.summerPlaylistSeen))
+    addLetter("later", minaClueKeys.unsentLaterReady);
 
   // All three free-text Sana responses converge here. The archived Jeongyeon
   // exchange is from before the phone was lost: Mina never sends a new message
@@ -239,6 +344,11 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
       changed = true;
     }
   }
+
+  if (clues.includes(minaClueKeys.giftTrailResolved) &&
+      clues.includes(minaClueKeys.summerPlaylistSeen) &&
+      clues.includes(minaClueKeys.lineBreakupSeen))
+    addLetter("reunion", minaClueKeys.unsentReunionReady);
 
   return changed ? { ...runtime, clues, messages, notifications } : runtime;
 }
