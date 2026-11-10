@@ -106,6 +106,61 @@
 .mina-amazon-app .amazon-results article h3{font-size:12px;font-weight:500;line-height:1.5;margin:0 0 10px;}
 .mina-amazon-app .amazon-results article strong{display:block;font-size:19px;}
 .mina-amazon-app .amazon-results article button{margin-top:9px;border-radius:20px;padding:8px 11px;background:var(--amazon-yellow);font-size:11px;}
+
+/* Subtle brick parts from a fictional saved search, not extra cart items. */
+.mina-amazon-app .amazon-mini-parts-result .amazon-mini-parts-swatch {
+  flex: 0 0 40%;
+  height: 110px;
+  display: grid;
+  grid-template-columns: repeat(2, 40px);
+  grid-template-rows: repeat(2, 28px);
+  align-content: center;
+  justify-content: center;
+  gap: 5px;
+  border-radius: 8px;
+  background: #f6f2f0;
+}
+.mina-amazon-app .amazon-mini-parts-result .amazon-mini-parts-swatch.pink {
+  background: #faf2f5;
+}
+.mina-amazon-app .amazon-mini-parts-result .amazon-mini-parts-swatch i {
+  position: relative;
+  display: block;
+  border-radius: 4px;
+  background: #fbf9f5;
+  box-shadow: 2px 3px 3px #00000016, inset 0 0 0 1px #d6cbc4;
+}
+.mina-amazon-app .amazon-mini-parts-result .amazon-mini-parts-swatch.pink i {
+  background: #f7c6d2;
+  box-shadow: 2px 3px 3px #00000014, inset 0 0 0 1px #d58fa3;
+}
+.mina-amazon-app .amazon-mini-parts-result .amazon-mini-parts-swatch i::before {
+  content: "";
+  position: absolute;
+  width: 15px;
+  height: 8px;
+  left: 12px;
+  top: -3px;
+  border-radius: 50% 50% 35% 35%;
+  background: inherit;
+  border: 1px solid #d4c9c2;
+}
+.mina-amazon-app .amazon-mini-parts-result .amazon-mini-parts-swatch.pink i::before {
+  border-color: #da97a7;
+}
+.mina-amazon-app .amazon-mini-parts-result small {
+  display: block;
+  font-size: 11px;
+  color: #19804d;
+  margin-top: 5px;
+}
+.mina-amazon-app .amazon-mini-parts-result .amazon-mini-parts-detail {
+  font-size: 11px;
+  line-height: 1.6;
+  color: #666;
+  margin-top: 8px;
+}
+
 .mina-amazon-app .amazon-account{padding:55px 18px;text-align:center;}
 .mina-amazon-app .amazon-account svg{color:#697b80;}
 .mina-amazon-app .amazon-account h2{font-size:18px;}
