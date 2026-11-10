@@ -522,6 +522,116 @@
 .safari-search-entry strong { font-size: 12px; font-weight: 550; color: #22262b; }
 .safari-search-entry small { font-size: 10px; color: #979da5; }
 .safari-search-chevron { flex-shrink: 0; color: #b4bbc3; }
+
+/* Offline Safari research: normal search results instead of explicit story exposition. */
+.safari-research-page {
+  padding: 4px 16px 24px;
+  color: #292d36;
+  background: #fafbfc;
+  min-height: 100%;
+}
+.safari-research-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 9px 0 16px;
+  color: #386aab;
+  font-size: 12px;
+}
+.safari-research-google {
+  font-size: 25px;
+  letter-spacing: -1.3px;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 14px;
+  color: #567cb5;
+}
+.safari-research-google span { color: #4285f4; }
+.safari-research-query {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 13px;
+  background: #fff;
+  border: 1px solid #e4e8ef;
+  border-radius: 24px;
+  font-size: 12px;
+  box-shadow: 0 1px 4px #00000008;
+  overflow-wrap: anywhere;
+}
+.safari-research-filter {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 14px 2px 9px;
+  border-bottom: 1px solid #edf0f3;
+  color: #8c929c;
+  font-size: 11px;
+}
+.safari-research-filter strong {
+  border-bottom: 2px solid #4b79b9;
+  padding-bottom: 7px;
+  color: #4273b3;
+}
+.safari-research-result {
+  width: 100%;
+  padding: 16px 3px 14px;
+  border-bottom: 1px solid #eaeef2;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  overflow-wrap: anywhere;
+}
+.safari-research-result small, .safari-research-url {
+  color: #818a97;
+  font-size: 10px;
+}
+.safari-research-result strong {
+  color: #315fa3;
+  font-size: 14px;
+  font-weight: 580;
+  line-height: 1.45;
+}
+.safari-research-result p {
+  color: #656d79;
+  font-size: 11.5px;
+  line-height: 1.7;
+  margin: 0;
+}
+.safari-research-article {
+  background: #fff;
+  padding: 19px 17px;
+  border-radius: 12px;
+  box-shadow: 0 2px 9px #202f4710;
+}
+.safari-research-article h2 {
+  font-size: 18px;
+  font-weight: 650;
+  line-height: 1.5;
+  margin: 12px 0 16px;
+}
+.safari-research-article p {
+  font-size: 12.5px;
+  line-height: 1.95;
+  color: #4e5764;
+  margin: 0 0 15px;
+}
+.safari-research-footnote {
+  display: block;
+  border-top: 1px solid #e8ebf0;
+  padding-top: 12px;
+  color: #a1a6ad;
+  font-size: 10px;
+}
+.safari-research-no-results {
+  color: #8a9099;
+  padding: 16px 3px;
+  font-size: 12px;
+}
+
 .safari-address > button { border: 0; padding: 3px; display: grid; place-items: center; color: inherit; }
 .safari-favorites {
   display: grid;
