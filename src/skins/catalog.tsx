@@ -27,7 +27,7 @@ export const catalogSkins = {
   reminders: skin(system, "RemindersSkin"),
   files: skin(system, "FilesSkin"),
   music: skin(system, "MusicSkin"),
-  maps: skin(system, "MapsSkin"),
+  maps: skin(() => import("./MinaMapsSkin"), "MinaMapsSkin"),
   weather: skin(system, "WeatherSkin"),
   wallet: skin(system, "WalletSkin"),
   health: skin(system, "HealthSkin"),
