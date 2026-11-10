@@ -295,10 +295,15 @@ function PhoneRuntime({
     }
     const target = notificationContent(notice, work.apps).appId;
     if (work.apps.some((a) => a.id === target && a.installed)) {
-      if (target === "kakao" && notice.includes("Sana：")) {
-        setNoticeThread((previous) => ({
+      if (target === "kakao") {
+        const thread = notice.includes("Sana：")
+          ? "Sana"
+          : notice.includes("Jeongyeon：")
+            ? "Jeongyeon"
+            : null;
+        if (thread) setNoticeThread((previous) => ({
           appId: target,
-          thread: "Sana",
+          thread,
           seq: (previous?.seq ?? 0) + 1,
         }));
       }
