@@ -86,7 +86,7 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
       const newNote = makeItem({
         id: "mina-story-rain-unsent-note",
         title: "書きかけ",
-        body: "雨が強い。\\n\\n……今なら、ちゃんと言えるのに。",
+        body: "雨が強い。\n\n……今なら、ちゃんと言えるのに。",
         time: "2026-11-09 20:41",
         sender: "名井南",
         kind: "note",
