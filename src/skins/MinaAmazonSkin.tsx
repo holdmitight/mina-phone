@@ -73,7 +73,7 @@ export function MinaAmazonSkin(p: Props) {
   const searchHistory = storyPartsUnlocked && !history.includes(giftPartsSearch) && !hiddenStoryHistory.includes(giftPartsSearch)
     ? [giftPartsSearch, ...history] : history;
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeQuery, setActiveQuery] = useState("");
+  const [activeQuery, setActiveQuery] = useSkinState<string>(p, "amazon-active-query", "");
   const [selectedMiniPart, setSelectedMiniPart] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
   const searchRef = useRef<HTMLInputElement>(null);
