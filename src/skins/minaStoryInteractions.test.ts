@@ -217,7 +217,7 @@ describe("Mina cross-app discoveries", () => {
     for (const key of [clues.oldLine, clues.legoPhotoSeen, clues.amazonPartsSeen]) {
       state = discoverMinaClue(state, key);
     }
-    const oldText = "何回やり直しても、うまくいかない。\\n\\nでも、自分で作りたい。\\n……あの約束だから。";
+    const oldText = ["何回やり直しても、うまくいかない。", "", "でも、自分で作りたい。", "……あの約束だから。"].join("\n");
     const oldState = {
       ...state,
       messages: {
