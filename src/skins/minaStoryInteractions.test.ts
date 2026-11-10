@@ -170,9 +170,11 @@ describe("Mina cross-app discoveries", () => {
     const afterSana = discoverMinaClue(initialRuntime(fixture), clues.sanaFinished);
     expect(afterSana.messages.amazonjp).toBeUndefined();
     expect(afterSana.messages.photos).toBeUndefined();
+    expect(afterSana.messages.safari).toBeUndefined();
     const afterJeongyeon = discoverMinaClue(afterSana, clues.jeongyeonGiftRead);
     expect(afterJeongyeon.messages.amazonjp.map((item) => item.id)).toContain("mina-story-lego-amazon-unlocked");
     expect(afterJeongyeon.messages.photos.map((item) => item.id)).toContain("mina-story-lego-photos-unlocked");
+    expect(afterJeongyeon.messages.safari.map((item) => item.id)).toContain("mina-story-lego-safari-unlocked");
     expect(discoverMinaClue(afterJeongyeon, clues.jeongyeonGiftRead)).toBe(afterJeongyeon);
   });
 
@@ -192,6 +194,43 @@ describe("Mina cross-app discoveries", () => {
     expect(JSON.parse(JSON.stringify(state)).messages.notes.some(
       (item: { id: string }) => item.id === "mina-story-gift-unsent-draft",
     )).toBe(true);
+  });
+
+  it("lets Safari research replace Amazon as the technical clue without weakening the old route", () => {
+    let state = discoverMinaClue(initialRuntime(fixture), clues.jeongyeonGiftRead);
+    state = discoverMinaClue(state, clues.oldLine);
+    state = discoverMinaClue(state, clues.legoPhotoSeen);
+    expect((state.messages.notes ?? []).find((i) => i.id === "mina-story-gift-unsent-draft")).toBeUndefined();
+    state = discoverMinaClue(state, clues.safariResearchSeen);
+    const draft = state.messages.notes.find((i) => i.id === "mina-story-gift-unsent-draft");
+    expect(state.clues).toContain(clues.giftTrailResolved);
+    expect(draft?.body).toContain("あの時は、冗談だと思ってた。");
+    expect(draft?.body).toContain("私はずっと覚えてる");
+    expect(draft?.body).toContain("あの約束");
+    expect(draft?.body).toContain("困らせるだけかな");
+    expect(draft?.body).not.toContain("スマホをわざと");
+    expect(discoverMinaClue(state, clues.safariResearchSeen)).toBe(state);
+  });
+
+  it("upgrades previously unlocked short drafts without creating duplicate notes", () => {
+    let state = initialRuntime(fixture);
+    for (const key of [clues.oldLine, clues.legoPhotoSeen, clues.amazonPartsSeen]) {
+      state = discoverMinaClue(state, key);
+    }
+    const oldText = "何回やり直しても、うまくいかない。\\n\\nでも、自分で作りたい。\\n……あの約束だから。";
+    const oldState = {
+      ...state,
+      messages: {
+        ...state.messages,
+        notes: (state.messages.notes ?? []).map((item) =>
+          item.id === "mina-story-gift-unsent-draft" ? { ...item, body: oldText } : item,
+        ),
+      },
+    };
+    const upgraded = discoverMinaClue(oldState, clues.oldLine);
+    expect(upgraded.messages.notes.filter((i) => i.id === "mina-story-gift-unsent-draft")).toHaveLength(1);
+    expect(upgraded.messages.notes.find((i) => i.id === "mina-story-gift-unsent-draft")?.body).toContain("冗談");
+    expect(discoverMinaClue(upgraded, clues.oldLine)).toBe(upgraded);
   });
 
   it("retains all progress with a serializable runtime and ignores unrecognized clues", () => {
