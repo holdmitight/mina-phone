@@ -1,0 +1,102 @@
+import { describe, expect, it } from "vitest";
+import { initialRuntime, type Work } from "../schema";
+import {
+  discoverMinaClue,
+  isMinaStoryWork,
+  minaClueKeys as clues,
+} from "./minaStoryInteractions";
+import { notificationContent } from "../SystemNotifications";
+
+const fixture = {
+  id: "mina-test",
+  updatedAt: 1,
+  phone: { owner: "名井南", date: "2026-11-09", time: "21:09" },
+  variables: {},
+  apps: [{ id: "kakao", name: "KakaoTalk" }],
+  data: {
+    maps: [{ id: "maps-cafe" }],
+    kakao: [{ id: "kaka-sana-1" }],
+  },
+} as unknown as Work;
+
+describe("Mina cross-app discoveries", () => {
+  it("activates only for the specific Mina Phone story", () => {
+    expect(isMinaStoryWork(fixture)).toBe(true);
+    expect(isMinaStoryWork({
+      ...fixture,
+      phone: { ...fixture.phone, owner: "他の人" },
+    })).toBe(false);
+    expect(isMinaStoryWork({
+      ...fixture,
+      data: { ...fixture.data, maps: [] },
+    })).toBe(false);
+  });
+
+  it("unlocks Sana's KakaoTalk notification after the cafe visits and Jeongyeon's chat in either order", () => {
+    const start = initialRuntime(fixture);
+    const mapFirst = discoverMinaClue(discoverMinaClue(start, clues.cafeVisit), clues.jeongyeonTalk);
+    const chatFirst = discoverMinaClue(discoverMinaClue(start, clues.jeongyeonTalk), clues.cafeVisit);
+    for (const result of [mapFirst, chatFirst]) {
+      expect(result.clues).toContain(clues.cafeResolved);
+      expect(result.notifications).toContain("KakaoTalk: Sana：みーたん、まだ起きてる？");
+      expect(result.messages.kakao).toHaveLength(1);
+      expect(result.messages.kakao[0]).toMatchObject({
+        id: "mina-story-cafe-sana-ping",
+        title: "Sana",
+        body: "みーたん、まだ起きてる？",
+        outgoing: false,
+      });
+      expect(
+        notificationContent(result.notifications[0], fixture.apps).appId,
+      ).toBe("kakao");
+    }
+    expect(discoverMinaClue(start, clues.cafeVisit).notifications).toHaveLength(0);
+    expect(discoverMinaClue(start, clues.jeongyeonTalk).messages.kakao).toBeUndefined();
+  });
+
+  it("does not repeat unlocked messages or notifications on revisiting either app", () => {
+    const start = initialRuntime(fixture);
+    const unlocked = discoverMinaClue(discoverMinaClue(start, clues.cafeVisit), clues.jeongyeonTalk);
+    expect(discoverMinaClue(unlocked, clues.cafeVisit)).toBe(unlocked);
+    expect(discoverMinaClue(unlocked, clues.jeongyeonTalk)).toBe(unlocked);
+    expect(unlocked.messages.kakao).toHaveLength(1);
+    expect(unlocked.notifications).toHaveLength(1);
+  });
+
+  it("shows the unsent 2014-inspired note only after both ballet details and the old LINE are inspected", () => {
+    const initial = initialRuntime(fixture);
+    const photoOnly = discoverMinaClue(initial, clues.balletDetails);
+    const lineOnly = discoverMinaClue(initial, clues.oldLine);
+    expect(photoOnly.messages.notes).toBeUndefined();
+    expect(lineOnly.messages.notes).toBeUndefined();
+
+    const photoThenLine = discoverMinaClue(photoOnly, clues.oldLine);
+    const lineThenPhoto = discoverMinaClue(lineOnly, clues.balletDetails);
+    for (const result of [photoThenLine, lineThenPhoto]) {
+      expect(result.clues).toContain(clues.memoryResolved);
+      expect(result.messages.notes).toHaveLength(1);
+      expect(result.messages.notes[0]).toMatchObject({
+        id: "mina-story-rain-unsent-note",
+        title: "書きかけ",
+        sender: "名井南",
+      });
+      expect(result.messages.notes[0].body).toContain("雨が強い。");
+      expect(result.messages.notes[0].body).not.toContain("A");
+    }
+    expect(discoverMinaClue(photoThenLine, clues.oldLine)).toBe(photoThenLine);
+  });
+
+  it("retains all progress with a serializable runtime and ignores unrecognized clues", () => {
+    let state = initialRuntime(fixture);
+    state = discoverMinaClue(state, clues.cafeVisit);
+    state = discoverMinaClue(state, clues.jeongyeonTalk);
+    state = discoverMinaClue(state, clues.oldLine);
+    state = discoverMinaClue(state, clues.balletDetails);
+    expect(state.messages.kakao).toHaveLength(1);
+    expect(state.messages.notes).toHaveLength(1);
+    const copied = JSON.parse(JSON.stringify(state));
+    expect(copied.clues).toEqual(state.clues);
+    expect(copied.messages.notes[0].body).toContain("雨が強い。");
+    expect(discoverMinaClue(state, "other-app:unknown")).toBe(state);
+  });
+});
