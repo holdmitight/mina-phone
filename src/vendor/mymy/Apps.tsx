@@ -38,6 +38,7 @@ import "./adapter.css";
 import { minaInstagramAvatar } from "../../skins/mina-instagram-avatar";
 import { kakaoDefaultAvatar } from "./kakao-default-avatar";
 import { minaKakao2025Items } from "./mina-kakao-2025";
+import { minaClueKeys } from "../../skins/minaStoryInteractions";
 import "../../skins/mina-instagram.css";
 function grouped(items: Item[]) {
   return [...new Set(items.map((i) => i.title))].map((title) => ({
@@ -316,7 +317,13 @@ export function MymyKakao(p: SkinProps) {
                   <button
                     className="kzkr kzkcr"
                     key={g.title}
-                    onClick={() => p.onThread(g.title)}
+                    onClick={() => {
+                      p.onThread(g.title);
+                      if (isMinaStory && g.title === "Jeongyeon")
+                        p.onClue?.(minaClueKeys.jeongyeonTalk);
+                      if (isMinaStory && g.title === "Sana")
+                        p.onClue?.(minaClueKeys.sanaTalk);
+                    }}
                   >
                     <Avatar name={last.sender || g.title} src={kakaoDefaultAvatar} />
                     <span className="kzkn">
