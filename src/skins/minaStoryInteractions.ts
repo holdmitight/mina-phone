@@ -12,6 +12,7 @@ export const minaClueKeys = {
   jeongyeonGiftReady: "mina:unlocked:jeongyeon-gift",
   jeongyeonGiftRead: "mina:kakao:jeongyeon-gift-read",
   amazonPartsSeen: "mina:amazon:small-parts",
+  safariResearchSeen: "mina:safari:miniature-research",
   legoPhotoSeen: "mina:photos:lego-work",
   giftTrailResolved: "mina:unlocked:gift-trail",
 } as const;
@@ -162,6 +163,7 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
     for (const [appId, id] of [
       ["amazonjp", "mina-story-lego-amazon-unlocked"],
       ["photos", "mina-story-lego-photos-unlocked"],
+      ["safari", "mina-story-lego-safari-unlocked"],
     ] as const) {
       if (!(messages[appId] ?? []).some((item) => item.id === id)) {
         messages = {
@@ -180,10 +182,24 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
     }
   }
 
+  const oldGiftDraft = "何回やり直しても、うまくいかない。\n\nでも、自分で作りたい。\n……あの約束だから。";
+  const refinedGiftDraft = [
+    "何回やり直しても、うまくいかない。",
+    "",
+    "あの時は、冗談だと思ってた。",
+    "でも、私はずっと覚えてる。",
+    "",
+    "自分で作りたい。",
+    "……あの約束だから。",
+    "",
+    "今さら渡しても、困らせるだけかな。",
+  ].join("\n");
+
   // The three discoveries can be made in any order. This note is only a
   // partial hint: the finished ring and intentional phone drop stay hidden.
   const giftLinked =
-    clues.includes(minaClueKeys.amazonPartsSeen) &&
+    (clues.includes(minaClueKeys.amazonPartsSeen) ||
+      clues.includes(minaClueKeys.safariResearchSeen)) &&
     clues.includes(minaClueKeys.legoPhotoSeen) &&
     clues.includes(minaClueKeys.oldLine);
   if (giftLinked) {
@@ -197,13 +213,25 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
         notes: [...(messages.notes ?? []), makeItem({
           id: "mina-story-gift-unsent-draft",
           title: "作り直し",
-          body: "何回やり直しても、うまくいかない。\n\nでも、自分で作りたい。\n……あの約束だから。",
+          body: refinedGiftDraft,
           time: "2025-11-08 23:18",
           sender: "名井南",
           kind: "note",
           folder: "备忘录",
           meta: { story: "gift-trail" },
         })],
+      };
+      changed = true;
+    }
+    // Upgrade the generated note in older saves, but never overwrite text
+    // that differs from the original authored draft.
+    const savedGiftDraft = (messages.notes ?? []).find((item) => item.id === "mina-story-gift-unsent-draft");
+    if (savedGiftDraft?.body === oldGiftDraft) {
+      messages = {
+        ...messages,
+        notes: (messages.notes ?? []).map((item) =>
+          item.id === savedGiftDraft.id ? { ...item, body: refinedGiftDraft } : item,
+        ),
       };
       changed = true;
     }
