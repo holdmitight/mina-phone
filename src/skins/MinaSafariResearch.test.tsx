@@ -83,6 +83,9 @@ describe("Mina Safari research and history", () => {
       expect(copy).not.toContain("名井南");
     }
     expect(minaSafariResearchResults("天気")).toEqual([]);
+    expect(isMinaSafariResearchTerm("レゴ パーツ 外れない")).toBe(true);
+    expect(isMinaSafariResearchTerm("ミニブロック 固定")).toBe(true);
+    expect(isMinaSafariResearchTerm("指輪 サイズ")).toBe(true);
     expect(isMinaSafariResearchTerm("天気")).toBe(false);
   });
 });
