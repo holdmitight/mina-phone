@@ -181,7 +181,7 @@ describe("Mina cross-app discoveries", () => {
     state = discoverMinaClue(state, clues.jeongyeonGiftRead);
     state = discoverMinaClue(state, clues.legoPhotoSeen);
     state = discoverMinaClue(state, clues.oldLine);
-    expect(state.messages.notes.some((item) => item.id === "mina-story-gift-unsent-draft")).toBe(false);
+    expect((state.messages.notes ?? []).some((item) => item.id === "mina-story-gift-unsent-draft")).toBe(false);
     state = discoverMinaClue(state, clues.amazonPartsSeen);
     expect(state.clues).toContain(clues.giftTrailResolved);
     const draft = state.messages.notes.find((item) => item.id === "mina-story-gift-unsent-draft");
