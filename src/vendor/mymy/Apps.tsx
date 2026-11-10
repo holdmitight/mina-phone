@@ -159,13 +159,23 @@ export function MymyKakao(p: SkinProps) {
     const node = scroll.current;
     if (node) node.scrollTop = node.scrollHeight;
   }, [p.thread, messages.length]);
+  // An existing save with a completed Sana branch is also repaired when the
+  // chat is revisited: no fourth choice or duplicate notification is needed.
+  useEffect(() => {
+    if (isMinaStory && sanaPing && isSanaBranch(sanaStage))
+      p.onClue?.(minaClueKeys.sanaFinished);
+  }, [isMinaStory, !!sanaPing, sanaStage, p.onClue]);
+
   // Opening the Jeongyeon conversation itself counts as reading the clue.
   // This also handles a chat restored directly after app navigation, rather
   // than requiring the player to click a particular row in the chat list.
   useEffect(() => {
-    if (isMinaStory && p.thread === "Jeongyeon")
+    if (isMinaStory && p.thread === "Jeongyeon") {
       p.onClue?.(minaClueKeys.jeongyeonTalk);
-  }, [isMinaStory, p.thread, p.onClue]);
+      if (p.items.some((item) => item.id === "mina-story-jeongyeon-gift-ping"))
+        p.onClue?.(minaClueKeys.jeongyeonGiftRead);
+    }
+  }, [isMinaStory, p.thread, p.items, p.onClue]);
   return (
     <div className="mymy-ui mymy-kakao" data-mymy="kakao">
       {p.thread ? (
