@@ -315,7 +315,7 @@ export function CameraSkin(p: Props) {
 // do not contact Google or alter Safari's existing authored bookmarks.
 export function SafariSkin(p: Props) {
   const [q, setQ] = useState("");
-  const [tab, setTab] = useState("书签");
+  const [tab, setTab] = useSkinState<string>(p, "mina-safari-tab", "书签");
   const [openedSearch, setOpenedSearch] = useState<string | null>(null);
   const [openedArticle, setOpenedArticle] = useState<string | null>(null);
   const researchUnlocked =
