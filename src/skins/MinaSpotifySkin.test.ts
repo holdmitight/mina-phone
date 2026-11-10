@@ -2,14 +2,15 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import type { Props } from "./shared";
+import { makeItem } from "../schema";
 import { MinaSpotifySkin, spotifyInitialSearches } from "./MinaSpotifySkin";
 
-function props(ui: Props["ui"] = {}): Props {
+function props(ui: Props["ui"] = {}, summer = false): Props {
   return {
     appId: "spotify",
     owner: "名井南",
     name: "Spotify",
-    items: [],
+    items: summer ? [makeItem({ id: "mina-story-spotify-summer-unlocked", title: "2015, summer." })] : [],
     creator: false,
     thread: "",
     ui,
@@ -54,6 +55,21 @@ describe("Mina's Japanese Spotify demo", () => {
     expect(html).toContain("ポッドキャスト");
     expect(html).toContain("ライブイベント");
     expect(html).not.toContain("搜索");
+  });
+
+  it("reveals the private 2015 summer playlist only after the hidden album clue", () => {
+    const before = renderToStaticMarkup(createElement(MinaSpotifySkin, props({
+      "mina-spotify-screen": "library",
+    })));
+    expect(before).not.toContain("2015, summer.");
+    const after = renderToStaticMarkup(createElement(MinaSpotifySkin, props({
+      "mina-spotify-screen": "library",
+    }, true)));
+    expect(after).toContain("2015, summer.");
+    expect(after).toContain("非公開");
+    const home = renderToStaticMarkup(createElement(MinaSpotifySkin, props({}, true)));
+    expect(home).toContain("2015, summer.");
+    expect(home).toContain("夕暮れの海のプレイリストアート");
   });
 
   it("renders saved items on the library tab and allows creation", () => {
