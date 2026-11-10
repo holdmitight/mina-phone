@@ -8,6 +8,12 @@ export const minaClueKeys = {
   balletDetails: "mina:photos:ballet-info",
   cafeResolved: "mina:unlocked:cafe-crosscheck",
   memoryResolved: "mina:unlocked:rain-draft",
+  sanaFinished: "mina:kakao:sana-finished",
+  jeongyeonGiftReady: "mina:unlocked:jeongyeon-gift",
+  jeongyeonGiftRead: "mina:kakao:jeongyeon-gift-read",
+  amazonPartsSeen: "mina:amazon:small-parts",
+  legoPhotoSeen: "mina:photos:lego-work",
+  giftTrailResolved: "mina:unlocked:gift-trail",
 } as const;
 
 export function isMinaStoryWork(work: Work): boolean {
@@ -96,6 +102,108 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
       messages = {
         ...messages,
         notes: [...(messages.notes ?? []), newNote],
+      };
+      changed = true;
+    }
+  }
+
+
+  // All three free-text Sana responses converge here. The archived Jeongyeon
+  // exchange is from before the phone was lost: Mina never sends a new message
+  // while A is holding her phone. Only Jeongyeon's follow-up is new.
+  if (clues.includes(minaClueKeys.sanaFinished)) {
+    if (!clues.includes(minaClueKeys.jeongyeonGiftReady)) {
+      clues.push(minaClueKeys.jeongyeonGiftReady);
+      changed = true;
+      notifications = [...notifications, "KakaoTalk: Jeongyeon：야, 그거 이번엔 성공했어?ㅋㅋ"];
+    }
+    const oldGiftTalk = [
+      ["01", "Jeongyeon", "야, 아직도 그거 만들고 있어?ㅋㅋ", "2025-11-07 22:11"],
+      ["02", "名井南", "응…… 생각보다 어려워.", "2025-11-07 22:12"],
+      ["03", "Jeongyeon", "그냥 다른 거 사서 주면 안 돼?", "2025-11-07 22:13"],
+      ["04", "名井南", "안 돼. 내가 직접 만들어 주고 싶어.", "2025-11-07 22:15"],
+      ["05", "Jeongyeon", "ㅋㅋ 알았어. 이번엔 꼭 전해 줘.", "2025-11-07 22:16"],
+    ] as const;
+    const current = messages.kakao ?? [];
+    const additions = oldGiftTalk.filter(([id]) => !current.some((item) => item.id === "mina-story-gift-archive-" + id))
+      .map(([id, sender, body, time]) => makeItem({
+        id: "mina-story-gift-archive-" + id,
+        title: "Jeongyeon",
+        sender,
+        body,
+        time,
+        outgoing: sender === "名井南",
+        read: true,
+        folder: "聊天",
+        meta: { story: "gift-archive" },
+      }));
+    if (!current.some((item) => item.id === "mina-story-jeongyeon-gift-ping")) {
+      additions.push(makeItem({
+        id: "mina-story-jeongyeon-gift-ping",
+        title: "Jeongyeon",
+        sender: "Jeongyeon",
+        body: "야, 그거 이번엔 성공했어?ㅋㅋ",
+        time: `${runtime.date || "2026-11-09"} ${runtime.time || "21:09"}`,
+        outgoing: false,
+        read: false,
+        folder: "聊天",
+        meta: { story: "gift-ping" },
+      }));
+    }
+    if (additions.length) {
+      messages = { ...messages, kakao: [...current, ...additions] };
+      changed = true;
+    }
+  }
+
+  // Inspecting Jeongyeon's thread makes the next clues available in ordinary
+  // Amazon search history and the photo gallery, not in an explicit quest UI.
+  if (clues.includes(minaClueKeys.jeongyeonGiftRead)) {
+    for (const [appId, id] of [
+      ["amazonjp", "mina-story-lego-amazon-unlocked"],
+      ["photos", "mina-story-lego-photos-unlocked"],
+    ] as const) {
+      if (!(messages[appId] ?? []).some((item) => item.id === id)) {
+        messages = {
+          ...messages,
+          [appId]: [...(messages[appId] ?? []), makeItem({
+            id,
+            title: "作業中",
+            body: "小さなパーツ",
+            time: "2025-11-08 20:41",
+            sender: "名井南",
+            meta: { story: "gift-evidence" },
+          })],
+        };
+        changed = true;
+      }
+    }
+  }
+
+  // The three discoveries can be made in any order. This note is only a
+  // partial hint: the finished ring and intentional phone drop stay hidden.
+  const giftLinked =
+    clues.includes(minaClueKeys.amazonPartsSeen) &&
+    clues.includes(minaClueKeys.legoPhotoSeen) &&
+    clues.includes(minaClueKeys.oldLine);
+  if (giftLinked) {
+    if (!clues.includes(minaClueKeys.giftTrailResolved)) {
+      clues.push(minaClueKeys.giftTrailResolved);
+      changed = true;
+    }
+    if (!(messages.notes ?? []).some((item) => item.id === "mina-story-gift-unsent-draft")) {
+      messages = {
+        ...messages,
+        notes: [...(messages.notes ?? []), makeItem({
+          id: "mina-story-gift-unsent-draft",
+          title: "作り直し",
+          body: "何回やり直しても、うまくいかない。\\n\\nでも、自分で作りたい。\\n……あの約束だから。",
+          time: "2025-11-08 23:18",
+          sender: "名井南",
+          kind: "note",
+          folder: "备忘录",
+          meta: { story: "gift-trail" },
+        })],
       };
       changed = true;
     }
