@@ -114,6 +114,20 @@ export function MinaLineSkin(p: Props) {
       threadRef.current.scrollTop = threadRef.current.scrollHeight;
     }
   }, [p.thread, isThread]);
+  // Simply opening an archive is not enough to discover the LEGO promise.
+  // The clue is recorded only when A actually scrolls back to that message.
+  useEffect(() => {
+    if (!isArchive || p.creator || !p.onClue) return;
+    const root = threadRef.current;
+    const message = root?.querySelector('[data-line-id="2014-08-09-03"]');
+    if (!root || !message || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting))
+        p.onClue?.(minaClueKeys.legoPromiseSeen);
+    }, { root, threshold: 0.3 });
+    observer.observe(message);
+    return () => observer.disconnect();
+  }, [isArchive, p.creator, p.onClue]);
 
   const otherThreads = [...new Set(p.items.map((item) => item.title))]
     .filter((title) => title && title !== minaLineThreadName)
@@ -225,7 +239,7 @@ export function MinaLineSkin(p: Props) {
                 </>
               );
               return (
-                <div key={message.id}>
+                <div key={message.id} data-line-id={isArchive ? message.id : undefined}>
                   {newDate && (
                     <div
                       className="mina-line-date"
