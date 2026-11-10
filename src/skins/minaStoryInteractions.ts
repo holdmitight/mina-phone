@@ -5,6 +5,7 @@ export const minaClueKeys = {
   jeongyeonTalk: "mina:kakao:jeongyeon",
   sanaTalk: "mina:kakao:sana",
   oldLine: "mina:line:2014",
+  legoPromiseSeen: "mina:line:lego-promise-read",
   balletDetails: "mina:photos:ballet-info",
   cafeResolved: "mina:unlocked:cafe-crosscheck",
   memoryResolved: "mina:unlocked:rain-draft",
@@ -198,10 +199,12 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
   // The three discoveries can be made in any order. This note is only a
   // partial hint: the finished ring and intentional phone drop stay hidden.
   const giftLinked =
-    (clues.includes(minaClueKeys.amazonPartsSeen) ||
-      clues.includes(minaClueKeys.safariResearchSeen)) &&
-    clues.includes(minaClueKeys.legoPhotoSeen) &&
-    clues.includes(minaClueKeys.oldLine);
+    clues.includes(minaClueKeys.giftTrailResolved) || (
+      (clues.includes(minaClueKeys.amazonPartsSeen) ||
+        clues.includes(minaClueKeys.safariResearchSeen)) &&
+      clues.includes(minaClueKeys.legoPhotoSeen) &&
+      clues.includes(minaClueKeys.legoPromiseSeen)
+    );
   if (giftLinked) {
     if (!clues.includes(minaClueKeys.giftTrailResolved)) {
       clues.push(minaClueKeys.giftTrailResolved);
