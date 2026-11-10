@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest";
 import actualMinaStory from "../../stories/template/story.json";
-import { makeItem } from "../schema";
 import { compileStory } from "../story-engine/compiler";
-import { initialRuntime, type Work } from "../schema";
+import { initialRuntime, makeItem, type Work } from "../schema";
 import {
   discoverMinaClue,
   isMinaStoryWork,
