@@ -211,3 +211,10 @@
 .mina-spotify .mina-spotify-summer-number {
   width: 40px; flex: 0 0 40px; color: #aaa; text-align: center; font-size: 15px;
 }
+
+.mina-spotify .mina-spotify-library-row .mina-spotify-summer-art {
+  width: 49px; height: 49px; flex: 0 0 49px;
+}
+.mina-spotify .mina-spotify-mini-cover .mina-spotify-summer-art {
+  width: 100%; height: 100%;
+}
