@@ -50,6 +50,8 @@ function normalizeReply(text: string): string {
 }
 
 export function matchSanaFreeText(text: string, stage: SanaStage): "awake" | SanaBranch | null {
+  // Punctuation-only responses can be meaningful after Sana asks a question.
+  if (stage === "awake" && /^[?？]+$/.test(text.trim())) return "why";
   const value = normalizeReply(text);
   if (!value) return null;
 
@@ -62,10 +64,6 @@ export function matchSanaFreeText(text: string, stage: SanaStage): "awake" | San
       : null;
   }
   if (stage !== "awake") return null;
-  // An isolated question mark after Sana asks about a secret is a natural
-  // "why are you asking?" reply, not an invalid message.
-  if (/^[?？]+$/.test(text.trim())) return "why";
-
   // A remembered person or the past is more specific than generic denials
   // and can coexist with "nothing much"/"why" in an otherwise natural message.
   if (/(?:昔|思い出|思いだ|思い返|過去|懐かし|あの頃|以前|前のこと|昔の人|あの人のこと|想起|想起来|想到了|想她|想他|回忆|过去|以前|从前|当年|那个人|十年前|旧事|有点怀念|以前的事|以前的人|oldtimes|olddays|backthen|past|remembered|remembering|memories|nostalg|옛날|예전|추억|과거|생각났|생각나)/u.test(value))
@@ -213,7 +211,7 @@ export function minaSanaInteractiveMessages(
     prefix: string,
   ) => source.flatMap((attempt, i) => [
     line(ping, prefix + "-input-" + i, attempt.text, offset + 2 * i, true),
-    line(ping, prefix + "-clarify-" + i, clarifications[Math.min(i, clarifications.length - 1)], offset + 2 * i + 1, false),
+    line(ping, prefix + "-clarify-" + i, clarifications[i % clarifications.length], offset + 2 * i + 1, false),
   ]);
 
   const beginning = renderAttempts(
