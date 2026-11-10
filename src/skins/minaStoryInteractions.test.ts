@@ -1,10 +1,13 @@
 import { describe, expect, it } from "vitest";
 import actualMinaStory from "../../stories/template/story.json";
+import { makeItem } from "../schema";
 import { compileStory } from "../story-engine/compiler";
 import { initialRuntime, type Work } from "../schema";
 import {
   discoverMinaClue,
   isMinaStoryWork,
+  normalizeMinaStoryWork,
+  normalizeMinaStoryRuntime,
   minaClueKeys as clues,
 } from "./minaStoryInteractions";
 import { notificationContent } from "../SystemNotifications";
@@ -237,6 +240,59 @@ describe("Mina cross-app discoveries", () => {
     expect(upgraded.messages.notes.filter((i) => i.id === "mina-story-gift-unsent-draft")).toHaveLength(1);
     expect(upgraded.messages.notes.find((i) => i.id === "mina-story-gift-unsent-draft")?.body).toContain("冗談");
     expect(discoverMinaClue(upgraded, clues.oldLine)).toBe(upgraded);
+  });
+
+  it("migrates Mina's 2026 save and authored item times to the 2025 reunion without resetting progress", () => {
+    const actual = compileStory(actualMinaStory).work;
+    const canon = normalizeMinaStoryWork(actual);
+    expect(canon.phone.date).toBe("2025-11-09");
+    expect(canon.updatedAt).toBe(actual.updatedAt);
+    expect(canon.id).toBe(actual.id);
+    const legacy = {
+      ...initialRuntime(actual),
+      date: "2026-11-09",
+      time: "21:09",
+      clues: [clues.oldLine],
+      messages: {
+        kakao: [makeItem({
+          id: "mina-story-cafe-sana-ping", title: "Sana",
+          time: "2026-11-09 21:09", sender: "Sana",
+        })],
+      },
+    };
+    const migrated = normalizeMinaStoryRuntime(legacy);
+    expect(migrated.date).toBe("2025-11-09");
+    expect(migrated.messages.kakao[0].time).toBe("2025-11-09 21:09");
+    expect(migrated.clues).toEqual([clues.oldLine]);
+    expect(normalizeMinaStoryRuntime(migrated)).toBe(migrated);
+  });
+
+  it("unlocks the three unsent years in stages, without exposing the final surprise", () => {
+    let state = initialRuntime(fixture);
+    state = discoverMinaClue(state, clues.oldLine);
+    state = discoverMinaClue(state, clues.lineBreakupSeen);
+    expect((state.messages.notes ?? []).some((item) => item.id === "mina-story-unsent-2015")).toBe(false);
+    state = discoverMinaClue(state, clues.balletDetails);
+    expect(state.messages.photos.map((item) => item.id)).toContain("mina-story-summer-album-unlocked");
+    expect(state.messages.notes.find((item) => item.id === "mina-story-unsent-2015")?.body).toContain("行かないで");
+    expect(state.messages.notes.some((item) => item.id === "mina-story-unsent-2018")).toBe(false);
+    state = discoverMinaClue(state, clues.summerAlbumRead);
+    expect(state.messages.spotify.map((item) => item.id)).toContain("mina-story-spotify-summer-unlocked");
+    state = discoverMinaClue(state, clues.summerPlaylistSeen);
+    expect(state.messages.notes.find((item) => item.id === "mina-story-unsent-2018")?.body).toContain("雨が大きい");
+    expect(state.messages.notes.some((item) => item.id === "mina-story-unsent-2025")).toBe(false);
+    state = discoverMinaClue(state, clues.legoPromiseSeen);
+    state = discoverMinaClue(state, clues.legoPhotoSeen);
+    state = discoverMinaClue(state, clues.amazonPartsSeen);
+    expect(state.clues).toContain(clues.giftTrailResolved);
+    const newest = state.messages.notes.find((item) => item.id === "mina-story-unsent-2025");
+    expect(newest?.body).toContain("ちゃんと話さなきゃ");
+    expect(newest?.body).not.toContain("わざと");
+    expect(newest?.body).not.toContain("指輪");
+    const saved = JSON.parse(JSON.stringify(state));
+    expect(saved.messages.notes.filter((item: {id: string}) =>
+      item.id.startsWith("mina-story-unsent-"))).toHaveLength(3);
+    expect(discoverMinaClue(state, clues.summerPlaylistSeen)).toBe(state);
   });
 
   it("retains all progress with a serializable runtime and ignores unrecognized clues", () => {
