@@ -17,7 +17,7 @@ const quickPlaylists: Entry[] = [
   { id: "pages", title: "pages vibe", artwork: "pages" },
   { id: "kpop", title: "K-Pop ON! (온)", artwork: "kpop" },
   { id: "korean", title: "Korean Pop Mix", artwork: "korean" },
-  { id: "pophits", title: "Top Pop Hits 2015–2026", artwork: "pophits" },
+  { id: "pophits", title: "Top Pop Hits 2015–2025", artwork: "pophits" },
   { id: "asian", title: "Asian artists (English songs)", artwork: "asian" },
   { id: "ost", title: "Best of Korean OSTs", artwork: "ost" },
 ];
