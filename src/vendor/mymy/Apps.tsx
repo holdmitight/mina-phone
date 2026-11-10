@@ -38,7 +38,7 @@ import "./adapter.css";
 import { minaInstagramAvatar } from "../../skins/mina-instagram-avatar";
 import { kakaoDefaultAvatar } from "./kakao-default-avatar";
 import { minaKakao2025Items } from "./mina-kakao-2025";
-import { hasSanaStoryPrompt, minaSanaInteractiveMessages, isSanaBranch, matchSanaFreeText, parseSanaAttempts, type SanaStage } from "./mina-sana-replies";
+import { hasSanaStoryPrompt, minaSanaInteractiveMessages, isSanaBranch, matchSanaFreeText, parseSanaAttempts, recoverSanaAttemptHistory, type SanaStage } from "./mina-sana-replies";
 import { minaClueKeys } from "../../skins/minaStoryInteractions";
 import "../../skins/mina-instagram.css";
 function grouped(items: Item[]) {
@@ -105,15 +105,21 @@ export function MymyKakao(p: SkinProps) {
     isMinaStory && hasSanaStoryPrompt(p.items)
       ? p.items.find((item) => item.id === "mina-story-cafe-sana-ping")
       : undefined;
-  const sanaStoryItems = minaSanaInteractiveMessages(
-    sanaPing,
+  const recoveredSana = recoverSanaAttemptHistory(
     sanaStage,
     sanaAwakeText,
     sanaReplyText,
     parseSanaAttempts(sanaAttempts),
   );
+  const sanaStoryItems = minaSanaInteractiveMessages(
+    sanaPing,
+    recoveredSana.stage,
+    recoveredSana.awakeText,
+    recoveredSana.replyText,
+    recoveredSana.attempts,
+  );
   const sanaReplyPending =
-    !p.creator && p.thread === "Sana" && !!sanaPing && !isSanaBranch(sanaStage);
+    !p.creator && p.thread === "Sana" && !!sanaPing && !isSanaBranch(recoveredSana.stage);
   const sourceItems = isMinaStory
     ? [...p.items, ...minaKakao2025Items, ...sanaStoryItems]
     : p.items;
@@ -159,12 +165,23 @@ export function MymyKakao(p: SkinProps) {
     const node = scroll.current;
     if (node) node.scrollTop = node.scrollHeight;
   }, [p.thread, messages.length]);
-  // An existing save with a completed Sana branch is also repaired when the
-  // chat is revisited: no fourth choice or duplicate notification is needed.
+  // Repair older saves stuck on a valid first message such as 「まだです」.
+  // Keep the exact typed text and persist the recovered stage for reloading.
   useEffect(() => {
-    if (isMinaStory && sanaPing && isSanaBranch(sanaStage))
+    if (!isMinaStory || !sanaPing || !recoveredSana.recovered) return;
+    setSanaAttempts(recoveredSana.attempts.map((attempt) =>
+      JSON.stringify([attempt.phase, attempt.text]),
+    ));
+    setSanaAwakeText(recoveredSana.awakeText);
+    setSanaReplyText(recoveredSana.replyText);
+    setSanaStage(recoveredSana.stage);
+  }, [isMinaStory, !!sanaPing, sanaStage, sanaAttempts.join("|")]);
+
+  // All three endings unlock the same Jeongyeon notification; no forced menu.
+  useEffect(() => {
+    if (isMinaStory && sanaPing && isSanaBranch(recoveredSana.stage))
       p.onClue?.(minaClueKeys.sanaFinished);
-  }, [isMinaStory, !!sanaPing, sanaStage, p.onClue]);
+  }, [isMinaStory, !!sanaPing, recoveredSana.stage, p.onClue]);
 
   // Opening the Jeongyeon conversation itself counts as reading the clue.
   // This also handles a chat restored directly after app navigation, rather
@@ -247,17 +264,18 @@ export function MymyKakao(p: SkinProps) {
               const text = draft.trim();
               if (!text) return;
               if (sanaReplyPending) {
-                const matched = matchSanaFreeText(text, sanaStage as SanaStage);
-                if (sanaStage === "" && matched === "awake") {
+                const stage = recoveredSana.stage as SanaStage;
+                const matched = matchSanaFreeText(text, stage);
+                if (stage === "" && matched === "awake") {
                   setSanaAwakeText(text);
                   setSanaStage("awake");
-                } else if (sanaStage === "awake" && matched && isSanaBranch(matched)) {
+                } else if (stage === "awake" && matched && isSanaBranch(matched)) {
                   setSanaReplyText(text);
                   setSanaStage(matched);
                 } else {
                   setSanaAttempts((old) => [
                     ...old,
-                    JSON.stringify([sanaStage, text]),
+                    JSON.stringify([stage, text]),
                   ].slice(-12));
                 }
               } else {
