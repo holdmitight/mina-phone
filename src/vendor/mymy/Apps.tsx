@@ -38,6 +38,7 @@ import "./adapter.css";
 import { minaInstagramAvatar } from "../../skins/mina-instagram-avatar";
 import { kakaoDefaultAvatar } from "./kakao-default-avatar";
 import { minaKakao2025Items } from "./mina-kakao-2025";
+import { hasSanaStoryPrompt, minaSanaChoices, minaSanaInteractiveMessages, isSanaBranch } from "./mina-sana-replies";
 import { minaClueKeys } from "../../skins/minaStoryInteractions";
 import "../../skins/mina-instagram.css";
 function grouped(items: Item[]) {
@@ -73,6 +74,7 @@ function Back({ onClick }: { onClick: () => void }) {
 export function MymyKakao(p: SkinProps) {
   const [tab, setTab] = useSkinState<string>(p, "mymyTab", "聊天"),
     [sent, setSent] = useSkinState<string[]>(p, "mymyKktSent", []),
+    [sanaStage, setSanaStage] = useSkinState<string>(p, "minaSanaReplyStage", ""),
     [draft, setDraft] = useState(""),
     [query, setQuery] = useState(""),
     [menu, setMenu] = useState(false);
@@ -96,8 +98,15 @@ export function MymyKakao(p: SkinProps) {
     p.owner === "名井南" &&
     p.items.some((item) => item.id === "kaka-sana-1") &&
     p.items.some((item) => item.id === "kaka-jeongyeon-1");
+  const sanaPing =
+    isMinaStory && hasSanaStoryPrompt(p.items)
+      ? p.items.find((item) => item.id === "mina-story-cafe-sana-ping")
+      : undefined;
+  const sanaStoryItems = minaSanaInteractiveMessages(sanaPing, sanaStage);
+  const sanaReplyPending =
+    !p.creator && p.thread === "Sana" && !!sanaPing && !isSanaBranch(sanaStage);
   const sourceItems = isMinaStory
-    ? [...p.items, ...minaKakao2025Items]
+    ? [...p.items, ...minaKakao2025Items, ...sanaStoryItems]
     : p.items;
   // Preserve existing contact ordering and current last-message previews.
   const list = grouped(p.items).map((group) => ({
@@ -205,11 +214,38 @@ export function MymyKakao(p: SkinProps) {
             })}
             {!messages.length && <Blank />}
           </div>
+          {sanaReplyPending && (
+            <div className="kz-story-reply-bar" aria-label="Sanaへの返事を選択">
+              <small>返信を選択</small>
+              <div className="kz-story-reply-options">
+                {sanaStage === "" ? (
+                  <button
+                    type="button"
+                    className="kz-story-reply-option"
+                    onClick={() => setSanaStage("awake")}
+                  >
+                    まだ寝てないよ。
+                  </button>
+                ) : (
+                  minaSanaChoices.map((option) => (
+                    <button
+                      type="button"
+                      className="kz-story-reply-option"
+                      key={option.id}
+                      onClick={() => setSanaStage(option.id)}
+                    >
+                      {option.text}
+                    </button>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
           <form
             className="kzinp"
             onSubmit={(e) => {
               e.preventDefault();
-              if (draft.trim()) {
+              if (draft.trim() && !sanaReplyPending) {
                 setSent([
                   ...sent,
                   JSON.stringify([
@@ -231,7 +267,8 @@ export function MymyKakao(p: SkinProps) {
             </button>
             <input
               aria-label="KakaoTalkメッセージ"
-              placeholder="メッセージを入力"
+              placeholder={sanaReplyPending ? "上の返信から選択してください" : "メッセージを入力"}
+              disabled={sanaReplyPending}
               value={draft}
               maxLength={2000}
               onChange={(e) => setDraft(e.target.value)}
@@ -240,7 +277,7 @@ export function MymyKakao(p: SkinProps) {
             <button
               className={draft.trim() ? "go" : ""}
               aria-label="KakaoTalkメッセージを送信"
-              disabled={!draft.trim()}
+              disabled={!draft.trim() || sanaReplyPending}
             >
               ↑
             </button>
