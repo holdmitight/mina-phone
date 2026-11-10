@@ -48,6 +48,17 @@ export const amazonCartCatalog = [
 
 export const amazonInitialHistory = ["switch2", "lego dragon", "lego 32110", "lego"] as const;
 const giftPartsSearch = "レゴ 小さいパーツ 白 ピンク";
+/** Small, fictional results separate from the original four-product cart. */
+export const amazonMiniPartsSuggestions = [
+  { id: "small-white", title: "ミニブロック パーツ 1×2 ホワイト 24個セット", price: 680, color: "white", detail: "サイズを確認してから組み合わせるタイプの小さなパーツです。" },
+  { id: "small-pink", title: "ミニブロック パーツ 1×1 パステルピンク 16個セット", price: 720, color: "pink", detail: "淡いピンク色の小さなパーツ。高さと接続面を確認してください。" },
+] as const;
+
+export function matchesAmazonGiftPartsSearch(value: string): boolean {
+  const query = value.trim().toLowerCase();
+  return /(?:レゴ|lego|ブロック)/iu.test(query) && /(?:小さ|ミニ|パーツ|部品|白|ピンク|parts|small|pink|white)/iu.test(query);
+}
+
 type AmazonProduct = (typeof amazonCartCatalog)[number];
 type AmazonScreen = "home" | "search" | "cart" | "results" | "account" | "menu";
 const yen = (amount: number) => "¥" + new Intl.NumberFormat("ja-JP").format(amount);
@@ -63,6 +74,7 @@ export function MinaAmazonSkin(p: Props) {
     ? [giftPartsSearch, ...history] : history;
   const [searchTerm, setSearchTerm] = useState("");
   const [activeQuery, setActiveQuery] = useState("");
+  const [selectedMiniPart, setSelectedMiniPart] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
   const searchRef = useRef<HTMLInputElement>(null);
   const imageRef = useRef<HTMLInputElement>(null);
@@ -81,6 +93,7 @@ export function MinaAmazonSkin(p: Props) {
   const quantity = cartEntries.reduce((sum, item) => sum + item.quantity, 0);
   const total = cartEntries.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
   const points = cartEntries.reduce((sum, item) => sum + item.product.points * item.quantity, 0);
+  const showMiniParts = storyPartsUnlocked && matchesAmazonGiftPartsSearch(activeQuery);
   const results = amazonCartCatalog.filter((product) => {
     const query = activeQuery.toLowerCase().trim();
     return !query || product.title.toLowerCase().includes(query) || (query.includes("lego") && product.id.startsWith("lego"));
@@ -117,9 +130,10 @@ export function MinaAmazonSkin(p: Props) {
   function submitSearch(text: string) {
     const value = text.trim().slice(0, 100);
     if (!value) return;
-    if (storyPartsUnlocked && value === giftPartsSearch) p.onClue?.(minaClueKeys.amazonPartsSeen);
+    if (storyPartsUnlocked && matchesAmazonGiftPartsSearch(value)) p.onClue?.(minaClueKeys.amazonPartsSeen);
     setSearchTerm(value);
     setActiveQuery(value);
+    setSelectedMiniPart(null);
     setHistory((prev) => [value, ...prev.filter((item) => item.toLowerCase() !== value.toLowerCase())].slice(0, 12));
     navigate("results");
   }
@@ -251,14 +265,30 @@ export function MinaAmazonSkin(p: Props) {
       </>}
       {screen === "results" && <section className="amazon-results">
         <h2>「{activeQuery}」の検索結果</h2>
-        <p>{results.length}件の商品</p>
+        <p>{results.length + (showMiniParts ? amazonMiniPartsSuggestions.length : 0)}件の商品</p>
+        {showMiniParts && amazonMiniPartsSuggestions.map((part) =>
+          <article key={part.id} className="amazon-mini-parts-result">
+            <span className={"amazon-mini-parts-swatch " + part.color} aria-hidden="true">
+              <i/><i/><i/><i/>
+            </span>
+            <div>
+              <h3>{part.title}</h3>
+              <strong>{yen(part.price)}</strong>
+              <small>在庫あり</small>
+              <button onClick={() => setSelectedMiniPart(selectedMiniPart === part.id ? null : part.id)}>
+                {selectedMiniPart === part.id ? "閉じる" : "商品の詳細"}
+              </button>
+              {selectedMiniPart === part.id && <p className="amazon-mini-parts-detail">{part.detail}</p>}
+            </div>
+          </article>
+        )}
         {results.map((product) => <article key={product.id}>
           <img src={product.image} alt=""/>
           <div><h3>{product.title}</h3><strong>{yen(product.price)}</strong>
             <button onClick={() => {adjust(product.id,1); navigate("cart"); setNotice("カートに追加しました");}}>カートに追加</button>
           </div>
         </article>)}
-        {!results.length && <p className="amazon-empty-note">該当する商品はありません。</p>}
+        {!results.length && !showMiniParts && <p className="amazon-empty-note">該当する商品はありません。</p>}
       </section>}
       {screen === "account" && <div className="amazon-account"><UserRound size={42}/><h2>MINAのアカウント</h2><p>これは捡手机内の架空のAmazon画面です。実際のアカウントへのログインはありません。</p><button onClick={() => navigate("cart")}>カートを見る</button></div>}
       {screen === "menu" && <div className="amazon-menu"><h2>メニュー</h2><button onClick={() => navigate("cart")}>カート <ChevronRight size={18}/></button><button onClick={() => navigate("search")}>検索履歴 <ChevronRight size={18}/></button><button onClick={() => navigate("account")}>アカウント <ChevronRight size={18}/></button></div>}
