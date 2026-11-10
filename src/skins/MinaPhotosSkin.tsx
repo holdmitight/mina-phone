@@ -3,6 +3,7 @@ import { ArrowLeft, Heart, Images, Info, MapPin, CalendarDays, FileImage } from 
 import { useSkinState } from "../skinState";
 import { Header, type Props } from "./shared";
 import { minaClueKeys } from "./minaStoryInteractions";
+import { minaSummerMemoryPhotos } from "./minaSummerMemories";
 import { minaPhotoUpload01 } from "./mina-photo-upload-01";
 import { minaPhotoUpload02 } from "./mina-photo-upload-02";
 import { minaPhotoUpload03 } from "./mina-photo-upload-03";
@@ -37,9 +38,11 @@ export function MinaPhotosSkin(p: Props) {
   const [tab, setTab] = useSkinState<string>(p, "mina-photo-tab", "最近の項目");
   const [favorites, setFavorites] = useSkinState<string[]>(p, "mina-photo-favorites", []);
   const giftAlbumUnlocked = p.owner === "名井南" && p.items.some((item) => item.id === "mina-story-lego-photos-unlocked");
-  const gallery = giftAlbumUnlocked ? [...photos, legoWorkPhoto] : [...photos];
+  const summerAlbumUnlocked = p.owner === "名井南" && p.items.some((item) => item.id === "mina-story-summer-album-unlocked");
+  const gallery = [...photos, ...(giftAlbumUnlocked ? [legoWorkPhoto] : []), ...(summerAlbumUnlocked ? minaSummerMemoryPhotos : [])];
   const current = gallery.find((photo) => photo.id === selected);
   const visible = tab === "作業中" ? (giftAlbumUnlocked ? [legoWorkPhoto] : [])
+    : tab === "2015, summer." ? (summerAlbumUnlocked ? minaSummerMemoryPhotos : [])
     : tab === "お気に入り" ? gallery.filter((photo) => favorites.includes(photo.id)) : photos;
   const toggle = (id: string) => setFavorites((previous) => previous.includes(id) ? previous.filter((value) => value !== id) : [...previous, id]);
   const openPhoto = (id: string) => { setSelected(id); setInfoOpen(false); };
@@ -48,6 +51,7 @@ export function MinaPhotosSkin(p: Props) {
     if (!current) return;
     if (!infoOpen && current.id === "mina-history-ballet") p.onClue?.(minaClueKeys.balletDetails);
     if (!infoOpen && current.id === "mina-lego-workbench") p.onClue?.(minaClueKeys.legoPhotoSeen);
+    if (!infoOpen && current.id === "mina-memory-sea") p.onClue?.(minaClueKeys.summerAlbumRead);
     setInfoOpen((value) => !value);
   };
 
@@ -84,20 +88,26 @@ export function MinaPhotosSkin(p: Props) {
                   </div>
                   <div>
                     <dt><MapPin size={15}/> 撮影場所</dt>
-                    <dd>位置情報なし</dd>
+                    <dd>{"location" in current ? current.location : "位置情報なし"}</dd>
                   </div>
                   <div>
                     <dt><FileImage size={15}/> ファイル</dt>
-                    <dd>WEBP · 保存画像</dd>
+                    <dd>{current.src.startsWith("data:image/svg+xml") ? "SVG · 保存画像" : "WEBP · 保存画像"}</dd>
                   </div>
                 </dl>
                 {current.id === "mina-lego-workbench" && (
                   <div className="mina-photo-album-note"><small>アルバムのメモ</small><span>小さなパーツ。何度目の作り直しだろう。</span></div>
                 )}
+                {"note" in current && (
+                  <div className="mina-photo-album-note">
+                    <small>写真のメモ</small>
+                    <span>{current.note}</span>
+                  </div>
+                )}
                 {current.id === "mina-history-ballet" && (
                   <div className="mina-photo-album-note">
                     <small>アルバムのメモ（撮影日時の情報ではありません）</small>
-                    <span>2014年ごろ · バレエ</span>
+                    <span>2015年ごろ · バレエ</span>
                   </div>
                 )}
               </section>
@@ -111,7 +121,7 @@ export function MinaPhotosSkin(p: Props) {
           <div className="catalog-scroll mina-photo-list">
             <div className="mina-photo-heading"><small>MINA · AFTER HOURS</small><h1>写真</h1></div>
             <nav className="mina-photo-tabs" aria-label="アルバムの表示">
-              {["最近の項目", "お気に入り", ...(giftAlbumUnlocked ? ["作業中"] : [])].map((name) =>
+              {["最近の項目", "お気に入り", ...(summerAlbumUnlocked ? ["2015, summer."] : []), ...(giftAlbumUnlocked ? ["作業中"] : [])].map((name) =>
                 <button key={name} className={tab === name ? "active" : ""} onClick={() => setTab(name)}>{name}</button>
               )}
             </nav>
