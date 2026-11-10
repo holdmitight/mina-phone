@@ -186,7 +186,7 @@ describe("Mina cross-app discoveries", () => {
     expect(state.clues).toContain(clues.giftTrailResolved);
     const draft = state.messages.notes.find((item) => item.id === "mina-story-gift-unsent-draft");
     expect(draft?.body).toContain("あの約束");
-    expect(draft?.body).toContain("\\n");
+    expect(draft?.body).toContain("\n");
     expect(draft?.body).not.toContain("わざと置いて");
     expect(discoverMinaClue(state, clues.amazonPartsSeen)).toBe(state);
     expect(JSON.parse(JSON.stringify(state)).messages.notes.some(
