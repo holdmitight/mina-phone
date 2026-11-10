@@ -141,3 +141,73 @@
   .mina-spotify-bottom-nav button small{font-size:8px}
   .mina-spotify-mini-player{gap:5px}
 }
+
+
+/* A private 2015 summer cover, subtly linked to the phone's seaside sunset. */
+.mina-spotify .mina-spotify-summer-art {
+  box-sizing: border-box;
+  background: linear-gradient(180deg,#aaa3c8 0%,#daacc6 34%,#e6b6bd 51%,#989dbb 52%,#757f9f 100%);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  color: #fff9f6;
+}
+.mina-spotify .mina-spotify-summer-art::before {
+  content: "";
+  position: absolute;
+  width: 37%;
+  height: 37%;
+  border-radius: 50%;
+  top: 26%;
+  right: 14%;
+  background: #f6dec7;
+  opacity: .7;
+  filter: blur(2px);
+}
+.mina-spotify .mina-spotify-summer-art::after {
+  content: "";
+  position: absolute;
+  width: 150%;
+  height: 15%;
+  top: 62%;
+  left: -20%;
+  border-top: 2px solid #f8cfc8aa;
+  border-radius: 50%;
+  transform: rotate(-2deg);
+}
+.mina-spotify .mina-spotify-summer-art span {
+  position: relative;
+  z-index: 1;
+  font-family: Georgia, serif;
+  font-size: clamp(10px, 3vw, 23px);
+  font-weight: normal;
+  letter-spacing: -.03em;
+  line-height: 1.05;
+  padding: 10%;
+  text-shadow: 0 1px 5px #6e628055;
+}
+.mina-spotify .mina-spotify-mini-cover .mina-spotify-summer-art span,
+.mina-spotify .mina-spotify-library-row .mina-spotify-summer-art span {
+  font-size: 10px;
+}
+.mina-spotify .mina-spotify-private-row { padding: 16px 13px 4px; }
+.mina-spotify .mina-spotify-private-row>small {
+  display: block; margin-bottom: 10px; color: #aaa; font-size: 11px;
+}
+.mina-spotify .mina-spotify-private-row>button {
+  display: flex; align-items: center; width: 100%; gap: 10px; text-align: left;
+}
+.mina-spotify .mina-spotify-private-row .mina-spotify-summer-art {
+  width: 56px; height: 56px; flex: 0 0 56px; border-radius: 4px;
+}
+.mina-spotify .mina-spotify-private-row>button>span {
+  flex: 1; display: flex; min-width: 0; flex-direction: column; gap: 4px;
+}
+.mina-spotify .mina-spotify-private-row strong { font-size: 13px; }
+.mina-spotify .mina-spotify-private-row>button>span small { font-size: 10px; color: #aaa; }
+.mina-spotify .mina-spotify-summer-caption { color: #a4a4a7; font-size: 11px; line-height: 1.7; }
+.mina-spotify .mina-spotify-summer-number {
+  width: 40px; flex: 0 0 40px; color: #aaa; text-align: center; font-size: 15px;
+}
