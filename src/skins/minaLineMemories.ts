@@ -1,9 +1,8 @@
 /**
- * Fictional LINE archive: A met Mina in Japan in 2014, Mina returned to Korea
- * in December 2014, and A kept writing through 2015 as replies grew rare.
- * On Mina's phone: Mina = green right; A = white left.
- * Their relationship is intentionally implied, not confessed in the early chat.
- * A's last message is left unanswered.
+ * Fictional LINE archive from Mina's phone. The author-approved canon is:
+ * A and Mina met at ballet in summer 2015, Mina returned to Korea before
+ * her October debut, and the last unanswered message was in November 2015.
+ * Stable legacy IDs are kept so prior in-game discoveries and saves survive.
  */
 export type LineMemoryMessage = {
   id: string;
@@ -16,7 +15,7 @@ export type LineMemoryMessage = {
 
 export const minaLineThreadName = "うさぎちゃん 🐰";
 
-export const minaLineMemories: LineMemoryMessage[] = [
+const archivedDraftLines: LineMemoryMessage[] = [
   { id: "2014-06-16-01", day: "2014-06-16", time: "17:48", from: "a", text: "今日はありがとう！\nあの回転、何度やってもできなくて…", translation: "今天谢谢你！那个旋转我怎么练都练不好……" },
   { id: "2014-06-16-02", day: "2014-06-16", time: "17:51", from: "mina", text: "さっきよりずっとよくなってたよ。焦らなくて大丈夫☺️", translation: "比刚才好多啦。别着急☺️" },
   { id: "2014-06-16-03", day: "2014-06-16", time: "17:53", from: "a", text: "南、明日もレッスン来る？", translation: "南，明天还来练习吗？" },
@@ -121,5 +120,82 @@ export const minaLineMemories: LineMemoryMessage[] = [
   { id: "2015-11-06-01", day: "2015-11-06", time: "22:06", from: "a", text: "南なんて嫌い。", translation: "讨厌你。" },
   { id: "2015-11-06-02", day: "2015-11-06", time: "22:17", from: "a", text: "うそだよ。\n来年、一緒にハワイに行こうね。", translation: "骗你的。明年一起去夏威夷吧。" },
 ];
+
+
+/**
+ * The earliest drafts carried 2014 and full-year 2015 dates. Compress those
+ * original conversations into the summer-to-November 2015 story timeline
+ * without destroying the Japanese lines, user's wording, or legacy IDs.
+ * A few seasonal messages must be reworded to fit their new date.
+ */
+const mappedDays: Record<string, string> = {
+  "2014-06-16": "2015-06-16",
+  "2014-07-04": "2015-07-04",
+  "2014-07-18": "2015-07-18",
+  "2014-08-09": "2015-08-09",
+  "2014-09-21": "2015-08-23",
+  "2014-11-19": "2015-09-14",
+  "2014-12-04": "2015-09-20",
+  "2014-12-21": "2015-09-27",
+  "2015-01-01": "2015-09-30",
+  "2015-02-14": "2015-10-02",
+  "2015-03-06": "2015-10-05",
+  "2015-03-07": "2015-10-06",
+  "2015-04-09": "2015-10-08",
+  "2015-05-17": "2015-10-10",
+  "2015-05-19": "2015-10-11",
+  "2015-06-16": "2015-10-12",
+  "2015-07-04": "2015-10-13",
+  "2015-08-09": "2015-10-14",
+  "2015-09-14": "2015-10-17",
+  "2015-09-15": "2015-10-18",
+};
+const seasonCorrections: Record<string, Pick<LineMemoryMessage, "text" | "translation">> = {
+  "2014-11-19-03": {
+    text: "来週には韓国に戻ることになった。\\nしばらく日本には帰れないと思う。",
+    translation: "下周就要回韩国了。可能很长一段时间都回不了日本。",
+  },
+  "2014-12-21-01": {
+    text: "南、元気？\\n夜は少し涼しくなったよ。",
+    translation: "南，还好吗？夜里开始有点凉了。",
+  },
+  "2014-12-21-03": {
+    text: "ごめん、今見た。\\nこっちも少し涼しい。風邪ひかないでね。",
+    translation: "抱歉，刚看到。韩国也凉快了一点。别感冒哦。",
+  },
+  "2015-01-01-01": {
+    text: "今日も練習おつかれさま。\\nちゃんと休めてる？",
+    translation: "今天训练也辛苦了。有没有好好休息？",
+  },
+  "2015-01-01-02": {
+    text: "練習室の近くを通ったよ。懐かしかった。",
+    translation: "今天路过了练习室附近。好怀念。",
+  },
+  "2015-01-01-03": {
+    text: "ありがとう☺️\\nこっちも元気だよ。",
+    translation: "谢谢你☺️ 我在这里也挺好的。",
+  },
+  "2015-01-01-04": {
+    text: "朝まで練習だった？\\nちゃんと寝てね。",
+    translation: "又练到很晚了吗？记得好好睡觉。",
+  },
+  "2015-04-09-01": {
+    text: "道の木が少し色づいてきたよ。🍂",
+    translation: "路边的树开始慢慢变色了。🍂",
+  },
+  "2015-04-09-02": {
+    text: "この夏、南と歩いた道。覚えてる？",
+    translation: "今年夏天和南一起走过的那条路，还记得吗？",
+  },
+  "2015-06-16-01": {
+    text: "今日でちょうど四か月だよ。\\n初めて一緒に練習した日。",
+    translation: "今天刚好四个月了。第一次一起练习的那天。",
+  },
+};
+export const minaLineMemories: LineMemoryMessage[] = archivedDraftLines.map((line) => {
+  const day = mappedDays[line.day] ?? line.day;
+  const corrected = seasonCorrections[line.id];
+  return { ...line, day, ...(corrected ?? {}) };
+});
 
 export const minaLineLastMessage = minaLineMemories[minaLineMemories.length - 1];
