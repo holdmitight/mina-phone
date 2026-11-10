@@ -2,14 +2,15 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import type { Props } from "./shared";
+import { makeItem } from "../schema";
 import { MinaAmazonSkin, amazonCartCatalog, amazonInitialHistory } from "./MinaAmazonSkin";
 
-function props(ui: Props["ui"] = {}): Props {
+function props(ui: Props["ui"] = {}, unlocked = false): Props {
   return {
     appId: "amazonjp",
     owner: "名井南",
     name: "Amazon JP",
-    items: [],
+    items: unlocked ? [makeItem({ id: "mina-story-lego-amazon-unlocked" })] : [],
     creator: false,
     thread: "",
     ui,
@@ -54,6 +55,14 @@ describe("Mina's Amazon screenshot-based offline replica", () => {
       expect(html).toContain(term + "を履歴から削除");
     }
   });
+  it("reveals one LEGO parts hint only when unlocked, preserving existing search history", () => {
+    const before = renderToStaticMarkup(createElement(MinaAmazonSkin, props({ "amazon-screen": "search" })));
+    const after = renderToStaticMarkup(createElement(MinaAmazonSkin, props({ "amazon-screen": "search" }, true)));
+    expect(before).not.toContain("レゴ 小さいパーツ 白 ピンク");
+    expect(after).toContain("レゴ 小さいパーツ 白 ピンク");
+    for (const original of amazonInitialHistory) expect(after).toContain(original);
+  });
+
   it("allows empty carts with a zero total and never performs a live checkout", () => {
     const html = renderToStaticMarkup(createElement(MinaAmazonSkin, props({
       "amazon-screen": "cart",
