@@ -152,19 +152,19 @@ const mappedDays: Record<string, string> = {
 };
 const seasonCorrections: Record<string, Pick<LineMemoryMessage, "text" | "translation">> = {
   "2014-11-19-03": {
-    text: "来週には韓国に戻ることになった。\\nしばらく日本には帰れないと思う。",
+    text: "来週には韓国に戻ることになった。\nしばらく日本には帰れないと思う。",
     translation: "下周就要回韩国了。可能很长一段时间都回不了日本。",
   },
   "2014-12-21-01": {
-    text: "南、元気？\\n夜は少し涼しくなったよ。",
+    text: "南、元気？\n夜は少し涼しくなったよ。",
     translation: "南，还好吗？夜里开始有点凉了。",
   },
   "2014-12-21-03": {
-    text: "ごめん、今見た。\\nこっちも少し涼しい。風邪ひかないでね。",
+    text: "ごめん、今見た。\nこっちも少し涼しい。風邪ひかないでね。",
     translation: "抱歉，刚看到。韩国也凉快了一点。别感冒哦。",
   },
   "2015-01-01-01": {
-    text: "今日も練習おつかれさま。\\nちゃんと休めてる？",
+    text: "今日も練習おつかれさま。\nちゃんと休めてる？",
     translation: "今天训练也辛苦了。有没有好好休息？",
   },
   "2015-01-01-02": {
@@ -172,11 +172,11 @@ const seasonCorrections: Record<string, Pick<LineMemoryMessage, "text" | "transl
     translation: "今天路过了练习室附近。好怀念。",
   },
   "2015-01-01-03": {
-    text: "ありがとう☺️\\nこっちも元気だよ。",
+    text: "ありがとう☺️\nこっちも元気だよ。",
     translation: "谢谢你☺️ 我在这里也挺好的。",
   },
   "2015-01-01-04": {
-    text: "朝まで練習だった？\\nちゃんと寝てね。",
+    text: "朝まで練習だった？\nちゃんと寝てね。",
     translation: "又练到很晚了吗？记得好好睡觉。",
   },
   "2015-04-09-01": {
@@ -188,7 +188,7 @@ const seasonCorrections: Record<string, Pick<LineMemoryMessage, "text" | "transl
     translation: "今年夏天和南一起走过的那条路，还记得吗？",
   },
   "2015-06-16-01": {
-    text: "今日でちょうど四か月だよ。\\n初めて一緒に練習した日。",
+    text: "今日でちょうど四か月だよ。\n初めて一緒に練習した日。",
     translation: "今天刚好四个月了。第一次一起练习的那天。",
   },
 };
