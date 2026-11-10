@@ -22,7 +22,7 @@ export function SystemNotifications({
 }: {
   notices: string[];
   apps: Work["apps"];
-  onOpen: () => void;
+  onOpen: (index: number) => void;
   onDismiss: (index: number) => void;
   compact?: boolean;
 }) {
@@ -53,7 +53,7 @@ export function SystemNotifications({
                 if (info.offset.x < -80) onDismiss(index);
               }}
             >
-              <button className="notice-open" onClick={onOpen}>
+              <button className="notice-open" onClick={() => onOpen(index)}>
                 <span className="notice-app-art">
                   <AppArtwork id={n.appId} />
                 </span>
