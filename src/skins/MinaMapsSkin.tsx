@@ -18,6 +18,7 @@ import {
   minaStoryMapCopy,
 } from "./minaMapStory";
 import { MapsSkin } from "./SystemSkins";
+import { minaClueKeys } from "./minaStoryInteractions";
 import "./mina-maps.css";
 
 type Place = {
@@ -198,7 +199,10 @@ export function MinaMapsSkin(p: Props) {
                           key={visit.id}
                           type="button"
                           aria-pressed={activeVisit === visit.id}
-                          onClick={() => setActiveVisit(visit.id)}
+                          onClick={() => {
+                            setActiveVisit(visit.id);
+                            p.onClue?.(minaClueKeys.cafeVisit);
+                          }}
                         >
                           <span className="mina-map-visit-dot" />
                           <span>
