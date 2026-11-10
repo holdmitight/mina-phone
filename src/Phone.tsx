@@ -26,6 +26,7 @@ import {
 import { AppArtwork, hasNativeArtwork } from "./AppArtwork";
 import { getFields } from "./fields";
 import { catalogSkins } from "./skins/catalog";
+import { discoverMinaClue, isMinaStoryWork } from "./skins/minaStoryInteractions";
 import "./skins/skins.css";
 import "./ios18.css";
 import "./device-system.css";
@@ -247,6 +248,12 @@ function PhoneRuntime({
   const event = (event: string, target: string) => {
     if (!creator) update(dispatch(work, runtimeRef.current, event, target));
   };
+  const recordMinaClue = (clue: string) => {
+    if (creator || !isMinaStoryWork(work)) return;
+    const previous = runtimeRef.current;
+    const next = discoverMinaClue(previous, clue);
+    if (next !== previous) update(next);
+  };
   const captureApp = () => {
     if (!app) return;
     const current = shell.current?.querySelector<HTMLElement>(".app-screen");
@@ -454,6 +461,7 @@ function PhoneRuntime({
                   creator={creator}
                   state={s}
                   onRead={(id) => event("read", id)}
+                  onClue={recordMinaClue}
                   onEdit={(item) => onEdit?.(app, item)}
                   onAdd={() => onAdd?.(app)}
                   onBack={() => setApp("")}
@@ -556,9 +564,15 @@ function PhoneRuntime({
                     <SystemNotifications
                       notices={s.notifications}
                       apps={work.apps}
-                      onOpen={() => {
+                      onOpen={(index) => {
                         setPanel("");
-                        if (locked) beginUnlock();
+                        if (locked) {
+                          beginUnlock();
+                          return;
+                        }
+                        const notice = s.notifications[index] || "";
+                        const target = notificationContent(notice, work.apps).appId;
+                        if (installedApps.some((a) => a.id === target)) open(target);
                         else if (installedApps.some((a) => a.id === "messages"))
                           open("messages");
                       }}
@@ -683,8 +697,10 @@ function PhoneRuntime({
             <button
               className="device-banner"
               onClick={() => {
+                const target = notificationContent(banner, work.apps).appId;
                 setBanner("");
-                setPanel("notification");
+                if (installedApps.some((a) => a.id === target)) open(target);
+                else setPanel("notification");
               }}
             >
               <AppIcon
@@ -862,6 +878,7 @@ function AppContent({
   creator,
   state,
   onRead,
+  onClue,
   onEdit,
   onAdd,
   onBack,
@@ -875,6 +892,7 @@ function AppContent({
   creator: boolean;
   state: Runtime;
   onRead: (id: string) => void;
+  onClue?: (key: string) => void;
   onEdit: (item: Item) => void;
   onAdd: () => void;
   onBack: () => void;
@@ -997,6 +1015,7 @@ function AppContent({
               items={shown}
               creator={creator}
               onRead={onRead}
+              onClue={onClue}
               onItem={read}
               onAdd={onAdd}
               onBack={onBack}
