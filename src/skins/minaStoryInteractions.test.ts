@@ -183,8 +183,10 @@ describe("Mina cross-app discoveries", () => {
     state = discoverMinaClue(state, clues.jeongyeonGiftRead);
     state = discoverMinaClue(state, clues.legoPhotoSeen);
     state = discoverMinaClue(state, clues.oldLine);
-    expect((state.messages.notes ?? []).some((item) => item.id === "mina-story-gift-unsent-draft")).toBe(false);
     state = discoverMinaClue(state, clues.amazonPartsSeen);
+    // Opening LINE alone is not reading the exact LEGO promise.
+    expect((state.messages.notes ?? []).some((item) => item.id === "mina-story-gift-unsent-draft")).toBe(false);
+    state = discoverMinaClue(state, clues.legoPromiseSeen);
     expect(state.clues).toContain(clues.giftTrailResolved);
     const draft = state.messages.notes.find((item) => item.id === "mina-story-gift-unsent-draft");
     expect(draft?.body).toContain("あの約束");
@@ -200,8 +202,9 @@ describe("Mina cross-app discoveries", () => {
     let state = discoverMinaClue(initialRuntime(fixture), clues.jeongyeonGiftRead);
     state = discoverMinaClue(state, clues.oldLine);
     state = discoverMinaClue(state, clues.legoPhotoSeen);
-    expect((state.messages.notes ?? []).find((i) => i.id === "mina-story-gift-unsent-draft")).toBeUndefined();
     state = discoverMinaClue(state, clues.safariResearchSeen);
+    expect((state.messages.notes ?? []).find((i) => i.id === "mina-story-gift-unsent-draft")).toBeUndefined();
+    state = discoverMinaClue(state, clues.legoPromiseSeen);
     const draft = state.messages.notes.find((i) => i.id === "mina-story-gift-unsent-draft");
     expect(state.clues).toContain(clues.giftTrailResolved);
     expect(draft?.body).toContain("あの時は、冗談だと思ってた。");
@@ -214,12 +217,15 @@ describe("Mina cross-app discoveries", () => {
 
   it("upgrades previously unlocked short drafts without creating duplicate notes", () => {
     let state = initialRuntime(fixture);
-    for (const key of [clues.oldLine, clues.legoPhotoSeen, clues.amazonPartsSeen]) {
+    for (const key of [clues.oldLine, clues.legoPromiseSeen, clues.legoPhotoSeen, clues.amazonPartsSeen]) {
       state = discoverMinaClue(state, key);
     }
     const oldText = ["何回やり直しても、うまくいかない。", "", "でも、自分で作りたい。", "……あの約束だから。"].join("\n");
     const oldState = {
       ...state,
+      // Existing saves may already have the note without the new precise
+      // 2014 message-visibility clue. Keep and upgrade their progress.
+      clues: state.clues.filter((key) => key !== clues.legoPromiseSeen),
       messages: {
         ...state.messages,
         notes: (state.messages.notes ?? []).map((item) =>
