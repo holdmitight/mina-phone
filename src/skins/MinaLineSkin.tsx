@@ -85,7 +85,7 @@ function LineAvatar({
 
 /**
  * Every LINE thread shares the same layout, date markers, bubbles and composer.
- * Mina's 2014–2015 memories are an immutable archive, read from her viewpoint.
+ * Mina's 2015 summer memories remain a saved archive, read from her viewpoint.
  */
 export function MinaLineSkin(p: Props) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -126,6 +126,20 @@ export function MinaLineSkin(p: Props) {
         p.onClue?.(minaClueKeys.legoPromiseSeen);
     }, { root, threshold: 0.3 });
     observer.observe(message);
+    return () => observer.disconnect();
+  }, [isArchive, p.creator, p.onClue]);
+  // The end of the archive is an unanswered message. Observing it only after
+  // it actually becomes visible makes the separation memo discoverable.
+  useEffect(() => {
+    if (!isArchive || p.creator || !p.onClue) return;
+    const root = threadRef.current;
+    const lastMessage = root?.querySelector('[data-line-id="2015-11-06-02"]');
+    if (!root || !lastMessage || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting))
+        p.onClue?.(minaClueKeys.lineBreakupSeen);
+    }, { root, threshold: 0.3 });
+    observer.observe(lastMessage);
     return () => observer.disconnect();
   }, [isArchive, p.creator, p.onClue]);
 
@@ -215,7 +229,7 @@ export function MinaLineSkin(p: Props) {
             aria-label="トーク履歴"
           >
             {isArchive && (
-              <div className="mina-line-memory-marker">2014 · あの夏から</div>
+              <div className="mina-line-memory-marker">2015 · あの夏から</div>
             )}
             {messages.map((message, index) => {
               const newDate =
@@ -284,7 +298,7 @@ export function MinaLineSkin(p: Props) {
               <Smile size={20} />
             </button>
             {isArchive ? (
-              <span>2014–2015年のトーク履歴</span>
+              <span>2015年のトーク履歴</span>
             ) : (
               <NativeComposer creator={p.creator} onAdd={p.onAdd} />
             )}
