@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { ArrowLeft, Heart, Images } from "lucide-react";
+import { ArrowLeft, Heart, Images, Info, MapPin, CalendarDays, FileImage } from "lucide-react";
 import { useSkinState } from "../skinState";
 import { Header, type Props } from "./shared";
+import { minaClueKeys } from "./minaStoryInteractions";
 import { minaPhotoUpload01 } from "./mina-photo-upload-01";
 import { minaPhotoUpload02 } from "./mina-photo-upload-02";
 import { minaPhotoUpload03 } from "./mina-photo-upload-03";
@@ -24,24 +25,69 @@ const photos = [
 /** Mina's photo album: six user-provided images, followed by the original two. */
 export function MinaPhotosSkin(p: Props) {
   const [selected, setSelected] = useState<string | null>(null);
+  const [infoOpen, setInfoOpen] = useState(false);
   const [tab, setTab] = useSkinState<string>(p, "mina-photo-tab", "最近の項目");
   const [favorites, setFavorites] = useSkinState<string[]>(p, "mina-photo-favorites", []);
   const current = photos.find((photo) => photo.id === selected);
   const visible = tab === "お気に入り" ? photos.filter((photo) => favorites.includes(photo.id)) : photos;
   const toggle = (id: string) => setFavorites((previous) => previous.includes(id) ? previous.filter((value) => value !== id) : [...previous, id]);
+  const openPhoto = (id: string) => { setSelected(id); setInfoOpen(false); };
+  const closePhoto = () => { setSelected(null); setInfoOpen(false); };
+  const toggleInfo = () => {
+    if (!current) return;
+    if (!infoOpen && current.id === "mina-history-ballet") p.onClue?.(minaClueKeys.balletDetails);
+    setInfoOpen((value) => !value);
+  };
 
   return (
     <div className="catalog-skin mina-photo-gallery">
       {current ? (
         <>
           <header className="mina-photo-view-header">
-            <button onClick={() => setSelected(null)} aria-label="写真一覧に戻る"><ArrowLeft size={21} /> 戻る</button>
+            <button onClick={closePhoto} aria-label="写真一覧に戻る"><ArrowLeft size={21} /> 戻る</button>
             <span>{current.date}</span>
+            <div className="mina-photo-view-actions">
+              <button
+                type="button"
+                aria-label="写真の情報"
+                aria-expanded={infoOpen}
+                onClick={toggleInfo}
+              >
+                <Info size={22} color={infoOpen ? "#4776cf" : "#383838"}/>
+              </button>
             <button onClick={() => toggle(current.id)} aria-label={favorites.includes(current.id) ? "お気に入りを解除" : "お気に入りに追加"} aria-pressed={favorites.includes(current.id)}>
               <Heart size={22} fill={favorites.includes(current.id) ? "#f083a9" : "none"} color={favorites.includes(current.id) ? "#f083a9" : "#383838"} />
             </button>
+            </div>
           </header>
-          <div className="mina-photo-view"><img src={current.src} alt={current.title} /></div>
+          <div className="mina-photo-view">
+            <img src={current.src} alt={current.title} />
+            {infoOpen && (
+              <section className="mina-photo-info-sheet" aria-label="写真の詳細情報">
+                <div className="mina-photo-info-heading"><Info size={17}/><strong>情報</strong></div>
+                <dl>
+                  <div>
+                    <dt><CalendarDays size={15}/> 撮影日時</dt>
+                    <dd>{current.date || "記録なし"}</dd>
+                  </div>
+                  <div>
+                    <dt><MapPin size={15}/> 撮影場所</dt>
+                    <dd>位置情報なし</dd>
+                  </div>
+                  <div>
+                    <dt><FileImage size={15}/> ファイル</dt>
+                    <dd>WEBP · 保存画像</dd>
+                  </div>
+                </dl>
+                {current.id === "mina-history-ballet" && (
+                  <div className="mina-photo-album-note">
+                    <small>アルバムのメモ（撮影日時の情報ではありません）</small>
+                    <span>2014年ごろ · バレエ</span>
+                  </div>
+                )}
+              </section>
+            )}
+          </div>
           <footer className="mina-photo-view-footer">{current.title}<small>MINA · AFTER HOURS</small></footer>
         </>
       ) : (
@@ -57,7 +103,7 @@ export function MinaPhotosSkin(p: Props) {
             <div className="mina-photo-album-label"><span><Images size={16}/> {tab}</span><small>{visible.length}枚</small></div>
             <div className="mina-photo-tiles">
               {visible.map((photo) => (
-                <button key={photo.id} onClick={() => setSelected(photo.id)} aria-label={photo.title + "を見る"}>
+                <button key={photo.id} onClick={() => openPhoto(photo.id)} aria-label={photo.title + "を見る"}>
                   <img src={photo.src} alt={photo.title} />
                   {favorites.includes(photo.id) && <Heart size={15} fill="#fff" />}
                 </button>
