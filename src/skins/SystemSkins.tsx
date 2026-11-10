@@ -29,6 +29,14 @@ import {
 import { useEffect, useState } from "react";
 import { download } from "../io";
 import { safeMedia, type Item } from "../schema";
+import { minaClueKeys } from "./minaStoryInteractions";
+import {
+  minaSafariRingSearches,
+  minaSafariSearchHistory,
+  isMinaSafariResearchTerm,
+  minaSafariResearchResults,
+} from "./minaSafariResearch";
+export { minaSafariRingSearches } from "./minaSafariResearch";
 import {
   Add,
   Avatar,
@@ -303,17 +311,19 @@ export function CameraSkin(p: Props) {
     </div>
   );
 }
-// Mina's fictional browser history: clues to the LEGO ring she is making for A.
-export const minaSafariRingSearches = [
-  "指輪の図面",
-  "指輪の作り方",
-  "かわいい指輪",
-] as const;
-
+// Mina's browser keeps her three original searches, with extra practical
+// research revealed after the Jeongyeon conversation. Pages are fictional and
+// do not contact Google or alter Safari's existing authored bookmarks.
 export function SafariSkin(p: Props) {
-  const [q, setQ] = useState(""),
-    [tab, setTab] = useState("书签");
+  const [q, setQ] = useState("");
+  const [tab, setTab] = useState("书签");
+  const [openedSearch, setOpenedSearch] = useState<string | null>(null);
+  const [openedArticle, setOpenedArticle] = useState<string | null>(null);
+  const researchUnlocked =
+    p.owner === "名井南" &&
+    p.items.some((item) => item.id === "mina-story-lego-safari-unlocked");
   const items = p.items
+    .filter((i) => i.id !== "mina-story-lego-safari-unlocked")
     .filter((i) =>
       (i.title + i.body + meta(i, "url"))
         .toLowerCase()
@@ -324,77 +334,156 @@ export function SafariSkin(p: Props) {
         ? i.favorite || i.folder !== "历史记录"
         : i.folder === "历史记录",
     );
-  const ringSearches = tab === "历史记录"
-    ? minaSafariRingSearches.filter((term) => term.toLowerCase().includes(q.trim().toLowerCase()))
+  const researchTerms = tab === "历史记录"
+    ? minaSafariSearchHistory(researchUnlocked).filter((term) =>
+        term.toLowerCase().includes(q.trim().toLowerCase()),
+      )
     : [];
-  const hasResults = items.length > 0 || ringSearches.length > 0;
+  const articles = openedSearch ? minaSafariResearchResults(openedSearch) : [];
+  const article = articles.find((entry) => entry.id === openedArticle);
+  const hasResults = items.length > 0 || researchTerms.length > 0;
+
+  const openResearch = (term: string) => {
+    setOpenedSearch(term);
+    setOpenedArticle(null);
+    setQ(term);
+    if (researchUnlocked && isMinaSafariResearchTerm(term)) {
+      p.onClue?.(minaClueKeys.safariResearchSeen);
+    }
+  };
+  const goBackToHistory = () => {
+    if (openedArticle) setOpenedArticle(null);
+    else {
+      setOpenedSearch(null);
+      setQ("");
+    }
+  };
 
   return (
     <div className="catalog-skin native-safari">
       <Header p={p} />
       <div className="catalog-scroll">
-        <h1>{ja(tab)}</h1>
-        {tab === "历史记录" && ringSearches.length > 0 && (
-          <section className="safari-search-history" aria-label="検索履歴">
-            <h2>検索履歴</h2>
-            <div className="safari-search-history-list">
-              {ringSearches.map((term) => (
-                <button
-                  key={term}
-                  type="button"
-                  aria-label={`検索履歴: ${term}`}
-                  onClick={() => setQ(term)}
-                >
-                  <span className="safari-search-icon"><Search size={17} /></span>
-                  <span className="safari-search-entry">
-                    <strong>{term}</strong>
-                    <small>Google 検索 · google.com</small>
-                  </span>
-                  <ChevronRight size={17} className="safari-search-chevron" />
-                </button>
-              ))}
-            </div>
-          </section>
-        )}
-        {items.length > 0 && (
-          <div className="safari-favorites">
-            {items.map((i) => (
-              <button key={i.id} onClick={() => p.onItem(i)}>
-                <span>
-                  <Globe size={28} />
-                </span>
-                <strong>{i.title}</strong>
-                <small>{meta(i, "url")}</small>
-              </button>
-            ))}
+        {tab === "历史记录" && openedSearch ? (
+          <div className="safari-research-page">
+            <button
+              type="button"
+              className="safari-research-back"
+              onClick={goBackToHistory}
+              aria-label={openedArticle ? "検索結果へ戻る" : "検索履歴へ戻る"}
+            >
+              <ChevronLeft size={17}/>
+              {openedArticle ? "検索結果" : "検索履歴"}
+            </button>
+            {article ? (
+              <article className="safari-research-article">
+                <small className="safari-research-url">{article.site} · オフライン保存</small>
+                <h2>{article.title}</h2>
+                {article.paragraphs.map((paragraph, index) => (
+                  <p key={index}>{paragraph}</p>
+                ))}
+                <small className="safari-research-footnote">個人の趣味で保存された参考ページ</small>
+              </article>
+            ) : (
+              <section className="safari-research-results" aria-label="検索結果">
+                <div className="safari-research-google"><span>G</span>oogle</div>
+                <div className="safari-research-query"><Search size={16}/>{openedSearch}</div>
+                <div className="safari-research-filter"><strong>すべて</strong><span>画像</span><span>動画</span><span>ショッピング</span></div>
+                {articles.length ? (
+                  articles.map((entry) => (
+                    <button
+                      key={entry.id}
+                      className="safari-research-result"
+                      onClick={() => setOpenedArticle(entry.id)}
+                      aria-label={entry.title + "を読む"}
+                    >
+                      <small>{entry.site} · {entry.url}</small>
+                      <strong>{entry.title}</strong>
+                      <p>{entry.excerpt}</p>
+                    </button>
+                  ))
+                ) : (
+                  <p className="safari-research-no-results">保存された検索結果がありません。</p>
+                )}
+              </section>
+            )}
           </div>
+        ) : (
+          <>
+            <h1>{ja(tab)}</h1>
+            {tab === "历史记录" && researchTerms.length > 0 && (
+              <section className="safari-search-history" aria-label="検索履歴">
+                <h2>検索履歴</h2>
+                <div className="safari-search-history-list">
+                  {researchTerms.map((term) => (
+                    <button
+                      key={term}
+                      type="button"
+                      aria-label={`検索履歴: ${term}`}
+                      onClick={() => openResearch(term)}
+                    >
+                      <span className="safari-search-icon"><Search size={17}/></span>
+                      <span className="safari-search-entry">
+                        <strong>{term}</strong>
+                        <small>Google 検索 · google.com</small>
+                      </span>
+                      <ChevronRight size={17} className="safari-search-chevron"/>
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
+            {items.length > 0 && (
+              <div className="safari-favorites">
+                {items.map((i) => (
+                  <button key={i.id} onClick={() => p.onItem(i)}>
+                    <span><Globe size={28}/></span>
+                    <strong>{i.title}</strong>
+                    <small>{meta(i, "url")}</small>
+                  </button>
+                ))}
+              </div>
+            )}
+            {!hasResults && <Empty items={[]} label="一致するページがありません" />}
+          </>
         )}
-        {!hasResults && <Empty items={[]} label="一致するページがありません" />}
       </div>
       <label className="safari-address">
-        <LockKeyhole size={13} />
+        <LockKeyhole size={13}/>
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="検索またはURLを入力"
           aria-label="アドレスバー"
           onKeyDown={(e) => {
-            if (e.key === "Enter" && items[0]) p.onItem(items[0]);
+            if (e.key !== "Enter") return;
+            const term = q.trim();
+            if (term && isMinaSafariResearchTerm(term)) openResearch(term);
+            else if (items[0]) p.onItem(items[0]);
+            else if (term) openResearch(term);
           }}
         />
         {q ? (
-          <button type="button" aria-label="検索をクリア" onClick={() => setQ("")}>
-            <Search size={16} />
+          <button type="button" aria-label="検索をクリア" onClick={() => {
+            setQ("");
+            setOpenedSearch(null);
+            setOpenedArticle(null);
+          }}>
+            <Search size={16}/>
           </button>
         ) : (
-          <Search size={16} />
+          <Search size={16}/>
         )}
       </label>
       <Tabs
         tabs={["书签", "历史记录"]}
         value={tab}
-        set={setTab}
-        icons={[<Globe />, <Clock />]}
+        set={(next) => {
+          setTab(next);
+          setQ("");
+          setOpenedSearch(null);
+          setOpenedArticle(null);
+        }}
+        icons={[<Globe/>, <Clock/>]}
       />
     </div>
   );
