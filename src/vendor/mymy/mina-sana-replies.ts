@@ -54,11 +54,17 @@ export function matchSanaFreeText(text: string, stage: SanaStage): "awake" | San
   if (!value) return null;
 
   if (stage === "") {
+    // Short replies such as 「まだです」 and 「嗯」 mean "still awake" here.
+    // The previous recognizer missed both and trapped players in a loop.
+    if (/^(?:まだ(?:です|だよ|だ|ね|よ)?|嗯+|嗯呐|嗯呢)$/.test(value)) return "awake";
     return /(?:寝てない|寝てません|まだ寝|まだ起き|起きてる|寝ていない|眠ってない|まだ眠ってない|起きてます|眠くない|寝られない|寝れない|うん|はい|そうだよ|还没睡|还没有睡|没睡|没睡觉|还醒着|醒着呢|还在呢|还在线|睡不着|我在|还没休息|まだだよ|notyet|notasleep|imawake|stillup|iamup|awake|yep|yeah|yes|아직안자|아직안잤|안자고있|깨어있|응|네)/u.test(value)
       ? "awake"
       : null;
   }
   if (stage !== "awake") return null;
+  // An isolated question mark after Sana asks about a secret is a natural
+  // "why are you asking?" reply, not an invalid message.
+  if (/^[?？]+$/.test(text.trim())) return "why";
 
   // A remembered person or the past is more specific than generic denials
   // and can coexist with "nothing much"/"why" in an otherwise natural message.
@@ -69,6 +75,54 @@ export function matchSanaFreeText(text: string, stage: SanaStage): "awake" | San
   if (/(?:別に|何もない|なんもない|何でもない|なんでもない|隠してない|大丈夫|気のせい|気にしないで|特にない|特に何も|没什么|没事|没啥|没想啥|没有什么|什么都没有|没有啦|没瞒|别多想|别担心|我很好|没问题|nothing|notmuch|imfine|itsfine|dontworry|nope|nah|아무것도|별일없|괜찮아|아니야|아냐|숨기는거없)/u.test(value))
     return "deny";
   return null;
+}
+
+/**
+ * Repair earlier saves whose first valid reply was stored as an "unrecognized"
+ * attempt because the old matcher did not understand 「まだです」. Preserve all
+ * exact player text, reinterpret later attempts against the correct stage and
+ * keep the three original narrative endings.
+ */
+export function recoverSanaAttemptHistory(
+  stage: string,
+  awakeText: string,
+  replyText: string,
+  attempts: readonly SanaAttempt[],
+): {
+  stage: string;
+  awakeText: string;
+  replyText: string;
+  attempts: SanaAttempt[];
+  recovered: boolean;
+} {
+  const original = {
+    stage, awakeText, replyText, attempts: [...attempts], recovered: false,
+  };
+  if (stage !== "") return original;
+  const index = attempts.findIndex(
+    (attempt) => attempt.phase === "" && matchSanaFreeText(attempt.text, "") === "awake",
+  );
+  if (index < 0) return original;
+
+  const before = attempts.slice(0, index);
+  const later = attempts.slice(index + 1).map((attempt) => ({
+    ...attempt,
+    phase: "awake" as const,
+  }));
+  const branchIndex = later.findIndex((attempt) => {
+    const intent = matchSanaFreeText(attempt.text, "awake");
+    return intent === "deny" || intent === "why" || intent === "memory";
+  });
+  const branch = branchIndex >= 0
+    ? matchSanaFreeText(later[branchIndex].text, "awake") as SanaBranch
+    : null;
+  return {
+    stage: branch ?? "awake",
+    awakeText: attempts[index].text,
+    replyText: branch ? later[branchIndex].text : "",
+    attempts: [...before, ...later.slice(0, branchIndex < 0 ? undefined : branchIndex)],
+    recovered: true,
+  };
 }
 
 export function parseSanaAttempts(raw: readonly string[]): SanaAttempt[] {
@@ -155,17 +209,21 @@ export function minaSanaInteractiveMessages(
   const renderAttempts = (
     source: readonly SanaAttempt[],
     offset: number,
-    clarification: string,
+    clarifications: readonly string[],
     prefix: string,
   ) => source.flatMap((attempt, i) => [
     line(ping, prefix + "-input-" + i, attempt.text, offset + 2 * i, true),
-    line(ping, prefix + "-clarify-" + i, clarification, offset + 2 * i + 1, false),
+    line(ping, prefix + "-clarify-" + i, clarifications[Math.min(i, clarifications.length - 1)], offset + 2 * i + 1, false),
   ]);
 
   const beginning = renderAttempts(
     startAttempts,
     1,
-    "ん？まだ起きてる？笑",
+    [
+      "ん？まだ起きてる？笑",
+      "起きてるなら、ちょっとだけ聞いてもいい？",
+      "寝ちゃったかな。起きてたら教えてね〜",
+    ],
     "initial",
   );
   if (stage !== "awake" && !isSanaBranch(stage)) return beginning;
@@ -182,7 +240,11 @@ export function minaSanaInteractiveMessages(
   result.push(...renderAttempts(
     followAttempts,
     followOffset,
-    "え、どういうこと？笑 もう少し教えて〜",
+    [
+      "え、どういうこと？笑 もう少し教えて〜",
+      "無理に話さなくてもいいよ。ちょっと気になっただけ。",
+      "うん、聞いてるよ〜",
+    ],
     "follow",
   ));
 
