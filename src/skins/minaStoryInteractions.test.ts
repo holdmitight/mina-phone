@@ -147,6 +147,53 @@ describe("Mina cross-app discoveries", () => {
     expect(discoverMinaClue(healed, clues.balletDetails)).toBe(healed);
   });
 
+
+  it("continues all Sana free-text endings into one Jeongyeon notification and archived gift talk", () => {
+    // The UI translates deny, why and memory into the same completed clue.
+    const start = discoverMinaClue(
+      discoverMinaClue(initialRuntime(fixture), clues.cafeVisit),
+      clues.jeongyeonTalk,
+    );
+    const result = discoverMinaClue(start, clues.sanaFinished);
+    expect(result.clues).toContain(clues.jeongyeonGiftReady);
+    expect(result.notifications.filter((notice) => notice.includes("Jeongyeon："))).toHaveLength(1);
+    const giftTalk = result.messages.kakao.filter((item) => item.id.startsWith("mina-story-gift-archive-"));
+    expect(giftTalk).toHaveLength(5);
+    expect(giftTalk.filter((item) => item.outgoing)).toHaveLength(2);
+    expect(giftTalk.find((item) => item.outgoing)?.body).toContain("어려워");
+    expect(result.messages.kakao.some((item) => item.id === "mina-story-jeongyeon-gift-ping")).toBe(true);
+    expect(discoverMinaClue(result, clues.sanaFinished)).toBe(result);
+    expect(result.messages.kakao.filter((item) => item.id === "mina-story-jeongyeon-gift-ping")).toHaveLength(1);
+  });
+
+  it("unlocks Amazon and the separate photo album only after opening the gift chat", () => {
+    const afterSana = discoverMinaClue(initialRuntime(fixture), clues.sanaFinished);
+    expect(afterSana.messages.amazonjp).toBeUndefined();
+    expect(afterSana.messages.photos).toBeUndefined();
+    const afterJeongyeon = discoverMinaClue(afterSana, clues.jeongyeonGiftRead);
+    expect(afterJeongyeon.messages.amazonjp.map((item) => item.id)).toContain("mina-story-lego-amazon-unlocked");
+    expect(afterJeongyeon.messages.photos.map((item) => item.id)).toContain("mina-story-lego-photos-unlocked");
+    expect(discoverMinaClue(afterJeongyeon, clues.jeongyeonGiftRead)).toBe(afterJeongyeon);
+  });
+
+  it("reveals only a partial unsent note after the LEGO search, photo details and LINE promise", () => {
+    let state = discoverMinaClue(initialRuntime(fixture), clues.sanaFinished);
+    state = discoverMinaClue(state, clues.jeongyeonGiftRead);
+    state = discoverMinaClue(state, clues.legoPhotoSeen);
+    state = discoverMinaClue(state, clues.oldLine);
+    expect(state.messages.notes.some((item) => item.id === "mina-story-gift-unsent-draft")).toBe(false);
+    state = discoverMinaClue(state, clues.amazonPartsSeen);
+    expect(state.clues).toContain(clues.giftTrailResolved);
+    const draft = state.messages.notes.find((item) => item.id === "mina-story-gift-unsent-draft");
+    expect(draft?.body).toContain("あの約束");
+    expect(draft?.body).toContain("\\n");
+    expect(draft?.body).not.toContain("わざと置いて");
+    expect(discoverMinaClue(state, clues.amazonPartsSeen)).toBe(state);
+    expect(JSON.parse(JSON.stringify(state)).messages.notes.some(
+      (item: { id: string }) => item.id === "mina-story-gift-unsent-draft",
+    )).toBe(true);
+  });
+
   it("retains all progress with a serializable runtime and ignores unrecognized clues", () => {
     let state = initialRuntime(fixture);
     state = discoverMinaClue(state, clues.cafeVisit);
