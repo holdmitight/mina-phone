@@ -54,7 +54,7 @@ export function matchSanaFreeText(text: string, stage: SanaStage): "awake" | San
   if (!value) return null;
 
   if (stage === "") {
-    return /(?:寝てない|寝てません|まだ寝|まだ起き|起きてる|起きてます|眠くない|寝られない|寝れない|うん|はい|そうだよ|还没睡|没睡|还醒着|没睡觉|还在呢|睡不着|我在|まだだよ|notyet|notasleep|imawake|stillup|iamup|awake|yep|yeah|yes|아직안자|아직안잤|안자고있|깨어있|응|네)/u.test(value)
+    return /(?:寝てない|寝てません|まだ寝|まだ起き|起きてる|寝ていない|眠ってない|まだ眠ってない|起きてます|眠くない|寝られない|寝れない|うん|はい|そうだよ|还没睡|还没有睡|没睡|没睡觉|还醒着|醒着呢|还在呢|还在线|睡不着|我在|还没休息|まだだよ|notyet|notasleep|imawake|stillup|iamup|awake|yep|yeah|yes|아직안자|아직안잤|안자고있|깨어있|응|네)/u.test(value)
       ? "awake"
       : null;
   }
@@ -62,11 +62,11 @@ export function matchSanaFreeText(text: string, stage: SanaStage): "awake" | San
 
   // A remembered person or the past is more specific than generic denials
   // and can coexist with "nothing much"/"why" in an otherwise natural message.
-  if (/(?:昔|思い出|思いだ|思い返|過去|懐かし|あの頃|以前|前のこと|昔の人|あの人のこと|想起|想起来|想到了|回忆|过去|以前|从前|当年|那个人|十年前|旧事|oldtimes|olddays|backthen|past|remembered|remembering|memories|nostalg|옛날|예전|추억|과거|생각났|생각나)/u.test(value))
+  if (/(?:昔|思い出|思いだ|思い返|過去|懐かし|あの頃|以前|前のこと|昔の人|あの人のこと|想起|想起来|想到了|想她|想他|回忆|过去|以前|从前|当年|那个人|十年前|旧事|有点怀念|以前的事|以前的人|oldtimes|olddays|backthen|past|remembered|remembering|memories|nostalg|옛날|예전|추억|과거|생각났|생각나)/u.test(value))
     return "memory";
-  if (/(?:なんで|どうして|なぜ|そう思う|どう思った|わかったの|気づいたの|何で|为什么|为啥|怎么会|怎么知道|怎么发现|怎么这么说|你怎么|何以|why|howcome|whatmakesyou|howdidyouknow|whydoyou|왜|어떻게알|그렇게생각)/u.test(value))
+  if (/(?:なんで|どうして|なぜ|そう思う|どう思った|わかったの|気づいたの|何で|为什么|为啥|怎么了|怎么会|怎么知道|怎么发现|怎么这么说|怎么这么问|你怎么|何以|why|howcome|whatmakesyou|howdidyouknow|whydoyou|왜|어떻게알|그렇게생각)/u.test(value))
     return "why";
-  if (/(?:別に|何もない|なんもない|何でもない|なんでもない|隠してない|大丈夫|気のせい|気にしないで|特にない|特に何も|没什么|没事|没啥|没想啥|没有什么|没瞒|别多想|别担心|我很好|没问题|nothing|notmuch|imfine|itsfine|dontworry|nope|nah|아무것도|별일없|괜찮아|아니야|아냐|숨기는거없)/u.test(value))
+  if (/(?:別に|何もない|なんもない|何でもない|なんでもない|隠してない|大丈夫|気のせい|気にしないで|特にない|特に何も|没什么|没事|没啥|没想啥|没有什么|什么都没有|没有啦|没瞒|别多想|别担心|我很好|没问题|nothing|notmuch|imfine|itsfine|dontworry|nope|nah|아무것도|별일없|괜찮아|아니야|아냐|숨기는거없)/u.test(value))
     return "deny";
   return null;
 }
