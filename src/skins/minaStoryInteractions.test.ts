@@ -114,6 +114,39 @@ describe("Mina cross-app discoveries", () => {
     expect(discoverMinaClue(photoThenLine, clues.oldLine)).toBe(photoThenLine);
   });
 
+  it("recovers older saves that saw both clues but missed the notification", () => {
+    const partial = {
+      ...initialRuntime(fixture),
+      clues: [clues.cafeVisit, clues.jeongyeonTalk],
+    };
+    const repaired = discoverMinaClue(partial, clues.cafeVisit);
+    expect(repaired.clues).toContain(clues.cafeResolved);
+    expect(repaired.messages.kakao).toHaveLength(1);
+    expect(repaired.notifications).toHaveLength(1);
+    const dismissed = { ...repaired, notifications: [] };
+    expect(discoverMinaClue(dismissed, clues.jeongyeonTalk)).toBe(dismissed);
+    expect(dismissed.messages.kakao).toHaveLength(1);
+
+    const missingMessage = { ...repaired, messages: {} };
+    const healed = discoverMinaClue(missingMessage, clues.cafeVisit);
+    expect(healed.messages.kakao).toHaveLength(1);
+    expect(healed.notifications).toHaveLength(1);
+    expect(discoverMinaClue(healed, clues.cafeVisit)).toBe(healed);
+  });
+
+  it("restores an older save's missing unlocked rain note without replacing existing clues", () => {
+    const partial = {
+      ...initialRuntime(fixture),
+      clues: [clues.oldLine, clues.balletDetails, clues.memoryResolved],
+    };
+    const healed = discoverMinaClue(partial, clues.oldLine);
+    expect(healed.messages.notes).toHaveLength(1);
+    expect(healed.messages.notes[0].body).toBe(
+      "雨が強い。\\n\\n……今なら、ちゃんと言えるのに。",
+    );
+    expect(discoverMinaClue(healed, clues.balletDetails)).toBe(healed);
+  });
+
   it("retains all progress with a serializable runtime and ignores unrecognized clues", () => {
     let state = initialRuntime(fixture);
     state = discoverMinaClue(state, clues.cafeVisit);
