@@ -3,6 +3,7 @@ import { Camera, ChevronLeft, ChevronRight, Clock3, Home, Menu, Minus, Search, S
 import { useSkinState } from "../skinState";
 import type { Props } from "./shared";
 import { amazonReferenceImages } from "./amazonReferenceImages";
+import { minaClueKeys } from "./minaStoryInteractions";
 import "./mina-amazon.css";
 
 /** An offline, fictional Amazon Japan experience populated from the owner's reference screenshots. */
@@ -46,6 +47,7 @@ export const amazonCartCatalog = [
 ] as const;
 
 export const amazonInitialHistory = ["switch2", "lego dragon", "lego 32110", "lego"] as const;
+const giftPartsSearch = "レゴ 小さいパーツ 白 ピンク";
 type AmazonProduct = (typeof amazonCartCatalog)[number];
 type AmazonScreen = "home" | "search" | "cart" | "results" | "account" | "menu";
 const yen = (amount: number) => "¥" + new Intl.NumberFormat("ja-JP").format(amount);
@@ -55,6 +57,10 @@ export function MinaAmazonSkin(p: Props) {
   const [savedCart, setSavedCart] = useSkinState<string[]>(p, "amazon-cart-lines", amazonCartCatalog.map((item) => item.id + ":1"));
   const [later, setLater] = useSkinState<string[]>(p, "amazon-saved-later", []);
   const [history, setHistory] = useSkinState<string[]>(p, "amazon-search-history", [...amazonInitialHistory]);
+  const [hiddenStoryHistory, setHiddenStoryHistory] = useSkinState<string[]>(p, "amazon-hidden-story-history", []);
+  const storyPartsUnlocked = p.owner === "名井南" && p.items.some((item) => item.id === "mina-story-lego-amazon-unlocked");
+  const searchHistory = storyPartsUnlocked && !history.includes(giftPartsSearch) && !hiddenStoryHistory.includes(giftPartsSearch)
+    ? [giftPartsSearch, ...history] : history;
   const [searchTerm, setSearchTerm] = useState("");
   const [activeQuery, setActiveQuery] = useState("");
   const [notice, setNotice] = useState("");
@@ -111,6 +117,7 @@ export function MinaAmazonSkin(p: Props) {
   function submitSearch(text: string) {
     const value = text.trim().slice(0, 100);
     if (!value) return;
+    if (storyPartsUnlocked && value === giftPartsSearch) p.onClue?.(minaClueKeys.amazonPartsSeen);
     setSearchTerm(value);
     setActiveQuery(value);
     setHistory((prev) => [value, ...prev.filter((item) => item.toLowerCase() !== value.toLowerCase())].slice(0, 12));
@@ -189,14 +196,17 @@ export function MinaAmazonSkin(p: Props) {
     <input ref={imageRef} type="file" accept="image/*" capture="environment" onChange={onImageSelected} hidden aria-label="画像を選択"/>
     {notice && <p className="amazon-notice" role="status">{notice}<button aria-label="閉じる" onClick={() => setNotice("")}><X size={13}/></button></p>}
     {screen === "search" && <div className="amazon-search-content">
-      {(searchTerm.trim() ? history.filter((item) => item.toLowerCase().includes(searchTerm.toLowerCase())) : history).map((item) =>
+      {(searchTerm.trim() ? searchHistory.filter((item) => item.toLowerCase().includes(searchTerm.toLowerCase())) : searchHistory).map((item) =>
         <div className="amazon-search-history-row" key={item}>
           <button onClick={() => submitSearch(item)}><Clock3 size={19}/><span>{item}</span></button>
-          <button aria-label={item + "を履歴から削除"} onClick={() => setHistory((prev) => prev.filter((entry) => entry !== item))}><X size={21}/></button>
+          <button aria-label={item + "を履歴から削除"} onClick={() => {
+            if (item === giftPartsSearch) setHiddenStoryHistory((prev) => [...prev, item]);
+            setHistory((prev) => prev.filter((entry) => entry !== item));
+          }}><X size={21}/></button>
         </div>
       )}
       {searchTerm.trim() && <button className="amazon-typed-search" onClick={() => submitSearch(searchTerm)}><Search size={18}/><span>「{searchTerm}」を検索</span></button>}
-      {!history.length && !searchTerm.trim() && <p className="amazon-empty-note">最近の検索はありません</p>}
+      {!searchHistory.length && !searchTerm.trim() && <p className="amazon-empty-note">最近の検索はありません</p>}
     </div>}
     {screen !== "search" && <div className="amazon-scroll">
       {screen === "home" && <>
