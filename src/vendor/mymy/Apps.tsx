@@ -40,6 +40,7 @@ import { kakaoDefaultAvatar } from "./kakao-default-avatar";
 import { minaKakao2025Items } from "./mina-kakao-2025";
 import { hasSanaStoryPrompt, minaSanaInteractiveMessages, isSanaBranch, matchSanaFreeText, parseSanaAttempts, recoverSanaAttemptHistory, type SanaStage } from "./mina-sana-replies";
 import { minaClueKeys } from "../../skins/minaStoryInteractions";
+import { markKakaoThreadRead, unreadKakaoMessages } from "./kakaoUnread";
 import "../../skins/mina-instagram.css";
 function grouped(items: Item[]) {
   return [...new Set(items.map((i) => i.title))].map((title) => ({
@@ -74,6 +75,7 @@ function Back({ onClick }: { onClick: () => void }) {
 export function MymyKakao(p: SkinProps) {
   const [tab, setTab] = useSkinState<string>(p, "mymyTab", "聊天"),
     [sent, setSent] = useSkinState<string[]>(p, "mymyKktSent", []),
+    [seenIncoming, setSeenIncoming] = useSkinState<string[]>(p, "mymyKktSeenIncoming", []),
     [sanaStage, setSanaStage] = useSkinState<string>(p, "minaSanaReplyStage", ""),
     [sanaAwakeText, setSanaAwakeText] = useSkinState<string>(p, "minaSanaAwakeText", ""),
     [sanaReplyText, setSanaReplyText] = useSkinState<string>(p, "minaSanaReplyText", ""),
@@ -123,14 +125,32 @@ export function MymyKakao(p: SkinProps) {
   const sourceItems = isMinaStory
     ? [...p.items, ...minaKakao2025Items, ...sanaStoryItems]
     : p.items;
-  // Preserve existing contact ordering and current last-message previews.
-  const list = grouped(p.items).map((group) => ({
+  // Display incoming replies in the chat list and calculate each unread badge
+  // from persistent read receipts, not the original (static) meta.unread value.
+  const list = grouped(sourceItems).map((group) => ({
     ...group,
-    items: sourceItems
-      .filter((item) => item.title === group.title)
-      .sort((a, b) => a.time.localeCompare(b.time)),
-  })),
-    messages = [
+    items: [...group.items].sort((a, b) => a.time.localeCompare(b.time)),
+  }));
+  const unreadTotal = list.reduce(
+    (total, group) => total + unreadKakaoMessages(group.items, seenIncoming).length, 0,
+  );
+  const currentThreadItems = p.thread
+    ? sourceItems.filter((item) => item.title === p.thread)
+    : [];
+  const currentThreadSignature = currentThreadItems.map((item) => item.id).join("|");
+  const markThreadRead = (title: string) => {
+    const next = markKakaoThreadRead(
+      seenIncoming,
+      sourceItems.filter((item) => item.title === title),
+    );
+    if (next.length !== seenIncoming.length) setSeenIncoming(next);
+  };
+  // Also clear the unread indicator when a push notification opens a thread
+  // directly, or when an incoming message arrives while its thread is open.
+  useEffect(() => {
+    if (!p.creator && p.thread) markThreadRead(p.thread);
+  }, [p.creator, p.thread, currentThreadSignature, seenIncoming.join("|")]);
+  const messages = [
       ...sourceItems
         .filter((i) => i.title === p.thread)
         .sort((a, b) => a.time.localeCompare(b.time)),
@@ -382,11 +402,14 @@ export function MymyKakao(p: SkinProps) {
               .filter((g) => g.title.includes(query.trim()))
               .map((g) => {
                 const last = g.items.at(-1)!;
+                const unreadCount = unreadKakaoMessages(g.items, seenIncoming).length;
                 return (
                   <button
                     className="kzkr kzkcr"
                     key={g.title}
+                    aria-label={displayTitle(g.title) + (unreadCount ? " 未読" + unreadCount + "件" : "")}
                     onClick={() => {
+                      if (!p.creator) markThreadRead(g.title);
                       p.onThread(g.title);
                       if (isMinaStory && g.title === "Sana")
                         p.onClue?.(minaClueKeys.sanaTalk);
@@ -399,8 +422,10 @@ export function MymyKakao(p: SkinProps) {
                     </span>
                     <span className="kzkmt">
                       {last.time.slice(-5)}
-                      {last.meta.unread && (
-                        <i className="kzkbd">{last.meta.unread}</i>
+                      {unreadCount > 0 && (
+                        <i className="kzkbd" aria-label={unreadCount + "件未読"}>
+                          {unreadCount > 99 ? "99+" : unreadCount}
+                        </i>
                       )}
                     </span>
                   </button>
@@ -420,6 +445,11 @@ export function MymyKakao(p: SkinProps) {
                   }
                 >
                   <Icon />
+                  {i === 1 && unreadTotal > 0 && (
+                    <i className="kzkbd" aria-label={unreadTotal + "件未読"}>
+                      {unreadTotal > 99 ? "99+" : unreadTotal}
+                    </i>
+                  )}
                 </button>
               ),
             )}
