@@ -197,7 +197,7 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
         notes: [...(messages.notes ?? []), makeItem({
           id: "mina-story-gift-unsent-draft",
           title: "作り直し",
-          body: "何回やり直しても、うまくいかない。\\n\\nでも、自分で作りたい。\\n……あの約束だから。",
+          body: "何回やり直しても、うまくいかない。\n\nでも、自分で作りたい。\n……あの約束だから。",
           time: "2025-11-08 23:18",
           sender: "名井南",
           kind: "note",
