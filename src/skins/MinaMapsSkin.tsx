@@ -181,6 +181,7 @@ export function MinaMapsSkin(p: Props) {
                     className="mina-map-history-toggle"
                     aria-expanded={showVisits}
                     onClick={() => {
+                      if (!showVisits) p.onClue?.(minaClueKeys.cafeVisit);
                       setShowVisits((value) => !value);
                       setActiveVisit(null);
                     }}
