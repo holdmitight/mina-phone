@@ -8,6 +8,12 @@ This repository does not bundle VoiceStudio's app or model. It uses the document
 
 The fictional call is from Jeongyeon's handset, with a generic Japanese synthetic voice speaking Mina's dialogue after the player answers. AI-rendered WAV files are preferred when present; the existing browser speech fallback remains available. Players can replay each line; ending choices can also play generated audio. Story progress and saves are unchanged.
 
+## Private voice-style references and a one-line audition
+
+The two author-supplied original audio excerpts are kept in a **private local reference pack**, not published in this GitHub repository. Use them to guide delivery choices for a separately licensed Japanese synthetic voice; they do not authorize cloning a real performer's voice.
+
+To hear only the opening Japanese line before rendering the complete call, launch the VoiceStudio TTS API and run `npm run voice:sample`. The test file is saved as `voice-preview/line-01.wav`, without changing the game's published audio manifest. See [Japanese voice direction](MINA_VOICE_DIRECTION.md).
+
 ## Generate all eleven lines
 
 1. Install VoiceStudio from https://github.com/debpalash/VoiceStudio and launch its local API (normally http://127.0.0.1:3900).
