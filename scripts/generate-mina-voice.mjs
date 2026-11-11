@@ -33,7 +33,8 @@ if (base.protocol === "http:" && !["localhost", "127.0.0.1", "::1", "[::1]"].inc
 const key = process.env.OMNIVOICE_API_KEY || "";
 const voice = process.env.VOICESTUDIO_VOICE || "alloy";
 const model = process.env.VOICESTUDIO_MODEL || "tts-1";
-const outputDir = path.join(root, "public/mina-voice");
+const sampleOnly = process.argv.includes("--sample");
+const outputDir = path.join(root, sampleOnly ? "voice-preview" : "public/mina-voice");
 await mkdir(outputDir, { recursive: true });
 
 const entries = [
@@ -51,7 +52,8 @@ const entries = [
 ];
 
 const manifest = { lines: [], outcomes: {} };
-for (const [index, entry] of entries.entries()) {
+const toGenerate = sampleOnly ? entries.slice(0, 1) : entries;
+for (const [index, entry] of toGenerate.entries()) {
   const response = await fetch(new URL("/v1/audio/speech", base), {
     method: "POST",
     headers: {
@@ -74,7 +76,11 @@ for (const [index, entry] of entries.entries()) {
   await writeFile(path.join(outputDir, entry.filename), bytes);
   if (entry.kind === "line") manifest.lines.push(entry.filename);
   else manifest.outcomes[entry.choice] = entry.filename;
-  console.log("Generated " + (index + 1) + "/" + entries.length + ": " + entry.filename);
+  console.log("Generated " + (index + 1) + "/" + toGenerate.length + ": " + entry.filename);
+}
+if (sampleOnly) {
+  console.log("Preview ready: voice-preview/line-01.wav (not published to the game).");
+  process.exit(0);
 }
 await writeFile(path.join(root, "src/skins/minaVoiceAssets.json"), JSON.stringify(manifest, null, 2) + "\n");
 console.log("Done. Commit public/mina-voice/*.wav and src/skins/minaVoiceAssets.json to publish AI voices.");
