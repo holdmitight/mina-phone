@@ -40,7 +40,7 @@ import { kakaoDefaultAvatar } from "./kakao-default-avatar";
 import { minaKakao2025Items } from "./mina-kakao-2025";
 import { hasSanaStoryPrompt, minaSanaInteractiveMessages, isSanaBranch, matchSanaFreeText, parseSanaAttempts, recoverSanaAttemptHistory, type SanaStage } from "./mina-sana-replies";
 import { minaClueKeys } from "../../skins/minaStoryInteractions";
-import { markKakaoThreadRead, unreadKakaoMessages } from "./kakaoUnread";
+import { markKakaoThreadRead, orderKakaoMessages, unreadKakaoMessages } from "./kakaoUnread";
 import "../../skins/mina-instagram.css";
 function grouped(items: Item[]) {
   return [...new Set(items.map((i) => i.title))].map((title) => ({
@@ -80,6 +80,7 @@ export function MymyKakao(p: SkinProps) {
     [sanaAwakeText, setSanaAwakeText] = useSkinState<string>(p, "minaSanaAwakeText", ""),
     [sanaReplyText, setSanaReplyText] = useSkinState<string>(p, "minaSanaReplyText", ""),
     [sanaAttempts, setSanaAttempts] = useSkinState<string[]>(p, "minaSanaAttempts", []),
+    [jeongyeonPopupDismissed, setJeongyeonPopupDismissed] = useSkinState<boolean>(p, "minaJeongyeonPopupDismissed", false),
     [draft, setDraft] = useState(""),
     [query, setQuery] = useState(""),
     [menu, setMenu] = useState(false);
@@ -129,7 +130,7 @@ export function MymyKakao(p: SkinProps) {
   // from persistent read receipts, not the original (static) meta.unread value.
   const list = grouped(sourceItems).map((group) => ({
     ...group,
-    items: [...group.items].sort((a, b) => a.time.localeCompare(b.time)),
+    items: orderKakaoMessages(group.items),
   }));
   const unreadTotal = list.reduce(
     (total, group) => total + unreadKakaoMessages(group.items, seenIncoming).length, 0,
@@ -151,9 +152,7 @@ export function MymyKakao(p: SkinProps) {
     if (!p.creator && p.thread) markThreadRead(p.thread);
   }, [p.creator, p.thread, currentThreadSignature, seenIncoming.join("|")]);
   const messages = [
-      ...sourceItems
-        .filter((i) => i.title === p.thread)
-        .sort((a, b) => a.time.localeCompare(b.time)),
+      ...orderKakaoMessages(sourceItems.filter((i) => i.title === p.thread)),
       ...sent.flatMap((raw, index) => {
         try {
           const entry: unknown = JSON.parse(raw);
@@ -213,6 +212,14 @@ export function MymyKakao(p: SkinProps) {
         p.onClue?.(minaClueKeys.jeongyeonGiftRead);
     }
   }, [isMinaStory, p.thread, p.items, p.onClue]);
+  const jeongyeonPing = sourceItems.find((item) => item.id === "mina-story-jeongyeon-gift-ping");
+  const showJeongyeonPopup =
+    isMinaStory &&
+    p.thread === "Sana" &&
+    Boolean(jeongyeonPing) &&
+    !seenIncoming.includes("mina-story-jeongyeon-gift-ping") &&
+    !jeongyeonPopupDismissed;
+
   return (
     <div className="mymy-ui mymy-kakao" data-mymy="kakao">
       {p.thread ? (
@@ -226,6 +233,21 @@ export function MymyKakao(p: SkinProps) {
               </button>
             </span>
           </header>
+          {showJeongyeonPopup && (
+            <div className="kakao-story-incoming-popup" role="status" aria-label="Jeongyeonから新しいメッセージ">
+              <button className="kakao-story-popup-open" type="button" onClick={() => {
+                setJeongyeonPopupDismissed(true);
+                p.onThread("Jeongyeon");
+              }}>
+                <span className="kakao-story-popup-app">KakaoTalk</span>
+                <strong>Jeongyeon</strong>
+                <span>{jeongyeonPing?.body}</span>
+              </button>
+              <button className="kakao-story-popup-close" type="button" aria-label="通知を閉じる" onClick={() => setJeongyeonPopupDismissed(true)}>
+                <X size={15}/>
+              </button>
+            </div>
+          )}
           <div className="msgs kk" ref={scroll}>
             {messages.map((m, i) => {
               const run = messageRun(messages, i);
