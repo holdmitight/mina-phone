@@ -23,7 +23,7 @@ Once a Japanese-capable VoiceStudio TTS engine is running and configured:
 npm run voice:sample
 ```
 
-This renders **only** `「びっくりさせてごめん。……私、南。今、ジョンヨンのスマホを借りてる。」` to `voice-preview/line-01.wav`. The folder is ignored by Git. It does not change the site's live voice manifest or publish any audio.
+This renders **only** `「びっくりさせてごめん。……私、ミナ。今、ジョンヨンのスマホを借りてる。」` to `voice-preview/line-01.wav`. The folder is ignored by Git. It does not change the site's live voice manifest or publish any audio.
 
 Choose a compatible model/voice with `VOICESTUDIO_MODEL` and `VOICESTUDIO_VOICE`. See [VoiceStudio setup](VOICESTUDIO.md). Compare the generated voice's delivery against the **style** of the private references, not against the person's unique vocal identity. Revise voice/model choice until the licensed voice feels appropriate.
 

@@ -20,6 +20,8 @@ describe("the final fictional phone call from Mina", () => {
 
   it("makes it clear Mina borrowed Jeongyeon's phone to reach A without identifying A early", () => {
     expect(minaFinalCallLines[0].ja).toContain("ジョンヨンのスマホを借りてる");
+    expect(minaFinalCallLines[0].ja).toContain("私、ミナ。");
+    expect(minaFinalCallLines[0].ja).not.toContain("私、南。");
     expect(minaFinalCallLines[2].ja).toContain("レゴの指輪");
     expect(minaFinalCallLines[4].ja).toContain("偶然じゃない");
     expect(minaFinalCallLines[3].ja).toContain("自分の手");
