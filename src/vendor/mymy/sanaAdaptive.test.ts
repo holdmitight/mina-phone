@@ -113,6 +113,71 @@ describe("adaptive Sana replies", () => {
     expect(matchSanaFreeText("En", "")).toBe("awake");
   });
 
+  it.each([
+    ["Sana其实她的手机丢了", "phone-lost"],
+    ["Sana，其实她的手机丢了", "phone-lost"],
+    ["米娜的手機不見了", "phone-lost"],
+    ["Mina lost her phone", "phone-lost"],
+    ["みーたんのスマホを落とした", "phone-lost"],
+    ["미나가 핸드폰을 잃어버렸어", "phone-lost"],
+    ["我捡到她的手机", "phone-found"],
+    ["I found her phone", "phone-found"],
+    ["我不是Mina", "phone-not-mina"],
+    ["I'm not Mina", "phone-not-mina"],
+    ["我会把手机还给她", "phone-return"],
+    ["I'll return the phone", "phone-return"],
+  ])("recognizes phone-loss or found-phone disclosures: %s", (message, expected) => {
+    expect(classifySanaTopic(message)).toBe(expected);
+  });
+
+  it("answers a lost-phone disclosure without assuming the sender is Mina or identifying A", () => {
+    const turn = replyToSanaText("Sana其实她的手机丢了", []);
+    expect(turn.topic).toBe("phone-lost");
+    expect(turn.replies[0]).toContain("スマホ");
+    expect(turn.replies[0]).toContain("誰");
+    expect(turn.replies[0]).not.toContain("どう思ってる");
+    expect(turn.replies[0]).not.toContain("A");
+    expect(turn.replies[0]).not.toContain("わざと");
+    expect(turn.replies[0]).not.toContain("レゴ");
+    expect(replyToSanaText("嗯", [turn]).replies[0]).toContain("本人");
+  });
+
+  it("responds naturally to an unknown finder and a return plan without naming A", () => {
+    const lost = replyToSanaText("Mina lost her phone", []);
+    const found = replyToSanaText("我捡到的", [lost]);
+    const notMina = replyToSanaText("I'm not Mina", [lost, found]);
+    const returnIt = replyToSanaText("我会把手机还给她", [lost, found, notMina]);
+    expect(found.topic).toBe("phone-found");
+    expect(found.replies[0]).toContain("拾ってくれた");
+    expect(notMina.topic).toBe("phone-not-mina");
+    expect(notMina.replies[0]).toContain("本人");
+    expect(returnIt.topic).toBe("phone-return");
+    expect(returnIt.replies[0]).toContain("ありがとう");
+    expect([lost,found,notMina,returnIt].map((turn) => turn.replies.join(" ")).join(" "))
+      .not.toContain("Aが");
+  });
+
+  it("repairs earlier generic responses to the same saved phone-loss message without touching other turns", () => {
+    const original = replyToSanaText("我会去见她的", []);
+    const saved = parseSanaAdaptiveTurns([
+      JSON.stringify(original),
+      JSON.stringify({
+        text: "Sana其实她的手机丢了",
+        topic: "unknown",
+        replies: ["そうなんだ。みーたんはそれ、どう思ってるの？"],
+      }),
+    ]);
+    expect(saved).toHaveLength(2);
+    expect(saved[0]).toEqual(original);
+    expect(saved[1].topic).toBe("phone-lost");
+    expect(saved[1].text).toBe("Sana其实她的手机丢了");
+    expect(saved[1].replies[0]).toContain("今このトークに返事してるのは誰");
+    expect(saved[1].replies[0]).not.toContain("どう思ってる");
+    const replay = minaSanaInteractiveMessages(ping, "awake", "まだ起きてる", "", [], saved);
+    expect(replay.some((item) => item.body === "Sana其实她的手机丢了")).toBe(true);
+    expect(replay.some((item) => item.body === saved[1].replies[0])).toBe(true);
+  });
+
   it("ignores malformed stored turns", () => {
     const stored = parseSanaAdaptiveTurns([
       "{oops",
