@@ -22,7 +22,7 @@ export function notificationContent(text: string, apps: Work["apps"]) {
   return {
     title: isKakao ? "KakaoTalk" + (contactLabel ? " · " + contactLabel : "") : sender,
     body: isKakao && embeddedContact ? rawBody.slice(embeddedContact[0].length) : rawBody,
-    appId: isKakao ? "kakao" : app?.id ?? "messages",
+    appId: isKakao ? "kakao" : sender === "Phone" ? "phone" : app?.id ?? "messages",
   };
 }
 export function SystemNotifications({
