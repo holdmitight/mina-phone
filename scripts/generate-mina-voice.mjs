@@ -20,6 +20,11 @@ for (const choice of ["meet", "time", "silence"]) {
   outcomes[choice] = match[1];
 }
 
+if (process.argv.includes("--check")) {
+  console.log("VoiceStudio script checked: 8 call lines and 3 outcomes.");
+  process.exit(0);
+}
+
 const base = new URL(process.env.VOICESTUDIO_URL || "http://127.0.0.1:3900");
 if (!["http:", "https:"].includes(base.protocol)) throw Error("VoiceStudio URL must use HTTP(S)");
 if (base.protocol === "http:" && !["localhost", "127.0.0.1", "::1", "[::1]"].includes(base.hostname)) {
