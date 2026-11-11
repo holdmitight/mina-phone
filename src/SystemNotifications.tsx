@@ -5,12 +5,24 @@ import { AppArtwork } from "./AppArtwork";
 import type { Work } from "./schema";
 export function notificationContent(text: string, apps: Work["apps"]) {
   const separator = text.search(/[:：]/);
-  const sender = separator > 0 ? text.slice(0, separator) : "メッセージ";
+  const sender = separator > 0 ? text.slice(0, separator).trim() : "メッセージ";
   const app = apps.find((a) => a.name === sender);
+
+  // Authored Kakao notifications sometimes contain the contact label as part
+  // of the app name (for example "KakaoTalk · 君 ♡"). Resolve them to the
+  // KakaoTalk app instead of falling back to the green SMS icon. Only remove
+  // the placeholder 「君」 from the notification heading, not its message body
+  // or the stored conversation.
+  const kakaoHeading = /^KakaoTalk(?:\\s*[·•・]\\s*(.*))?$/iu.exec(sender);
+  const rawBody = separator > 0 ? text.slice(separator + 1).trimStart() : text;
+  const embeddedContact = /^君\\s*([♡♥💗])\\s*[:：]\\s*/u.exec(rawBody);
+  const contactLabel = (kakaoHeading?.[1] ?? embeddedContact?.[1] ?? "")
+    .replace(/君/gu, "").trim();
+  const isKakao = Boolean(kakaoHeading);
   return {
-    title: sender,
-    body: separator > 0 ? text.slice(separator + 1) : text,
-    appId: app?.id ?? "messages",
+    title: isKakao ? "KakaoTalk" + (contactLabel ? " · " + contactLabel : "") : sender,
+    body: isKakao && embeddedContact ? rawBody.slice(embeddedContact[0].length) : rawBody,
+    appId: isKakao ? "kakao" : app?.id ?? "messages",
   };
 }
 export function SystemNotifications({
