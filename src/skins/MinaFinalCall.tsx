@@ -19,7 +19,7 @@ function localVoiceFile(id: number | string): string {
   const file = typeof id === "number"
     ? generatedVoices.lines[id]
     : generatedVoices.outcomes[id];
-  return file && /^[a-z0-9-]+\.wav$/u.test(file) ? file : "";
+  return file && /^[a-z0-9-]+\.(?:wav|mp3)$/u.test(file) ? file : "";
 }
 export function hasMinaRecordedVoice(id: number | string): boolean {
   return Boolean(localVoiceFile(id));
