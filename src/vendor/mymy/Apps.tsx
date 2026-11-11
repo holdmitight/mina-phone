@@ -38,7 +38,7 @@ import "./adapter.css";
 import { minaInstagramAvatar } from "../../skins/mina-instagram-avatar";
 import { kakaoDefaultAvatar } from "./kakao-default-avatar";
 import { minaKakao2025Items } from "./mina-kakao-2025";
-import { hasSanaStoryPrompt, minaSanaInteractiveMessages, isSanaBranch, matchSanaFreeText, parseSanaAttempts, recoverSanaAttemptHistory, type SanaStage } from "./mina-sana-replies";
+import { hasSanaStoryPrompt, minaSanaInteractiveMessages, isSanaBranch, parseSanaAttempts, recoverSanaAttemptHistory, type SanaStage } from "./mina-sana-replies";
 import { minaClueKeys } from "../../skins/minaStoryInteractions";
 import { markKakaoThreadRead, orderKakaoMessages, unreadKakaoMessages } from "./kakaoUnread";
 import { classifySanaTopic, parseSanaAdaptiveTurns, replyToSanaText, sanaConversationCanContinueStory } from "./sanaAdaptive";
