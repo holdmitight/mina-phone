@@ -229,6 +229,12 @@ export function MymyKakao(p: SkinProps) {
         p.onClue?.(minaClueKeys.jeongyeonGiftRead);
     }
   }, [isMinaStory, p.thread, p.items, p.onClue]);
+  // The pinned 💗 conversation is the other half of the final reveal.
+  useEffect(() => {
+    if (isMinaStory && p.thread && isHeartContact(p.thread))
+      p.onClue?.(minaClueKeys.heartThreadSeen);
+  }, [isMinaStory, p.thread, partnerTitle, p.onClue]);
+
   const jeongyeonPing = sourceItems.find((item) => item.id === "mina-story-jeongyeon-gift-ping");
   const showJeongyeonPopup =
     isMinaStory &&
@@ -466,6 +472,8 @@ export function MymyKakao(p: SkinProps) {
                       p.onThread(g.title);
                       if (isMinaStory && g.title === "Sana")
                         p.onClue?.(minaClueKeys.sanaTalk);
+                      if (isMinaStory && isHeartContact(g.title))
+                        p.onClue?.(minaClueKeys.heartThreadSeen);
                     }}
                   >
                     <Avatar name={last.sender || g.title} src={kakaoDefaultAvatar} />
