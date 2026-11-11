@@ -50,6 +50,12 @@ describe("KakaoTalk lock-screen notifications", () => {
     });
   });
 
+  it("renders a missed final call with the Phone icon so A can call back", () => {
+    const result = notificationContent("Phone: Jeongyeon · 不在着信（タップして折り返す）", apps);
+    expect(result.appId).toBe("phone");
+    expect(result.body).toContain("折り返す");
+  });
+
   it("renders the KakaoTalk artwork on the lock screen instead of Messages", () => {
     const html = renderToStaticMarkup(
       createElement(SystemNotifications, {
