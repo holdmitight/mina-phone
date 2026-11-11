@@ -59,8 +59,11 @@ const isPersonal = (topic: SanaTopic) =>
 
 /** Progress comes from the actual conversation, not a required magic phrase. */
 export function sanaConversationCanContinueStory(turns: readonly SanaAdaptiveTurn[]): boolean {
+  // Even a player who only sends brief reactions must not get stuck:
+  // after several exchanges, the next story beat can arrive naturally.
   return turns.some((turn) => isPersonal(turn.topic)) ||
-    turns.filter((turn) => turn.topic !== "short").length >= 3;
+    turns.filter((turn) => turn.topic !== "short").length >= 3 ||
+    turns.length >= 4;
 }
 
 export function replyToSanaText(text: string, earlier: readonly SanaAdaptiveTurn[]): SanaAdaptiveTurn {
