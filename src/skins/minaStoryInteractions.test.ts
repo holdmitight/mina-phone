@@ -294,6 +294,70 @@ describe("Mina cross-app discoveries", () => {
     expect(discoverMinaClue(state, clues.summerPlaylistSeen)).toBe(state);
   });
 
+  it("repairs a saved finished Sana branch that never received Jeongyeon's notification", () => {
+    const base = discoverMinaClue(
+      discoverMinaClue(initialRuntime(fixture), clues.cafeVisit),
+      clues.jeongyeonTalk,
+    );
+    const oldSave = {
+      ...base,
+      ui: {
+        ...base.ui,
+        kakao: {
+          minaSanaReplyStage: "memory",
+          minaSanaAwakeText: "まだ起きてるよ",
+          minaSanaReplyText: "ちょっと昔のことを思い出してた",
+        },
+      },
+    };
+    const repaired = normalizeMinaStoryRuntime(oldSave);
+    expect(repaired.clues).toContain(clues.sanaFinished);
+    expect(repaired.clues).toContain(clues.jeongyeonGiftReady);
+    expect(repaired.messages.kakao.filter((item) =>
+      item.id === "mina-story-jeongyeon-gift-ping",
+    )).toHaveLength(1);
+    expect(repaired.notifications.filter((n) => n.includes("Jeongyeon："))).toHaveLength(1);
+    expect(normalizeMinaStoryRuntime(repaired)).toBe(repaired);
+  });
+
+  it("recovers old free-text attempts into the Jeongyeon follow-up without replaying the chat", () => {
+    const base = discoverMinaClue(
+      discoverMinaClue(initialRuntime(fixture), clues.cafeVisit),
+      clues.jeongyeonTalk,
+    );
+    const oldSave = {
+      ...base,
+      ui: {
+        ...base.ui,
+        kakao: {
+          minaSanaReplyStage: "",
+          minaSanaAwakeText: "",
+          minaSanaReplyText: "",
+          minaSanaAttempts: [
+            JSON.stringify(["", "まだです"]),
+            JSON.stringify(["", "？"]),
+          ],
+        },
+      },
+    };
+    const repaired = normalizeMinaStoryRuntime(oldSave);
+    expect(repaired.clues).toContain(clues.sanaFinished);
+    expect(repaired.messages.kakao.some((i) => i.id === "mina-story-jeongyeon-gift-ping")).toBe(true);
+    expect(normalizeMinaStoryRuntime(repaired)).toBe(repaired);
+    const onlyAwake = {
+      ...oldSave,
+      ui: {
+        ...oldSave.ui,
+        kakao: {
+          ...oldSave.ui.kakao,
+          minaSanaAttempts: [JSON.stringify(["", "まだです"])],
+        },
+      },
+    };
+    const notYet = normalizeMinaStoryRuntime(onlyAwake);
+    expect(notYet.clues).not.toContain(clues.sanaFinished);
+  });
+
   it("retains all progress with a serializable runtime and ignores unrecognized clues", () => {
     let state = initialRuntime(fixture);
     state = discoverMinaClue(state, clues.cafeVisit);
