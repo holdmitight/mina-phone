@@ -58,20 +58,14 @@ export function normalizeMinaStoryWork(work: Work): Work {
       date: work.phone.date?.replace(/^2026-11-/u, "2025-11-") ?? "2025-11-09",
     },
     data,
-    // The original "choose-call" event still points to the old silent
-    // "君 ♡" call. Override its action at runtime so even a brand-new
-    // playthrough triggers the same voiced Mina finale as older saves.
+    // Remove the old mid-story telephone route. It used to hijack the
+    // finale; now the voiced call only rings after the last letter and 💗.
     nodes: work.nodes.map((node) =>
-      node.id === "choose-call"
-        ? {
-            ...node,
-            actions: node.actions.map((action) =>
-              action.type === "call" && action.key === "call-evening"
-                ? { ...action, key: "mina-story-final-call", value: "Jeongyeon" }
-                : action,
-            ),
-          }
-        : node,
+      node.id === "evening-decision"
+        ? { ...node, next: node.next.filter((id) => id !== "choose-call") }
+        : node.id === "choose-call"
+          ? { ...node, actions: node.actions.filter((action) => action.type !== "call") }
+          : node
     ),
   };
 }
@@ -93,28 +87,41 @@ export function normalizeMinaStoryRuntime(runtime: Runtime): Runtime {
     ]),
   );
   let normalized = changed ? { ...runtime, date, messages } : runtime;
-  // IMPORTANT: The original story's "今夜は、声を聞いておやすみ" choice
-  // still emits a DIFFERENT call event ("call-evening" / "君 ♡ 来电").
-  // Route it through the real Mina finale, not the old silent generic call
-  // screen. This also upgrades calls in saved playthroughs without a reset.
-  const legacyCall = normalized.incomingCall?.target === "call-evening";
-  if (legacyCall && normalized.incomingCall) {
-    const oldCall = normalized.incomingCall;
+  // Hide the obsolete mid-story "goodnight call" choice in existing saves.
+  // The actual finale uses a separate trigger, after the last draft and 💗.
+  if (normalized.choices.some((choice) => choice.target === "choose-call")) {
     normalized = {
       ...normalized,
-      incomingCall: {
-        ...oldCall,
-        caller: "Jeongyeon",
-        target: "mina-story-final-call",
-      },
-      clues: normalized.clues.includes(minaClueKeys.finalCallOffered)
-        ? normalized.clues
-        : [...normalized.clues, minaClueKeys.finalCallOffered],
+      choices: normalized.choices.filter((choice) => choice.target !== "choose-call"),
     };
     changed = true;
   }
-  // A call started by the original user-facing choice must also count as
-  // offered, otherwise unlocking the final draft later could ring again.
+  const genuineFinaleUnlocked =
+    normalized.clues.includes(minaClueKeys.unsentReunionReady) &&
+    normalized.clues.includes(minaClueKeys.heartThreadSeen) &&
+    normalized.clues.includes(minaClueKeys.finalLetterRead);
+  const obsoleteCall =
+    normalized.incomingCall?.target === "call-evening" ||
+    (normalized.incomingCall?.target === "mina-story-final-call" &&
+      !genuineFinaleUnlocked);
+  const earlyFinalMarker =
+    !genuineFinaleUnlocked &&
+    normalized.clues.includes(minaClueKeys.finalCallOffered);
+  if (obsoleteCall || earlyFinalMarker) {
+    normalized = {
+      ...normalized,
+      incomingCall: obsoleteCall ? null : normalized.incomingCall,
+      clues: normalized.clues.filter((clue) => clue !== minaClueKeys.finalCallOffered),
+      ui: obsoleteCall
+        ? { ...normalized.ui, minaFinalCall: { step: 0 } }
+        : normalized.ui,
+      notifications: normalized.notifications.filter((notice) =>
+        notice !== "Phone: Jeongyeon · 不在着信（タップして折り返す）" &&
+        notice !== "Phone: 不明な番号 · 不在着信（タップして折り返す）"
+      ),
+    };
+    changed = true;
+  }
   if (normalized.incomingCall?.target === "mina-story-final-call" &&
       !normalized.clues.includes(minaClueKeys.finalCallOffered)) {
     normalized = {

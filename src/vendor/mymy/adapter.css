@@ -789,3 +789,38 @@
   padding: 10px 11px 8px 4px;
   color: #73737a;
 }
+
+/* Quiet simplified-Chinese subtitles underneath the original KakaoTalk text. */
+.mymy-ui.mymy-kakao .kzbub .kakao-message-original {
+  display: block;
+}
+.mymy-ui.mymy-kakao .kzbub .kakao-zh-subtitle {
+  display: block;
+  margin-top: 4px;
+  color: #686868;
+  opacity: .86;
+  font-size: 10.5px;
+  font-weight: 400;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.mymy-ui.mymy-kakao .kzm.kzmy .kzbub .kakao-zh-subtitle {
+  color: #665b1c;
+}
+.mymy-ui.mymy-kakao .kzkn .kakao-zh-thread-preview {
+  display: block;
+  font-size: 10px;
+  line-height: 1.35;
+  color: #888;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mymy-ui.mymy-kakao .kakao-story-popup-body .kakao-zh-subtitle {
+  display: block;
+  font-size: 10px;
+  color: #777;
+  line-height: 1.4;
+  margin-top: 3px;
+}

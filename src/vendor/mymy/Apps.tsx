@@ -39,6 +39,7 @@ import { minaInstagramAvatar } from "../../skins/mina-instagram-avatar";
 import { kakaoDefaultAvatar } from "./kakao-default-avatar";
 import { AppArtwork } from "../../AppArtwork";
 import { minaKakao2025Items } from "./mina-kakao-2025";
+import { minaKakaoChineseSubtitle } from "./minaKakaoZh";
 import { hasSanaStoryPrompt, minaSanaInteractiveMessages, isSanaBranch, parseSanaAttempts, recoverSanaAttemptHistory, type SanaStage } from "./mina-sana-replies";
 import { minaClueKeys } from "../../skins/minaStoryInteractions";
 import { markKakaoThreadRead, orderKakaoMessages, unreadKakaoMessages } from "./kakaoUnread";
@@ -266,7 +267,7 @@ export function MymyKakao(p: SkinProps) {
                 <span className="kakao-story-popup-copy">
                   <span className="kakao-story-popup-heading"><strong>KakaoTalk</strong><time>今</time></span>
                   <strong className="kakao-story-popup-sender">Jeongyeon</strong>
-                  <span className="kakao-story-popup-body">{jeongyeonPing?.body}</span>
+                  <span className="kakao-story-popup-body">{jeongyeonPing?.body}{jeongyeonPing && <small className="kakao-zh-subtitle" lang="zh-CN">{minaKakaoChineseSubtitle(jeongyeonPing)}</small>}</span>
                 </span>
               </button>
               <button className="kakao-story-popup-close" type="button" aria-label="通知を閉じる" onClick={() => setJeongyeonPopupDismissed(true)}>
@@ -314,7 +315,12 @@ export function MymyKakao(p: SkinProps) {
                     className={"kzbub" + (m.media ? " kzimg" : "")}
                     onClick={() => m.meta.local !== "true" && read(p, m)}
                   >
-                    {m.media ? <Media item={m} /> : m.body}
+                    {m.media ? <Media item={m} /> : <span className="kakao-message-original">{m.body}</span>}
+                    {isMinaStory && minaKakaoChineseSubtitle(m) && (
+                      <span className="kakao-zh-subtitle" lang="zh-CN">
+                        {minaKakaoChineseSubtitle(m)}
+                      </span>
+                    )}
                   </button>
                   {!m.outgoing && run.last && (
                     <span className="kzt">{m.time.slice(-5)}</span>
@@ -480,6 +486,11 @@ export function MymyKakao(p: SkinProps) {
                     <span className="kzkn">
                       <b>{displayTitle(g.title)}</b>
                       <small>{last.body}</small>
+                      {isMinaStory && minaKakaoChineseSubtitle(last) && (
+                        <small className="kakao-zh-thread-preview" lang="zh-CN">
+                          {minaKakaoChineseSubtitle(last)}
+                        </small>
+                      )}
                     </span>
                     <span className="kzkmt">
                       {last.time.slice(-5)}

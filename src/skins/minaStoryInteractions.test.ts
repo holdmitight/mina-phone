@@ -359,106 +359,68 @@ describe("Mina cross-app discoveries", () => {
     expect(notYet.clues).not.toContain(clues.sanaFinished);
   });
 
-  it("routes the ORIGINAL choice into the voiced finale before dispatch, not only by repairing saves", () => {
-    const source = compileStory(actualMinaStory).work;
-    const patched = normalizeMinaStoryWork(source);
-    const choice = {
-      ...initialRuntime(patched),
-      choices: [{ label: "今夜は、声を聞いておやすみ。", target: "choose-call" }],
-    };
-    const madeCall = choose(patched, choice, "choose-call");
-    expect(madeCall.incomingCall).toEqual({
-      caller: "Jeongyeon",
-      target: "mina-story-final-call",
-      status: "ringing",
-    });
-    const cleaned = normalizeMinaStoryRuntime(madeCall);
-    expect(cleaned.notifications).not.toContain("君 ♡ 来电");
-    expect(cleaned.notifications).not.toContain("Jeongyeon 来电");
-    expect(cleaned.incomingCall?.target).toBe("mina-story-final-call");
-  });
-
-  it("the shipped phone choice itself now calls Jeongyeon without ever showing 君", () => {
+  it("removes the old mid-story phone option while keeping the finale separate", () => {
     const work = normalizeMinaStoryWork(compileStory(actualMinaStory).work);
+    const decision = work.nodes.find((node) => node.id === "evening-decision");
+    expect(decision?.next).not.toContain("choose-call");
+    expect(decision?.next).toContain("choose-together");
+    expect(work.nodes.find((node) => node.id === "choose-call")
+      ?.actions.some((action) => action.type === "call")).toBe(false);
     const initial = {
       ...initialRuntime(work),
-      choices: [{ label: "今夜は、声を聞いておやすみ。", target: "choose-call" }],
-    };
-    const active = choose(work, initial, "choose-call");
-    expect(active.incomingCall?.target).toBe("mina-story-final-call");
-    expect(active.incomingCall?.caller).toBe("Jeongyeon");
-    expect(active.notifications).not.toContain("君 ♡ 来电");
-    const displayed = normalizeMinaStoryRuntime(active);
-    expect(displayed.notifications).not.toContain("Jeongyeon 来电");
-    expect(displayed.clues).toContain(clues.finalCallOffered);
-    expect(normalizeMinaStoryRuntime(displayed)).toBe(displayed);
-  });
-
-  it("fixes the real shipped storyline event that previously displayed 君 ♡ 来电 with no audio", () => {
-    const work = compileStory(actualMinaStory).work;
-    const oldChoice = {
-      ...initialRuntime(work),
-      choices: [{ label: "今夜は、声を聞いておやすみ。", target: "choose-call" }],
-    };
-    const original = choose(work, oldChoice, "choose-call");
-    expect(original.incomingCall?.caller).toBe("君 ♡");
-    expect(original.incomingCall?.target).toBe("call-evening");
-    expect(original.notifications).toContain("君 ♡ 来电");
-
-    const repaired = normalizeMinaStoryRuntime(original);
-    expect(repaired.incomingCall).toEqual({
-      caller: "Jeongyeon",
-      target: "mina-story-final-call",
-      status: "ringing",
-    });
-    expect(repaired.notifications).not.toContain("君 ♡ 来电");
-    expect(repaired.clues).toContain(clues.finalCallOffered);
-    expect(normalizeMinaStoryRuntime(repaired)).toBe(repaired);
-  });
-
-  it("removes stale 君 来电 and 君 ♡ 来电 banners without touching other notifications", () => {
-    const saved = {
-      ...initialRuntime(fixture),
-      incomingCall: {
-        caller: "君",
-        target: "call-evening",
-        status: "ringing" as const,
-      },
-      notifications: [
-        "君 来电",
-        "君 ♡ 来电",
-        "KakaoTalk: Jeongyeon：야, 잘 지내?",
+      choices: [
+        { label: "会いに行く。映画は一緒に。", target: "choose-together" },
+        { label: "今夜は、声を聞いておやすみ。", target: "choose-call" },
       ],
     };
-    const fixed = normalizeMinaStoryRuntime(saved);
-    expect(fixed.incomingCall?.caller).toBe("Jeongyeon");
-    expect(fixed.incomingCall?.target).toBe("mina-story-final-call");
-    expect(fixed.notifications).toEqual(["KakaoTalk: Jeongyeon：야, 잘 지내?"]);
+    const normalized = normalizeMinaStoryRuntime(initial);
+    expect(normalized.choices.map((choice) => choice.target)).toEqual(["choose-together"]);
+    expect(normalized.incomingCall).toBeNull();
+    const obsoleteChoice = choose(work, initial, "choose-call");
+    expect(obsoleteChoice.incomingCall).toBeNull();
   });
 
-  it("upgrades a saved old call even when the player already answered it", () => {
+  it("drops the obsolete call and ghost notifications from old saved games", () => {
     const saved = {
       ...initialRuntime(fixture),
       incomingCall: {
         caller: "君 ♡",
         target: "call-evening",
-        status: "answered" as const,
+        status: "ringing" as const,
       },
-      notifications: ["君 ♡ 来电", "KakaoTalk: Sana：みーたん、まだ起きてる？"],
-      ui: { minaFinalCall: { step: 3 } },
+      clues: [clues.finalCallOffered],
+      notifications: [
+        "君 来电", "君 ♡ 来电", "Phone: Jeongyeon · 不在着信（タップして折り返す）",
+        "KakaoTalk: Jeongyeon：야, 잘 지내?",
+      ],
+      ui: { minaFinalCall: { step: 4 } },
     };
     const repaired = normalizeMinaStoryRuntime(saved);
-    expect(repaired.incomingCall?.caller).toBe("Jeongyeon");
-    expect(repaired.incomingCall?.target).toBe("mina-story-final-call");
-    expect(repaired.incomingCall?.status).toBe("answered");
-    expect(repaired.ui?.minaFinalCall?.step).toBe(3);
-    expect(repaired.notifications).toEqual(["KakaoTalk: Sana：みーたん、まだ起きてる？"]);
+    expect(repaired.incomingCall).toBeNull();
+    expect(repaired.clues).not.toContain(clues.finalCallOffered);
+    expect(repaired.notifications).toEqual(["KakaoTalk: Jeongyeon：야, 잘 지내?"]);
+    expect(repaired.ui?.minaFinalCall?.step).toBe(0);
+    expect(normalizeMinaStoryRuntime(repaired)).toBe(repaired);
+  });
+
+  it("does not preserve an early finale call from the former routing bug", () => {
+    const saved = {
+      ...initialRuntime(fixture),
+      incomingCall: { caller: "Jeongyeon", target: "mina-story-final-call", status: "answered" as const },
+      ui: { minaFinalCall: { step: 3 } },
+      clues: [clues.finalCallOffered],
+    };
+    const repaired = normalizeMinaStoryRuntime(saved);
+    expect(repaired.incomingCall).toBeNull();
+    expect(repaired.clues).not.toContain(clues.finalCallOffered);
+    expect(repaired.ui?.minaFinalCall?.step).toBe(0);
   });
 
   it("repairs anonymous caller IDs from previous builds without resetting the final dialogue", () => {
     const saved = {
       ...initialRuntime(fixture),
       incomingCall: { caller: "不明な番号", target: "mina-story-final-call", status: "answered" as const },
+      clues: [clues.unsentReunionReady, clues.heartThreadSeen, clues.finalLetterRead],
       notifications: ["Phone: 不明な番号 · 不在着信（タップして折り返す）"],
       ui: { minaFinalCall: { step: 4 } },
     };
