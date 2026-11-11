@@ -57,7 +57,7 @@ describe('out-of-order player conversations', () => {
     expect(gift.meta.zh).toContain('米娜之前');
     expect(discoverMinaClue(state, minaClueKeys.sanaFinished)).toBe(state);
   });
-  it('repairs an old identity denial in the opening and exposes editable reply suggestions', () => {
+  it('repairs an old identity denial in the opening without displaying reply suggestions', () => {
     const html = renderToStaticMarkup(createElement(MymyKakao, {
       appId:'kakao', name:'KakaoTalk', owner:'名井南', creator:false, thread:'Sana',
       items:[makeItem({id:'kaka-sana-1',title:'Sana'}),makeItem({id:'kaka-jeongyeon-1',title:'Jeongyeon'}), makeItem({id:'mina-story-cafe-sana-ping',title:'Sana',time:'2025-11-09 21:09'})],
@@ -66,7 +66,7 @@ describe('out-of-order player conversations', () => {
     }));
     expect(html).not.toContain('よかった〜笑');
     expect(html).toContain('あなたは誰');
-    expect(html).toContain('接话建议');
+    expect(html).not.toContain('接话建议');
   });
 });
 

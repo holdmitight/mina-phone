@@ -272,6 +272,10 @@ function PhoneRuntime({
     const next = discoverMinaClue(previous, clue);
     if (next !== previous) update(next);
   };
+  useEffect(() => {
+    if (!creator && isMinaStoryWork(work) && app !== "notes" && s.read.includes("note-draft") &&
+        !s.clues.includes(minaClueKeys.privateLetterClosed)) recordMinaClue(minaClueKeys.privateLetterClosed);
+  }, [app, creator, s.read, s.clues, work]);
   const captureApp = () => {
     if (!app) return;
     const current = shell.current?.querySelector<HTMLElement>(".app-screen");
@@ -1069,7 +1073,11 @@ function AppContent({
   };
   const chats = [...new Set(shown.map((i) => i.title))];
   const back = () => {
-    if (detail) setDetail(null);
+    if (detail) {
+      if (app.id === "notes" && detail.id === "note-draft" && state.read.includes(detail.id))
+        onClue?.(minaClueKeys.privateLetterClosed);
+      setDetail(null);
+    }
     else if (thread) setThread("");
     else onBack();
   };

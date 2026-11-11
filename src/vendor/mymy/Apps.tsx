@@ -46,6 +46,22 @@ import { minaClueKeys } from "../../skins/minaStoryInteractions";
 import { markKakaoThreadRead, orderKakaoMessages, unreadKakaoMessages } from "./kakaoUnread";
 import { classifySanaTopic, parseSanaAdaptiveTurns, replyToSanaText, sanaConversationCanContinueStory } from "./sanaAdaptive";
 import "../../skins/mina-instagram.css";
+function memberReply(member: string, text: string): [string, string] | undefined {
+  if (!["Momo", "Nayeon", "Jihyo", "Dahyun", "Chaeyoung", "Tzuyu"].includes(member)) return;
+  const japanese = member === "Momo";
+  switch (classifySanaTopic(text)) {
+    case "phone-return":
+      return japanese ? ["ありがとう。どこで渡せそう？ ミナに聞いてみるね。", "谢谢，你方便在哪里交给她？我帮你问问米娜。"] :
+        ["고마워요. 어디서 전해 줄 수 있어요? 미나한테 물어볼게요.", "谢谢，你方便在哪里交给她？我帮你问问米娜。"];
+    case "phone-found":
+    case "phone-not-mina":
+      return japanese ? ["あれ、ミナじゃないんやね。今、そのスマホを預かってくれてるの？", "咦，原来不是米娜呀。现在是你帮她保管手机吗？"] :
+        ["아, 미나가 아니었군요. 지금 미나 폰을 가지고 계세요?", "啊，原来不是米娜。她的手机现在在你那儿吗？"];
+    case "correction":
+      return japanese ? ["ごめん、どこを勘違いしたんやろ？", "抱歉，是哪句话我会错意了？"] :
+        ["내가 잘못 이해했나 봐요. 어느 부분이었어요?", "可能是我会错意了。你说的是哪一句？"];
+  }
+}
 function grouped(items: Item[]) {
   return [...new Set(items.map((i) => i.title))].map((title) => ({
     title,
@@ -180,6 +196,7 @@ export function MymyKakao(p: SkinProps) {
             entry[0] !== p.thread
           )
             return [];
+          const reply = isMinaStory ? memberReply(entry[0], entry[1]) : undefined;
           return [
             makeItem({
               id: "local-kkt-" + index,
@@ -190,6 +207,10 @@ export function MymyKakao(p: SkinProps) {
               outgoing: true,
               meta: { local: "true" },
             }),
+            ...(reply ? [makeItem({
+              id: "member-kkt-" + index, title: entry[0], sender: entry[0],
+              body: reply[0], time: entry[2], meta: { zh: reply[1] },
+            })] : []),
           ];
         } catch {
           return [];
@@ -361,13 +382,6 @@ export function MymyKakao(p: SkinProps) {
             })}
             {!messages.length && <Blank />}
           </div>
-          {isMinaStory && !p.creator && ["Sana", "Jeongyeon"].includes(p.thread) && (
-            <div className="kakao-reply-suggestions" aria-label="接话建议">
-              {["我不是米娜，我捡到了她的手机", "你理解错了", "我想把手机还给她"].map((text) => (
-                <button key={text} type="button" onClick={() => setDraft(text)}>{text}</button>
-              ))}
-            </div>
-          )}
           <form
             className="kzinp"
             onSubmit={(e) => {

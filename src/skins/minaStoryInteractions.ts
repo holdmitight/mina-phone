@@ -27,6 +27,7 @@ export const minaClueKeys = {
   unsentLaterReady: "mina:unlocked:2018-unsent",
   unsentReunionReady: "mina:unlocked:2025-unsent",
   heartThreadSeen: "mina:kakao:heart-thread-read",
+  privateLetterClosed: "mina:notes:private-letter-closed",
   finalLetterRead: "mina:notes:final-draft-read",
   finalCallOffered: "mina:final-call:offered",
 } as const;
@@ -80,6 +81,7 @@ export function normalizeMinaStoryWork(work: Work): Work {
  * already list the note in `read` without the newer clue marker.
  */
 export function isMinaFinalCallReady(runtime: Runtime): boolean {
+  if (runtime.read.includes("note-draft") && runtime.clues.includes(minaClueKeys.privateLetterClosed)) return true;
   const noteExists = (runtime.messages.notes ?? []).some(
     (item) => item.id === "mina-story-unsent-2025",
   );
@@ -586,11 +588,7 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
   // A must actually read Mina's last unsent draft AND discover the pinned 💗
   // contact. Either exploration order works and existing saves remain valid.
   // Jeongyeon lends Mina a different handset to call her own lost phone.
-  const finalCallReady =
-    clues.includes(minaClueKeys.unsentReunionReady) &&
-    clues.includes(minaClueKeys.heartThreadSeen) &&
-    clues.includes(minaClueKeys.finalLetterRead) &&
-    (messages.notes ?? []).some((item) => item.id === "mina-story-unsent-2025");
+  const finalCallReady = isMinaFinalCallReady({ ...runtime, clues, messages });
   let incomingCall = runtime.incomingCall;
   if (finalCallReady && !clues.includes(minaClueKeys.finalCallOffered) &&
       !isMinaFinalCallComplete(runtime) && !incomingCall) {

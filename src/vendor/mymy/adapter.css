@@ -794,22 +794,6 @@
 .mymy-ui.mymy-kakao .kzbub {
   display: block;
 }
-.mymy-ui.mymy-kakao .kakao-reply-suggestions {
-  display: flex;
-  flex: none;
-  gap: 6px;
-  overflow-x: auto;
-  padding: 6px 12px;
-}
-.mymy-ui.mymy-kakao .kakao-reply-suggestions button {
-  flex: none;
-  padding: 6px 9px;
-  border: 1px solid #a7bacb;
-  border-radius: 14px;
-  background: #edf5fa;
-  color: #344b5d;
-  font-size: 11px;
-}
 .mymy-ui.mymy-kakao .kzbub .kakao-message-original {
   display: block;
 }
