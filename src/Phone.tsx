@@ -27,7 +27,7 @@ import { AppArtwork, hasNativeArtwork } from "./AppArtwork";
 import { getFields } from "./fields";
 import { catalogSkins } from "./skins/catalog";
 import { discoverMinaClue, isMinaStoryWork, normalizeMinaStoryWork, normalizeMinaStoryRuntime, minaClueKeys } from "./skins/minaStoryInteractions";
-import { MinaFinalCallScript, minaFinalCallOutcomes, minaFinalMissedCallNotice, type MinaFinalCallChoice } from "./skins/MinaFinalCall";
+import { MinaFinalCallScript, minaFinalCallLines, minaFinalCallOutcomes, minaFinalMissedCallNotice, speakMinaFinalLine, stopMinaFinalSpeech, type MinaFinalCallChoice } from "./skins/MinaFinalCall";
 import "./skins/minaFinalCall.css";
 import "./skins/skins.css";
 import "./ios18.css";
@@ -310,7 +310,7 @@ function PhoneRuntime({
       update({
         ...current,
         incomingCall: {
-          caller: "Jeongyeon",
+          caller: "不明な番号",
           target: "mina-story-final-call",
           status: "ringing",
         },
@@ -698,6 +698,7 @@ function PhoneRuntime({
                         step={currentStep}
                         onAdvance={() => {
                           const runtime = runtimeRef.current;
+                          speakMinaFinalLine(minaFinalCallLines[Math.min(currentStep + 1, minaFinalCallLines.length - 1)].ja);
                           update({
                             ...runtime,
                             ui: {
@@ -712,6 +713,7 @@ function PhoneRuntime({
                         onChoose={(choice: MinaFinalCallChoice) => {
                           const runtime = runtimeRef.current;
                           const outcome = minaFinalCallOutcomes[choice];
+                          speakMinaFinalLine(outcome.ja);
                           update({
                             ...runtime,
                             incomingCall: null,
@@ -745,6 +747,7 @@ function PhoneRuntime({
                   onClick={() => {
                     const call = runtimeRef.current.incomingCall;
                     if (call) {
+                      stopMinaFinalSpeech();
                       const ended = dispatch(
                         work,
                         { ...runtimeRef.current, incomingCall: null },
@@ -770,7 +773,16 @@ function PhoneRuntime({
                     className="accept-call"
                     onClick={() => {
                       const call = runtimeRef.current.incomingCall;
-                      if (call)
+                      if (call) {
+                        // Start speech directly within the player's tap,
+                        // satisfying iOS Safari's user-activation requirement.
+                        if (call.target === "mina-story-final-call" && isMinaStoryWork(work)) {
+                          const step = Math.min(
+                            Math.max(Number(runtimeRef.current.ui?.minaFinalCall?.step ?? 0), 0),
+                            minaFinalCallLines.length - 1,
+                          );
+                          speakMinaFinalLine(minaFinalCallLines[step].ja);
+                        }
                         update(
                           dispatch(
                             work,
@@ -782,6 +794,7 @@ function PhoneRuntime({
                             call.target || call.caller,
                           ),
                         );
+                      }
                     }}
                   >
                     <PhoneIcon size={25} />
