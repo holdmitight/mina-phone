@@ -5,7 +5,7 @@
 export type SanaTopic =
   | "meet-tomorrow" | "meet" | "avoid" | "affection" | "fear" | "regret"
   | "memory" | "why" | "deny" | "decision" | "question" | "short"
-  | "food" | "sleep" | "phone-lost" | "phone-found" | "phone-not-mina" | "phone-return" | "unknown";
+  | "food" | "sleep" | "phone-lost" | "phone-found" | "phone-not-mina" | "phone-return" | "identity-evasive" | "unknown";
 
 export type SanaAdaptiveTurn = {
   text: string;
@@ -39,7 +39,8 @@ const deviceMissing = /(?:丢了|丟了|丢失|丟失|不见|不見|弄丢|弄�
 const deviceFound = /(?:捡到|撿到|拾到|拾った|拾いました|拾いました|見つけた|找到|找到了|found|picked up|i have her phone|i have mina's phone|주웠|찾았어)/iu;
 const deviceReturn = /(?:还给|還給|归还|歸還|交还|交還|物归原主|物歸原主|返す|返しに|届ける|return (?:it|her|the phone)|give (?:it|the phone) back|돌려주|반납)/iu;
 const notMina = /(?:我不是(?:mina|ミナ|みーたん|名井南|米娜|南)|不是(?:mina|ミナ|みーたん|名井南|米娜|南)本人|并非本人|並非本人|i'?m not mina|i am not mina|this isn'?t mina|not mina here|minaじゃない|みーたんじゃない|本人じゃない|미나가 아니|난 미나가 아니|이건 미나가 아니)/iu;
-const phoneContextTopics: SanaTopic[] = ["phone-lost", "phone-found", "phone-not-mina", "phone-return"];
+const identityEvasion = /(?:你猜|猜猜|猜我|你来猜|你來猜|不告诉|不告訴|不想告诉|不想告訴|不会告诉|不會告訴|我是谁不重要|我是誰不重要|我是谁你不用管|我是誰你不用管|别问我是谁|別問我是誰|秘密|保密|関係ない|教えない|秘密だ|当てて|誰だと思う|guess who|not telling|won't tell|none of your business|비밀|맞혀 봐|말 안 할)/iu;
+const phoneContextTopics: SanaTopic[] = ["phone-lost", "phone-found", "phone-not-mina", "phone-return", "identity-evasive"];
 
 
 export function classifySanaTopic(text: string): SanaTopic {
@@ -56,6 +57,7 @@ export function classifySanaTopic(text: string): SanaTopic {
       has(value, deviceReturn)) return "phone-return";
   if (has(value, deviceWord) && has(value, deviceFound)) return "phone-found";
   if (has(value, notMina)) return "phone-not-mina";
+  if (has(value, identityEvasion)) return "identity-evasive";
   if (has(value, deviceWord) && has(value, deviceMissing)) return "phone-lost";
   // In a lost-phone conversation "I found it" / "拾った" has a clear referent,
   // but isolated "found" elsewhere remains a generic remark.
@@ -112,9 +114,14 @@ export function replyToSanaText(text: string, earlier: readonly SanaAdaptiveTurn
       "わかった。ありがとう。誰が使ってるのか、先に確認してもいい？",
     ],
     "phone-not-mina": [
-      "えっ……みーたん本人じゃないの？びっくりした。誰がメッセージしてるの？",
-      "そうなんだ……。じゃあ、このスマホはどこで手に入れたの？",
-      "教えてくれてありがとう。でも、みーたんがどこにいるかは私にも確認が必要だよ。",
+      "えっ、ミナ本人じゃないの？……じゃあ、あなたは誰？どうしてこのスマホを持ってるの？",
+      "まだ誰なのかわからないよ。名前と、このスマホを見つけた場所を教えてくれる？",
+      "うん、まずあなたが誰なのか確認させて。ミナのことが心配だから。",
+    ],
+    "identity-evasive": [
+      "いや、そこは大事だよ。あなたは誰？ミナのスマホをどうして持ってるの？",
+      "冗談じゃなくて、誰なのか教えてほしい。ミナが心配なんだ。",
+      "名前を言えないなら、せめてどこでスマホを見つけたか教えて。",
     ],
     "phone-return": [
       "返してくれるんだね、ありがとう。落とし物なら、本人が確認できるところに預けてもらえると助かるよ。",
@@ -214,7 +221,10 @@ export function replyToSanaText(text: string, earlier: readonly SanaAdaptiveTurn
           ? "会うつもりなんだね。でもその前に、このスマホのことをちゃんと確認したいな。"
           : "少し待って。スマホがなくなったって話が気になる。今、誰がこのトークに返事してるの？"
     : null;
-  const reply = phoneFollowup ??
+  const identityFollowup = discussingPhone && contextualTopic === "identity-evasive"
+    ? choices["identity-evasive"][previousSameTopic % choices["identity-evasive"].length]
+    : null;
+  const reply = identityFollowup ?? phoneFollowup ??
     (contextualTopic === "meet" && priorMeeting
       ? "うん、会いに行くって決めたんだね。今度はちゃんと気持ちを伝えられるといいね。"
       : choices[contextualTopic][previousSameTopic % choices[contextualTopic].length]);

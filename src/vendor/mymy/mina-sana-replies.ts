@@ -205,6 +205,9 @@ export function minaSanaInteractiveMessages(
 
   const startAttempts = attempts.filter((attempt) => attempt.phase === "");
   const followAttempts = attempts.filter((attempt) => attempt.phase === "awake");
+  const visitorMode = adaptiveTurns.length > 0 && [
+    "phone-lost", "phone-found", "phone-not-mina", "phone-return", "identity-evasive",
+  ].includes(adaptiveTurns[0].topic);
 
   const renderAttempts = (
     source: readonly SanaAttempt[],
@@ -227,6 +230,19 @@ export function minaSanaInteractiveMessages(
     "initial",
   );
   if (stage !== "awake" && !isSanaBranch(stage)) return beginning;
+  // A stranger who opens with "I'm not Mina" must receive a direct
+  // response, not the four scripted messages addressed to Mina.
+  if (visitorMode) {
+    const messages = [...beginning];
+    let minute = 2 + 2 * startAttempts.length;
+    adaptiveTurns.forEach((turn, index) => {
+      messages.push(line(ping, "visitor-" + index + "-input", turn.text, minute++, true));
+      turn.replies.forEach((reply, replyIndex) => {
+        messages.push(line(ping, "visitor-" + index + "-reply-" + replyIndex, reply, minute++, false));
+      });
+    });
+    return messages;
+  }
 
   const awakeOffset = 1 + 2 * startAttempts.length;
   const result = [

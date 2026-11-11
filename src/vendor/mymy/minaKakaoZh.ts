@@ -115,6 +115,12 @@ const subtitlesById: Record<string, string> = {
   "kaka-you-last": "我也是。不管你过来见我，还是只打个电话都可以。别太勉强自己。"
 };
 const subtitlesByText: Record<string, string> = {
+  "名前を言えないなら、せめてどこでスマホを見つけたか教えて。": "如果不愿告诉我名字，至少告诉我在哪里找到手机的。",
+  "冗談じゃなくて、誰なのか教えてほしい。ミナが心配なんだ。": "我不是开玩笑。我想知道你是谁，我很担心米娜。",
+  "いや、そこは大事だよ。あなたは誰？ミナのスマホをどうして持ってるの？": "不，这很重要。你到底是谁？为什么拿着米娜的手机？",
+  "うん、まずあなたが誰なのか確認させて。ミナのことが心配だから。": "嗯，先让我确认你是谁。我很担心米娜。",
+  "まだ誰なのかわからないよ。名前と、このスマホを見つけた場所を教えてくれる？": "我还不知道你是谁。能告诉我名字，还有在哪里捡到手机的吗？",
+  "えっ、ミナ本人じゃないの？……じゃあ、あなたは誰？どうしてこのスマホを持ってるの？": "诶，不是米娜本人？……那你是谁？为什么拿着这部手机？",
   "みーたん、まだ起きてる？": "咪酱，还没睡吗？",
   "よかった〜笑": "太好了～哈哈",
   "ちょっと聞きたいことがあってさ": "有件事想问你。",
@@ -207,6 +213,7 @@ const subtitlesByText: Record<string, string> = {
   "会うつもりなんだね。でもその前に、このスマホのことをちゃんと確認したいな。": "你想见她啊。但在那之前，我想先确认这部手机的情况。",
   "少し待って。スマホがなくなったって話が気になる。今、誰がこのトークに返事してるの？": "等一下，我还是很在意手机丢了这件事。现在是谁在回复这段聊天？"
 };
-export function minaKakaoChineseSubtitle(message: Pick<Item, "id" | "body">): string {
-  return subtitlesById[message.id] ?? subtitlesByText[message.body.trim()] ?? "";
+export function minaKakaoChineseSubtitle(message: Pick<Item, "id" | "body"> & { meta?: Record<string, string> }): string {
+  // Contextual Jeongyeon replies already carry their authored Chinese line.
+  return message.meta?.zh ?? subtitlesById[message.id] ?? subtitlesByText[message.body.trim()] ?? "";
 }

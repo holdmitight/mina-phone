@@ -218,6 +218,23 @@ describe("Mina cross-app discoveries", () => {
     expect(discoverMinaClue(state, clues.safariResearchSeen)).toBe(state);
   });
 
+  it("keeps the final draft reachable without an invisible Spotify or photo-info tap", () => {
+    let state = initialRuntime(fixture);
+    state = discoverMinaClue(state, clues.lineBreakupSeen);
+    state = discoverMinaClue(state, clues.legoPromiseSeen);
+    expect((state.messages.notes ?? []).some((item) => item.id === "mina-story-unsent-2025")).toBe(false);
+    state = discoverMinaClue(state, clues.amazonPartsSeen);
+    expect(state.clues).toContain(clues.giftTrailResolved);
+    expect(state.clues).toContain(clues.unsentReunionReady);
+    const letter = state.messages.notes.find((item) => item.id === "mina-story-unsent-2025");
+    expect(letter?.title).toBe("カフェの帰り道");
+    expect(state.incomingCall).toBeNull();
+    state = discoverMinaClue(state, clues.heartThreadSeen);
+    expect(state.incomingCall).toBeNull();
+    state = discoverMinaClue(state, clues.finalLetterRead);
+    expect(state.incomingCall?.target).toBe("mina-story-final-call");
+  });
+
   it("upgrades previously unlocked short drafts without creating duplicate notes", () => {
     let state = initialRuntime(fixture);
     for (const key of [clues.oldLine, clues.legoPromiseSeen, clues.legoPhotoSeen, clues.amazonPartsSeen]) {

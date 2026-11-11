@@ -40,6 +40,7 @@ import { kakaoDefaultAvatar } from "./kakao-default-avatar";
 import { AppArtwork } from "../../AppArtwork";
 import { minaKakao2025Items } from "./mina-kakao-2025";
 import { minaKakaoChineseSubtitle } from "./minaKakaoZh";
+import { minaJeongyeonInteractiveMessages, parseJeongyeonTurns, replyToJeongyeonText } from "./mina-jeongyeon-replies";
 import { hasSanaStoryPrompt, minaSanaInteractiveMessages, isSanaBranch, parseSanaAttempts, recoverSanaAttemptHistory, type SanaStage } from "./mina-sana-replies";
 import { minaClueKeys } from "../../skins/minaStoryInteractions";
 import { markKakaoThreadRead, orderKakaoMessages, unreadKakaoMessages } from "./kakaoUnread";
@@ -84,6 +85,7 @@ export function MymyKakao(p: SkinProps) {
     [sanaReplyText, setSanaReplyText] = useSkinState<string>(p, "minaSanaReplyText", ""),
     [sanaAttempts, setSanaAttempts] = useSkinState<string[]>(p, "minaSanaAttempts", []),
     [sanaChatTurns, setSanaChatTurns] = useSkinState<string[]>(p, "minaSanaChatTurns", []),
+    [jeongyeonChatTurns, setJeongyeonChatTurns] = useSkinState<string[]>(p, "minaJeongyeonChatTurns", []),
     [jeongyeonPopupDismissed, setJeongyeonPopupDismissed] = useSkinState<boolean>(p, "minaJeongyeonPopupDismissed", false),
     [draft, setDraft] = useState(""),
     [query, setQuery] = useState(""),
@@ -121,6 +123,8 @@ export function MymyKakao(p: SkinProps) {
   const adaptiveTurns = parseSanaAdaptiveTurns(sanaChatTurns);
   const legacyFollowAttempts = recoveredSana.attempts.filter((attempt) => attempt.phase === "awake");
   const migratedTurns = legacyFollowAttempts.map((attempt) => replyToSanaText(attempt.text, []));
+  const jeongyeonTurns = parseJeongyeonTurns(jeongyeonChatTurns);
+  const jeongyeonStoryItems = minaJeongyeonInteractiveMessages(jeongyeonTurns);
   const sanaStoryItems = minaSanaInteractiveMessages(
     sanaPing,
     recoveredSana.stage,
@@ -132,7 +136,7 @@ export function MymyKakao(p: SkinProps) {
   const sanaReplyPending =
     !p.creator && p.thread === "Sana" && !!sanaPing;
   const sourceItems = isMinaStory
-    ? [...p.items, ...minaKakao2025Items, ...sanaStoryItems]
+    ? [...p.items, ...minaKakao2025Items, ...sanaStoryItems, ...jeongyeonStoryItems]
     : p.items;
   // Display incoming replies in the chat list and calculate each unread badge
   // from persistent read receipts, not the original (static) meta.unread value.
@@ -339,10 +343,15 @@ export function MymyKakao(p: SkinProps) {
               if (!text) return;
               if (sanaReplyPending) {
                 const stage = recoveredSana.stage as SanaStage;
-                // The first reply is simply an acknowledgment that Mina is
-                // awake; do not make the player guess an exact keyword.
+                // Identity / lost-phone disclosures must work even as the FIRST
+                // message. Never answer a stranger with Mina's scripted intro.
                 if (stage === "") {
-                  if (classifySanaTopic(text) === "sleep") {
+                  const topic = classifySanaTopic(text);
+                  if (["phone-lost", "phone-found", "phone-not-mina", "phone-return", "identity-evasive"].includes(topic)) {
+                    const turn = replyToSanaText(text, []);
+                    setSanaChatTurns((old) => [...old, JSON.stringify(turn)].slice(-30));
+                    setSanaStage("awake");
+                  } else if (topic === "sleep") {
                     setSanaAttempts((old) => [
                       ...old, JSON.stringify(["", text]),
                     ].slice(-12));
@@ -351,18 +360,17 @@ export function MymyKakao(p: SkinProps) {
                     setSanaStage("awake");
                   }
                 } else {
-                  // After Sana's question, EVERY message gets a contextual
-                  // reply. Keep the exact words and responses in saved UI
-                  // state; the canonical three choices remain for old saves.
                   const nextTurn = replyToSanaText(text, [...migratedTurns, ...adaptiveTurns]);
                   const nextTurns = [...adaptiveTurns, nextTurn];
-                  setSanaChatTurns((old) => [
-                    ...old, JSON.stringify(nextTurn),
-                  ].slice(-30));
-                  if (sanaConversationCanContinueStory([...migratedTurns, ...nextTurns])) {
+                  setSanaChatTurns((old) => [...old, JSON.stringify(nextTurn)].slice(-30));
+                  if (sanaConversationCanContinueStory([...migratedTurns, ...nextTurns]))
                     p.onClue?.(minaClueKeys.sanaFinished);
-                  }
                 }
+              } else if (isMinaStory && !p.creator && p.thread === "Jeongyeon") {
+                // Unlike other read-only archives, Jeongyeon responds to the
+                // player's typed messages and remembers the lost-phone context.
+                const turn = replyToJeongyeonText(text, jeongyeonTurns);
+                setJeongyeonChatTurns((old) => [...old, JSON.stringify(turn)].slice(-30));
               } else {
                 setSent([
                   ...sent,

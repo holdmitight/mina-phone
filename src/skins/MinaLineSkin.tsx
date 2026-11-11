@@ -92,6 +92,7 @@ export function MinaLineSkin(p: Props) {
   const [tab, setTab] = useState<"トーク" | "友だち">("トーク");
   const [translations, setTranslations] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [archiveHelpOpen, setArchiveHelpOpen] = useState(false);
   const threadRef = useRef<HTMLDivElement>(null);
 
   const isArchive = p.thread === minaLineThreadName;
@@ -291,6 +292,29 @@ export function MinaLineSkin(p: Props) {
                 </div>
               );
             })}
+            {isArchive && !p.creator && (
+              <div className="mina-line-archive-next">
+                <span className="mina-line-archive-ended">この会話は、ここで止まっている。</span>
+                <button type="button" onClick={() => {
+                  // A visible, deliberate way to register the last old message,
+                  // including browsers where IntersectionObserver is delayed.
+                  p.onClue?.(minaClueKeys.lineBreakupSeen);
+                  setArchiveHelpOpen((value) => !value);
+                }} aria-expanded={archiveHelpOpen}>
+                  続きの手がかりを探す <small>继续寻找线索</small>
+                </button>
+                {archiveHelpOpen && (
+                  <div className="mina-line-archive-hint">
+                    <p>この先の言葉は、ほかのアプリに残っているかもしれない。</p>
+                    <small>试试相册里的旧照片、KakaoTalk 定延的聊天，以及备忘录里的未发送信件。最终电话不会在这段旧 LINE 聊天中直接触发。</small>
+                    <button type="button" onClick={() => {
+                      const target = threadRef.current?.querySelector<HTMLElement>('[data-line-id="2014-08-09-03"]');
+                      target?.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }}>指輪の約束を読み返す <small>回看2014年的乐高戒指约定</small></button>
+                  </div>
+                )}
+              </div>
+            )}
             <div className="mina-line-end-spacer" aria-hidden="true" />
           </div>
           <div className="mina-line-reply-archive">

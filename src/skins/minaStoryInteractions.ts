@@ -434,8 +434,8 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
   const giftLinked =
     clues.includes(minaClueKeys.giftTrailResolved) || (
       (clues.includes(minaClueKeys.amazonPartsSeen) ||
-        clues.includes(minaClueKeys.safariResearchSeen)) &&
-      clues.includes(minaClueKeys.legoPhotoSeen) &&
+        clues.includes(minaClueKeys.safariResearchSeen) ||
+        clues.includes(minaClueKeys.legoPhotoSeen)) &&
       clues.includes(minaClueKeys.legoPromiseSeen)
     );
   if (giftLinked) {
@@ -473,8 +473,10 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
     }
   }
 
+  // Reaching the last LINE message and resolving the LEGO clue is enough to
+  // find the 2025 unsent draft. Summer photos/Spotify remain optional discoveries,
+  // rather than hidden mandatory taps that strand players before the ending.
   if (clues.includes(minaClueKeys.giftTrailResolved) &&
-      clues.includes(minaClueKeys.summerPlaylistSeen) &&
       clues.includes(minaClueKeys.lineBreakupSeen))
     addLetter("reunion", minaClueKeys.unsentReunionReady);
 

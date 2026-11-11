@@ -178,6 +178,36 @@ describe("adaptive Sana replies", () => {
     expect(replay.some((item) => item.body === saved[1].replies[0])).toBe(true);
   });
 
+  it("keeps asking WHO the player is after they disclose they are not Mina", () => {
+    const loss = replyToSanaText("米娜的手机丢了", []);
+    const stranger = replyToSanaText("我不是米娜", [loss]);
+    const evasive = replyToSanaText("你猜我是谁", [loss, stranger]);
+    const refuses = replyToSanaText("我是谁不重要，不告诉你", [loss, stranger, evasive]);
+    const meeting = replyToSanaText("我明天想见她", [loss, stranger, evasive, refuses]);
+    expect([loss.topic, stranger.topic, evasive.topic, refuses.topic])
+      .toEqual(["phone-lost", "phone-not-mina", "identity-evasive", "identity-evasive"]);
+    expect(stranger.replies[0]).toContain("あなたは誰");
+    expect(evasive.replies[0]).toContain("誰");
+    expect(refuses.replies[0]).toContain("誰");
+    expect(meeting.replies[0]).toContain("スマホ");
+    expect([stranger,evasive,refuses,meeting].every((turn) =>
+      !turn.replies[0].includes("みーたん、返事短いね"))).toBe(true);
+  });
+
+  it("skips Mina's scripted intro when the FIRST message is a lost-phone disclosure", () => {
+    const first = replyToSanaText("我不是米娜", []);
+    const next = replyToSanaText("我不会告诉你是谁", [first]);
+    const restored = parseSanaAdaptiveTurns([JSON.stringify(first), JSON.stringify(next)]);
+    const items = minaSanaInteractiveMessages(ping, "awake", "", "", [], restored);
+    const bodies = items.map((item) => item.body);
+    expect(bodies).toContain("我不是米娜");
+    expect(bodies).toContain("我不会告诉你是谁");
+    expect(bodies).toContain(first.replies[0]);
+    expect(bodies).toContain(next.replies[0]);
+    expect(bodies).not.toContain("よかった〜笑");
+    expect(bodies).not.toContain("最近、みーたん一人で考え込んでること多くない？");
+  });
+
   it("ignores malformed stored turns", () => {
     const stored = parseSanaAdaptiveTurns([
       "{oops",
