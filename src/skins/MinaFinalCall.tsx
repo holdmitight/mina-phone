@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
-/** Fictional ending: Mina borrows Jeongyeon's phone. It shows an unknown
- * number on the found phone until Mina identifies herself after answer.
+/** Fictional ending: Mina borrows Jeongyeon's phone. The caller ID shows
+ * Jeongyeon; Mina identifies herself only after the player answers.
  * Browser voices are generic Japanese TTS, not the real Mina's voice.
  */
 let activeSpeech: SpeechSynthesisUtterance | null = null;
@@ -60,7 +60,7 @@ export const minaFinalCallLines = [
   { ja: "……会ってくれる？", zh: "……你愿意见我吗？" },
 ] as const;
 
-export const minaFinalMissedCallNotice = "Phone: 不明な番号 · 不在着信（タップして折り返す）";
+export const minaFinalMissedCallNotice = "Phone: Jeongyeon · 不在着信（タップして折り返す）";
 
 export type MinaFinalCallChoice = "meet" | "time" | "silence";
 
