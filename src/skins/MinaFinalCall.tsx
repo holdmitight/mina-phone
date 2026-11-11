@@ -60,7 +60,7 @@ export const minaFinalCallLines = [
   { ja: "……会ってくれる？", zh: "……你愿意见我吗？" },
 ] as const;
 
-export const minaFinalMissedCallNotice = "Phone: Jeongyeon · 不在着信（タップして折り返す）";
+export const minaFinalMissedCallNotice = "Phone: 不明な番号 · 不在着信（タップして折り返す）";
 
 export type MinaFinalCallChoice = "meet" | "time" | "silence";
 
