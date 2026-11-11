@@ -69,10 +69,11 @@ describe("Mina's Amazon screenshot-based offline replica", () => {
     expect(matchesAmazonGiftPartsSearch("ミニブロック パーツ")).toBe(true);
     expect(matchesAmazonGiftPartsSearch("レゴ フェラーリ")).toBe(false);
     expect(amazonMiniPartsSuggestions).toHaveLength(2);
+    // This search works from the initial story, even without optional chats.
     const html = renderToStaticMarkup(createElement(MinaAmazonSkin, props({
       "amazon-screen": "results",
       "amazon-active-query": "レゴ 小さいパーツ 白 ピンク",
-    }, true)));
+    }, false)));
     expect(html).toContain("ミニブロック パーツ 1×2 ホワイト");
     expect(html).toContain("ミニブロック パーツ 1×1 パステルピンク");
     expect(html).toContain("2件の商品");

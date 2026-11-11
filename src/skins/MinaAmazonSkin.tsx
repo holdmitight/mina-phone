@@ -93,7 +93,9 @@ export function MinaAmazonSkin(p: Props) {
   const quantity = cartEntries.reduce((sum, item) => sum + item.quantity, 0);
   const total = cartEntries.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
   const points = cartEntries.reduce((sum, item) => sum + item.product.points * item.quantity, 0);
-  const showMiniParts = storyPartsUnlocked && matchesAmazonGiftPartsSearch(activeQuery);
+  // Players may discover the LEGO clue out of order. Searching for it must
+  // count even if Sana and Jeongyeon's optional conversation has not fired.
+  const showMiniParts = p.owner === "名井南" && matchesAmazonGiftPartsSearch(activeQuery);
   const results = amazonCartCatalog.filter((product) => {
     const query = activeQuery.toLowerCase().trim();
     return !query || product.title.toLowerCase().includes(query) || (query.includes("lego") && product.id.startsWith("lego"));
@@ -130,7 +132,8 @@ export function MinaAmazonSkin(p: Props) {
   function submitSearch(text: string) {
     const value = text.trim().slice(0, 100);
     if (!value) return;
-    if (storyPartsUnlocked && matchesAmazonGiftPartsSearch(value)) p.onClue?.(minaClueKeys.amazonPartsSeen);
+    if (p.owner === "名井南" && matchesAmazonGiftPartsSearch(value))
+      p.onClue?.(minaClueKeys.amazonPartsSeen);
     setSearchTerm(value);
     setActiveQuery(value);
     setSelectedMiniPart(null);

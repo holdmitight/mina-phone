@@ -182,11 +182,28 @@ function PhoneRuntime({
   // Standalone players are ephemeral: start from the opening event on every
   // page load. No stored chat messages, clues, call states or endings survive.
   // The Studio's externally controlled runtime and creator preview are intact.
-  const [own, setOwn] = useState(() =>
-    normalizeStorySave(creator || external
+  const [own, setOwn] = useState(() => {
+    const started = normalizeStorySave(creator || external
       ? initialRuntime(work)
-      : dispatch(work, initialRuntime(work), "start")),
-  );
+      : dispatch(work, initialRuntime(work), "start"));
+    // Dedicated, unlisted creator QA route. The normal phone game still
+    // requires players to discover the LEGO promise and final letter.
+    // Never save this state: reloads normally begin from the opening scene.
+    if (creator || external || !isMinaStoryWork(work) ||
+        typeof window === "undefined" ||
+        new URLSearchParams(window.location.search).get("finale") !== "preview") {
+      return started;
+    }
+    let preview = started;
+    for (const clue of [
+      minaClueKeys.legoPromiseSeen,
+      minaClueKeys.lineBreakupSeen,
+      minaClueKeys.amazonPartsSeen,
+      minaClueKeys.heartThreadSeen,
+      minaClueKeys.finalLetterRead,
+    ]) preview = discoverMinaClue(preview, clue);
+    return normalizeStorySave(preview);
+  });
   const ready = true;
   useEffect(() => {
     const el = shell.current;

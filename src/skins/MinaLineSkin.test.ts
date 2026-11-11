@@ -35,6 +35,12 @@ describe("Mina's summer-to-November 2015 LINE archive", () => {
     expect(html).toContain("来年、一緒にハワイに行こうね。");
   });
 
+  it("exposes the two LINE clue actions even if scroll observers do not fire", () => {
+    const html = renderToStaticMarkup(createElement(MinaLineSkin, props(minaLineThreadName)));
+    expect(html).toContain("继续寻找线索");
+    expect(html).toContain("回看2014年的乐高戒指约定");
+  });
+
   it("preserves A's 2015 ballet meeting, departure and the original message IDs", () => {
     expect(minaLineMemories.length).toBeGreaterThan(90);
     expect(minaLineMemories[0]).toMatchObject({ id: "2014-06-16-01", day: "2015-06-16", from: "a" });

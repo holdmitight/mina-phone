@@ -306,8 +306,12 @@ export function MinaLineSkin(p: Props) {
                 {archiveHelpOpen && (
                   <div className="mina-line-archive-hint">
                     <p>この先の言葉は、ほかのアプリに残っているかもしれない。</p>
-                    <small>试试相册里的旧照片、KakaoTalk 定延的聊天，以及备忘录里的未发送信件。最终电话不会在这段旧 LINE 聊天中直接触发。</small>
+                    <small>先回看上面的乐高戒指约定，再去 Amazon 搜索「レゴ 小さいパーツ 白 ピンク」。之后检查备忘录，并打开 KakaoTalk 的 💗。最终电话不会在旧 LINE 聊天中提前响起。</small>
                     <button type="button" onClick={() => {
+                      // Tapping the explicit "reread promise" action is proof
+                      // of discovery; do not rely only on IntersectionObserver
+                      // inside a transformed, nested iPhone Safari scroller.
+                      p.onClue?.(minaClueKeys.legoPromiseSeen);
                       const target = threadRef.current?.querySelector<HTMLElement>('[data-line-id="2014-08-09-03"]');
                       target?.scrollIntoView({ behavior: "smooth", block: "center" });
                     }}>指輪の約束を読み返す <small>回看2014年的乐高戒指约定</small></button>
