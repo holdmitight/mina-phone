@@ -21,3 +21,7 @@ public/blank-work.json
 *.key
 *.bundle
 
+
+# Never commit local voice auditions or private reference recordings
+voice-preview/
+references/voice/private/
