@@ -292,6 +292,9 @@ export function MymyKakao(p: SkinProps) {
                 } else if (stage === "awake" && matched && isSanaBranch(matched)) {
                   setSanaReplyText(text);
                   setSanaStage(matched);
+                  // Send the clue at the exact moment the final branch reply
+                  // is submitted. The legacy useEffect remains a backup.
+                  p.onClue?.(minaClueKeys.sanaFinished);
                 } else {
                   setSanaAttempts((old) => [
                     ...old,
