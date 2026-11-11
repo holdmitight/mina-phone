@@ -113,6 +113,16 @@ export function normalizeMinaStoryRuntime(runtime: Runtime): Runtime {
     };
     changed = true;
   }
+  // A call started by the original user-facing choice must also count as
+  // offered, otherwise unlocking the final draft later could ring again.
+  if (normalized.incomingCall?.target === "mina-story-final-call" &&
+      !normalized.clues.includes(minaClueKeys.finalCallOffered)) {
+    normalized = {
+      ...normalized,
+      clues: [...normalized.clues, minaClueKeys.finalCallOffered],
+    };
+    changed = true;
+  }
   // The old script also added "君 ♡ 来电". The normalized event
   // adds "Jeongyeon 来电". Both are redundant because the incoming-call
   // screen is already visible. Remove them only for this finale.
