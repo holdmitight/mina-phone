@@ -359,6 +359,25 @@ describe("Mina cross-app discoveries", () => {
     expect(notYet.clues).not.toContain(clues.sanaFinished);
   });
 
+  it("routes the ORIGINAL choice into the voiced finale before dispatch, not only by repairing saves", () => {
+    const source = compileStory(actualMinaStory).work;
+    const patched = normalizeMinaStoryWork(source);
+    const choice = {
+      ...initialRuntime(patched),
+      choices: [{ label: "今夜は、声を聞いておやすみ。", target: "choose-call" }],
+    };
+    const madeCall = choose(patched, choice, "choose-call");
+    expect(madeCall.incomingCall).toEqual({
+      caller: "Jeongyeon",
+      target: "mina-story-final-call",
+      status: "ringing",
+    });
+    const cleaned = normalizeMinaStoryRuntime(madeCall);
+    expect(cleaned.notifications).not.toContain("君 ♡ 来电");
+    expect(cleaned.notifications).not.toContain("Jeongyeon 来电");
+    expect(cleaned.incomingCall?.target).toBe("mina-story-final-call");
+  });
+
   it("fixes the real shipped storyline event that previously displayed 君 ♡ 来电 with no audio", () => {
     const work = compileStory(actualMinaStory).work;
     const oldChoice = {
