@@ -26,7 +26,9 @@ import {
 import { AppArtwork, hasNativeArtwork } from "./AppArtwork";
 import { getFields } from "./fields";
 import { catalogSkins } from "./skins/catalog";
-import { discoverMinaClue, isMinaStoryWork, normalizeMinaStoryWork, normalizeMinaStoryRuntime } from "./skins/minaStoryInteractions";
+import { discoverMinaClue, isMinaStoryWork, normalizeMinaStoryWork, normalizeMinaStoryRuntime, minaClueKeys } from "./skins/minaStoryInteractions";
+import { MinaFinalCallScript, minaFinalCallOutcomes, type MinaFinalCallChoice } from "./skins/MinaFinalCall";
+import "./skins/minaFinalCall.css";
 import "./skins/skins.css";
 import "./ios18.css";
 import "./device-system.css";
@@ -673,6 +675,46 @@ function PhoneRuntime({
                   const record = work.data.phone?.find(
                     (i) => i.id === s.incomingCall?.target,
                   );
+                  if (s.incomingCall?.target === "mina-story-final-call" &&
+                      isMinaStoryWork(work)) {
+                    const currentStep = Number(s.ui?.minaFinalCall?.step ?? 0);
+                    return (
+                      <MinaFinalCallScript
+                        step={currentStep}
+                        onAdvance={() => {
+                          const runtime = runtimeRef.current;
+                          update({
+                            ...runtime,
+                            ui: {
+                              ...runtime.ui,
+                              minaFinalCall: {
+                                ...runtime.ui?.minaFinalCall,
+                                step: Math.min(currentStep + 1, 7),
+                              },
+                            },
+                          });
+                        }}
+                        onChoose={(choice: MinaFinalCallChoice) => {
+                          const runtime = runtimeRef.current;
+                          const outcome = minaFinalCallOutcomes[choice];
+                          update({
+                            ...runtime,
+                            incomingCall: null,
+                            ui: {
+                              ...runtime.ui,
+                              minaFinalCall: {
+                                ...runtime.ui?.minaFinalCall,
+                                step: 8,
+                                answer: choice,
+                                response: outcome.ja,
+                              },
+                            },
+                            endings: [...runtime.endings, outcome.epilogue],
+                          });
+                        }}
+                      />
+                    );
+                  }
                   return record?.kind === "audio" && safeMedia(record.media) ? (
                     <audio controls src={safeMedia(record.media)} />
                   ) : (
@@ -968,7 +1010,11 @@ function AppContent({
       return;
     }
     setDetail(i);
-    if (!i.password || unlocks.includes(i.id)) onRead(i.id);
+    if (!i.password || unlocks.includes(i.id)) {
+      if (app.id === "notes" && i.id === "mina-story-unsent-2025")
+        onClue?.(minaClueKeys.finalLetterRead);
+      onRead(i.id);
+    }
   };
   const chats = [...new Set(shown.map((i) => i.title))];
   const back = () => {
