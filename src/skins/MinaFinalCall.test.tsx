@@ -15,6 +15,9 @@ describe("the final fictional phone call from Mina", () => {
     expect(html).toContain("続きを聞く");
     expect(html).not.toContain("レゴの指輪");
     expect(html).not.toContain("偶然じゃない");
+    expect(html).not.toContain("VoiceStudio");
+    expect(html).not.toContain("AI 日语配音");
+    expect(html).not.toContain("AI 配音待生成");
     expect(minaFinalCallLines).toHaveLength(7);
   });
 

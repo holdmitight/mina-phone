@@ -186,11 +186,10 @@ export function MinaFinalCallScript({
           🔊 もう一度聴く <small>重听这句话</small>
         </button>
         <span role="status">{
-          !hasMinaRecordedVoice(index) && !canSpeakMinaFinalCall() ? "此设备不支持语音朗读" :
           voiceStatus === "error" ? "语音播放失败，请检查日语语音或刷新后重试" :
           voiceStatus === "speaking" ? "播放中 · 日本語" :
           voiceStatus === "finished" ? "播放结束 · 可重听" :
-          hasMinaRecordedVoice(index) ? "VoiceStudio · AI 日语配音" : "设备日语语音 · AI 配音待生成"
+          !hasMinaRecordedVoice(index) && !canSpeakMinaFinalCall() ? "此设备不支持语音朗读" : null
         }</span>
       </div>
       <span className="mina-final-call-progress">{index + 1} / {minaFinalCallLines.length}</span>
