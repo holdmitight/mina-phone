@@ -37,6 +37,7 @@ import "./ui.css";
 import "./adapter.css";
 import { minaInstagramAvatar } from "../../skins/mina-instagram-avatar";
 import { kakaoDefaultAvatar } from "./kakao-default-avatar";
+import { AppArtwork } from "../../AppArtwork";
 import { minaKakao2025Items } from "./mina-kakao-2025";
 import { hasSanaStoryPrompt, minaSanaInteractiveMessages, isSanaBranch, parseSanaAttempts, recoverSanaAttemptHistory, type SanaStage } from "./mina-sana-replies";
 import { minaClueKeys } from "../../skins/minaStoryInteractions";
@@ -255,9 +256,12 @@ export function MymyKakao(p: SkinProps) {
                 setJeongyeonPopupDismissed(true);
                 p.onThread("Jeongyeon");
               }}>
-                <span className="kakao-story-popup-app">KakaoTalk</span>
-                <strong>Jeongyeon</strong>
-                <span>{jeongyeonPing?.body}</span>
+                <span className="kakao-story-popup-icon"><AppArtwork id="kakao" /></span>
+                <span className="kakao-story-popup-copy">
+                  <span className="kakao-story-popup-heading"><strong>KakaoTalk</strong><time>今</time></span>
+                  <strong className="kakao-story-popup-sender">Jeongyeon</strong>
+                  <span className="kakao-story-popup-body">{jeongyeonPing?.body}</span>
+                </span>
               </button>
               <button className="kakao-story-popup-close" type="button" aria-label="通知を閉じる" onClick={() => setJeongyeonPopupDismissed(true)}>
                 <X size={15}/>
