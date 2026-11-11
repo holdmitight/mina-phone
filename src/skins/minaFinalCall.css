@@ -1,0 +1,75 @@
+/* Final fictional call: existing iPhone call screen with readable dialogue. */
+.incoming-call-screen:has(.mina-final-call-script) {
+  overflow-y: auto;
+  justify-content: flex-start;
+  padding-bottom: 24px;
+}
+.mina-final-call-script {
+  box-sizing: border-box;
+  width: min(100%, 345px);
+  margin: 14px auto 4px;
+  padding: 17px 15px;
+  background: #ffffff19;
+  border: 1px solid #ffffff30;
+  border-radius: 21px;
+  backdrop-filter: blur(14px);
+  color: #fff;
+  text-align: left;
+}
+.mina-final-call-speaker {
+  font-size: 11px;
+  letter-spacing: .07em;
+  opacity: .7;
+  font-weight: 700;
+}
+.mina-final-call-ja {
+  font-size: 17px;
+  line-height: 1.7;
+  letter-spacing: .01em;
+  font-weight: 500;
+  margin: 13px 0 5px;
+}
+.mina-final-call-zh {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #e3e3e9;
+  margin: 0 0 7px;
+}
+.mina-final-call-progress {
+  display: block;
+  font-size: 10px;
+  color: #ffffffa0;
+  margin: 15px 0 10px;
+  text-align: right;
+}
+.mina-final-call-next,
+.mina-final-call-choices button {
+  width: 100%;
+  border: 1px solid #ffffff55;
+  border-radius: 14px;
+  color: #fff;
+  background: #ffffff22;
+  padding: 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.mina-final-call-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.mina-final-call-choices button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+}
+.mina-final-call-choices button small {
+  font-size: 11px;
+  color: #ececf3;
+}
+.mina-final-call-next:active,
+.mina-final-call-choices button:active {
+  background: #ffffff55;
+}
