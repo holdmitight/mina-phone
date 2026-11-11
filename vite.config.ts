@@ -9,7 +9,7 @@ export default defineConfig(({ command }) => ({
     localIconPlugin(command),
     react(),
     VitePWA({
-      registerType: "prompt",
+      registerType: "autoUpdate",
       manifest: {
         name: "捡手机 FoundPhone Studio",
         short_name: "捡手机",
@@ -26,6 +26,9 @@ export default defineConfig(({ command }) => ({
         ],
       },
       workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
+        cleanupOutdatedCaches: true,
         globPatterns: ["**/*.{js,css,html,svg}"],
         maximumFileSizeToCacheInBytes: 4000000,
       },
