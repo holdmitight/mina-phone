@@ -378,6 +378,22 @@ describe("Mina cross-app discoveries", () => {
     expect(cleaned.incomingCall?.target).toBe("mina-story-final-call");
   });
 
+  it("the shipped phone choice itself now calls Jeongyeon without ever showing 君", () => {
+    const work = normalizeMinaStoryWork(compileStory(actualMinaStory).work);
+    const initial = {
+      ...initialRuntime(work),
+      choices: [{ label: "今夜は、声を聞いておやすみ。", target: "choose-call" }],
+    };
+    const active = choose(work, initial, "choose-call");
+    expect(active.incomingCall?.target).toBe("mina-story-final-call");
+    expect(active.incomingCall?.caller).toBe("Jeongyeon");
+    expect(active.notifications).not.toContain("君 ♡ 来电");
+    const displayed = normalizeMinaStoryRuntime(active);
+    expect(displayed.notifications).not.toContain("Jeongyeon 来电");
+    expect(displayed.clues).toContain(clues.finalCallOffered);
+    expect(normalizeMinaStoryRuntime(displayed)).toBe(displayed);
+  });
+
   it("fixes the real shipped storyline event that previously displayed 君 ♡ 来电 with no audio", () => {
     const work = compileStory(actualMinaStory).work;
     const oldChoice = {
