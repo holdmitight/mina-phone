@@ -64,8 +64,11 @@ describe("the final fictional phone call from Mina", () => {
     try {
       expect(canSpeakMinaFinalCall()).toBe(true);
       expect(speakMinaFinalLine("……もしもし。")).toBe(true);
-      expect(cancel).toHaveBeenCalledTimes(1);
+      expect(cancel).not.toHaveBeenCalled(); // iOS Safari can drop speak() after an immediate cancel().
       expect(speak).toHaveBeenCalledTimes(1);
+      expect(speakMinaFinalLine("何回も作り直したの。")).toBe(true);
+      expect(cancel).not.toHaveBeenCalled();
+      expect(speak).toHaveBeenCalledTimes(2);
       expect((spoken[0] as TestUtterance).text).toBe("……もしもし。");
       expect((spoken[0] as TestUtterance).lang).toBe("ja-JP");
       expect((spoken[0] as TestUtterance).voice).toEqual({ name: "Kyoko", lang: "ja-JP" });
@@ -77,7 +80,7 @@ describe("the final fictional phone call from Mina", () => {
       expect(html).toContain("もう一度聴く");
       expect(html).toContain("重听这句话");
       stopMinaFinalSpeech();
-      expect(cancel).toHaveBeenCalledTimes(2);
+      expect(cancel).toHaveBeenCalledTimes(1);
     } finally {
       vi.unstubAllGlobals();
     }
