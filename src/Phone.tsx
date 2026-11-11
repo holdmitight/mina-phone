@@ -310,7 +310,7 @@ function PhoneRuntime({
       update({
         ...current,
         incomingCall: {
-          caller: "不明な番号",
+          caller: "Jeongyeon",
           target: "mina-story-final-call",
           status: "ringing",
         },
