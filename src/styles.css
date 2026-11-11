@@ -1752,6 +1752,17 @@ svg {
   justify-content: center;
   padding: 25px;
 }
+.ending:has(.ending-ring-film) {
+  overflow-y: auto;
+  justify-content: safe center;
+}
+.ending-ring-film {
+  align-self: center;
+  flex: none;
+  width: min(100%, 220px, 30dvh);
+  height: auto;
+  border-radius: 9px;
+}
 .ending h2 {
   font-size: 23px;
   font-weight: 500;
