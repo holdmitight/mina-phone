@@ -307,16 +307,15 @@ export function MinaLineSkin(p: Props) {
                   <div className="mina-line-archive-hint">
                     <p>この先の言葉は、ほかのアプリに残っているかもしれない。</p>
                     <small>先回看上面的乐高戒指约定，再去 Amazon 搜索「レゴ 小さいパーツ 白 ピンク」。之后检查备忘录，并打开 KakaoTalk 的 💗。最终电话不会在旧 LINE 聊天中提前响起。</small>
-                    <button type="button" onClick={() => {
-                      // Tapping the explicit "reread promise" action is proof
-                      // of discovery; do not rely only on IntersectionObserver
-                      // inside a transformed, nested iPhone Safari scroller.
-                      p.onClue?.(minaClueKeys.legoPromiseSeen);
-                      const target = threadRef.current?.querySelector<HTMLElement>('[data-line-id="2014-08-09-03"]');
-                      target?.scrollIntoView({ behavior: "smooth", block: "center" });
-                    }}>指輪の約束を読み返す <small>回看2014年的乐高戒指约定</small></button>
                   </div>
                 )}
+                <button type="button" onClick={() => {
+                  // An explicit tap counts even when transformed iPhone Safari
+                  // scrollers never fire an intersection observer callback.
+                  p.onClue?.(minaClueKeys.legoPromiseSeen);
+                  const target = threadRef.current?.querySelector<HTMLElement>('[data-line-id="2014-08-09-03"]');
+                  target?.scrollIntoView({ behavior: "smooth", block: "center" });
+                }}>指輪の約束を読み返す <small>回看2014年的乐高戒指约定</small></button>
               </div>
             )}
             <div className="mina-line-end-spacer" aria-hidden="true" />
