@@ -1841,6 +1841,15 @@ svg {
 .locked-note small {
   color: #b5766e;
 }
+.locked-note .note-password-hint {
+  max-width: 320px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #f5efdc;
+  color: #655638;
+  font-size: 14px;
+  line-height: 1.7;
+}
 .calculator {
   display: flex;
   flex-direction: column;

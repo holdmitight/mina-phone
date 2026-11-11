@@ -1034,6 +1034,7 @@ function AppContent({
   const [pw, setPw] = useState("");
   const [unlocks, setUnlocks] = useState<string[]>([]);
   const [pwError, setPwError] = useState("");
+  const [pwFailures, setPwFailures] = useState<Record<string, number>>({});
   const [likes, setLikes] = useState<string[]>([]);
   useEffect(() => {
     if (noticeThread && noticeThread.appId === app.id) {
@@ -1058,6 +1059,8 @@ function AppContent({
       return;
     }
     setDetail(i);
+    setPw("");
+    setPwError("");
     if (!i.password || unlocks.includes(i.id)) {
       if (app.id === "notes" && i.id === "mina-story-unsent-2025")
         onClue?.(minaClueKeys.finalLetterRead);
@@ -1079,28 +1082,43 @@ function AppContent({
   const detailView = detail ? (
     <div className="phone-content detail-content">
       {detail.password && !creator && !unlocks.includes(detail.id) ? (
-        <div className="locked-note">
+        <form className="locked-note" onSubmit={(e) => {
+          e.preventDefault();
+          if (!pw.trim()) return;
+          const key = "password-failures:" + detail.id;
+          if (pw.trim() === detail.password) {
+            setUnlocks([...unlocks, detail.id]);
+            onRead(detail.id);
+            setPwError("");
+            setPw("");
+            setPwFailures((old) => ({ ...old, [detail.id]: 0 }));
+            onUi?.(key, 0);
+          } else {
+            const stored = state.ui?.[app.id]?.[key];
+            const count = Math.max(pwFailures[detail.id] || 0, typeof stored === "number" ? stored : 0) + 1;
+            setPwFailures((old) => ({ ...old, [detail.id]: count }));
+            onUi?.(key, count);
+            setPwError("パスコードが違います");
+          }
+        }}>
           <LockKeyhole size={36} />
           <h3>この内容はロックされています</h3>
           <input
             type="password"
+            aria-label="メモのパスコード"
             placeholder="パスコード"
             value={pw}
             onChange={(e) => setPw(e.target.value)}
           />
-          <button
-            onClick={() => {
-              if (pw === detail.password) {
-                setUnlocks([...unlocks, detail.id]);
-                onRead(detail.id);
-                setPwError("");
-              } else setPwError("パスコードが違います");
-            }}
-          >
+          <button type="submit" disabled={!pw.trim()}>
             内容のロックを解除
           </button>
           <small>{pwError}</small>
-        </div>
+          {detail.meta.passwordHint && Math.max(pwFailures[detail.id] || 0,
+            Number(state.ui?.[app.id]?.["password-failures:" + detail.id]) || 0) >= 3 && (
+            <p className="note-password-hint" role="status">{detail.meta.passwordHint}</p>
+          )}
+        </form>
       ) : (
         <>
           <small className="detail-meta">
