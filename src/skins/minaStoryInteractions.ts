@@ -24,6 +24,9 @@ export const minaClueKeys = {
   unsentBreakupReady: "mina:unlocked:2015-unsent",
   unsentLaterReady: "mina:unlocked:2018-unsent",
   unsentReunionReady: "mina:unlocked:2025-unsent",
+  heartThreadSeen: "mina:kakao:heart-thread-read",
+  finalLetterRead: "mina:notes:final-draft-read",
+  finalCallOffered: "mina:final-call:offered",
 } as const;
 
 export function isMinaStoryWork(work: Work): boolean {
@@ -376,5 +379,24 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
       clues.includes(minaClueKeys.lineBreakupSeen))
     addLetter("reunion", minaClueKeys.unsentReunionReady);
 
-  return changed ? { ...runtime, clues, messages, notifications } : runtime;
+  // The final call is never presented just because a note was unlocked.
+  // A must actually read Mina's last unsent draft AND discover the pinned 💗
+  // contact. Either exploration order works and existing saves remain valid.
+  // Jeongyeon lends Mina a different handset to call her own lost phone.
+  const finalCallReady =
+    clues.includes(minaClueKeys.unsentReunionReady) &&
+    clues.includes(minaClueKeys.heartThreadSeen) &&
+    clues.includes(minaClueKeys.finalLetterRead);
+  let incomingCall = runtime.incomingCall;
+  if (finalCallReady && !clues.includes(minaClueKeys.finalCallOffered) && !incomingCall) {
+    clues.push(minaClueKeys.finalCallOffered);
+    incomingCall = {
+      caller: "Jeongyeon",
+      target: "mina-story-final-call",
+      status: "ringing",
+    };
+    changed = true;
+  }
+
+  return changed ? { ...runtime, clues, messages, notifications, incomingCall } : runtime;
 }
