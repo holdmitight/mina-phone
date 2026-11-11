@@ -416,6 +416,26 @@ describe("Mina cross-app discoveries", () => {
     expect(normalizeMinaStoryRuntime(repaired)).toBe(repaired);
   });
 
+  it("removes stale 君 来电 and 君 ♡ 来电 banners without touching other notifications", () => {
+    const saved = {
+      ...initialRuntime(fixture),
+      incomingCall: {
+        caller: "君",
+        target: "call-evening",
+        status: "ringing" as const,
+      },
+      notifications: [
+        "君 来电",
+        "君 ♡ 来电",
+        "KakaoTalk: Jeongyeon：야, 잘 지내?",
+      ],
+    };
+    const fixed = normalizeMinaStoryRuntime(saved);
+    expect(fixed.incomingCall?.caller).toBe("Jeongyeon");
+    expect(fixed.incomingCall?.target).toBe("mina-story-final-call");
+    expect(fixed.notifications).toEqual(["KakaoTalk: Jeongyeon：야, 잘 지내?"]);
+  });
+
   it("upgrades a saved old call even when the player already answered it", () => {
     const saved = {
       ...initialRuntime(fixture),
