@@ -21,7 +21,7 @@ describe("the final fictional phone call from Mina", () => {
     expect(minaFinalCallLines[1].ja).toContain("定延のスマホを借りてる");
     expect(minaFinalCallLines[3].ja).toContain("レゴの指輪");
     expect(minaFinalCallLines[5].ja).toContain("偶然じゃない");
-    expect(minaFinalCallLines[6].ja).toContain("自分の手");
+    expect(minaFinalCallLines[4].ja).toContain("自分の手");
   });
 
   it("lets the player hear the full question before choosing what to say", () => {
