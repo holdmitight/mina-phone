@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from "react";
+import voiceAssets from "./minaVoiceAssets.json";
 
 /** Fictional ending: Mina borrows Jeongyeon's phone. The caller ID shows
  * Jeongyeon; Mina identifies herself only after the player answers.
@@ -7,6 +8,59 @@ import { useState, type ReactNode } from "react";
 // Keep ALL queued utterances alive; Safari may otherwise garbage-collect
 // speech before it is audible. Do not cancel immediately before speak().
 const queuedSpeech: SpeechSynthesisUtterance[] = [];
+const generatedVoices = voiceAssets as {
+  lines: string[];
+  outcomes: Record<string, string>;
+};
+let activeVoiceAudio: HTMLAudioElement | null = null;
+
+/** Only author-generated, same-origin WAV files may be played by players. */
+function localVoiceFile(id: number | string): string {
+  const file = typeof id === "number"
+    ? generatedVoices.lines[id]
+    : generatedVoices.outcomes[id];
+  return file && /^[a-z0-9-]+\.wav$/u.test(file) ? file : "";
+}
+export function hasMinaRecordedVoice(id: number | string): boolean {
+  return Boolean(localVoiceFile(id));
+}
+export function playMinaFinalLine(
+  id: number | string,
+  japanese: string,
+  onStatus?: (status: "speaking" | "finished" | "error") => void,
+): boolean {
+  const file = localVoiceFile(id);
+  if (!file) return speakMinaFinalLine(japanese, onStatus);
+  try {
+    if (activeVoiceAudio) {
+      activeVoiceAudio.pause();
+      activeVoiceAudio.currentTime = 0;
+    }
+    const audio = new Audio(import.meta.env.BASE_URL + "mina-voice/" + file);
+    activeVoiceAudio = audio;
+    let fellBack = false;
+    const fallback = () => {
+      if (fellBack || activeVoiceAudio !== audio) return;
+      fellBack = true;
+      activeVoiceAudio = null;
+      speakMinaFinalLine(japanese, onStatus);
+    };
+    audio.onplaying = () => {
+      if (activeVoiceAudio === audio) onStatus?.("speaking");
+    };
+    audio.onended = () => {
+      if (activeVoiceAudio !== audio) return;
+      activeVoiceAudio = null;
+      onStatus?.("finished");
+    };
+    audio.onerror = fallback;
+    void audio.play().catch(fallback);
+    return true;
+  } catch {
+    activeVoiceAudio = null;
+    return speakMinaFinalLine(japanese, onStatus);
+  }
+}
 
 export function canSpeakMinaFinalCall(): boolean {
   return typeof window !== "undefined" &&
@@ -15,6 +69,11 @@ export function canSpeakMinaFinalCall(): boolean {
 }
 
 export function stopMinaFinalSpeech(): void {
+  if (activeVoiceAudio) {
+    activeVoiceAudio.pause();
+    activeVoiceAudio.currentTime = 0;
+    activeVoiceAudio = null;
+  }
   if (!canSpeakMinaFinalCall()) return;
   window.speechSynthesis.cancel();
   queuedSpeech.length = 0;
@@ -123,21 +182,21 @@ export function MinaFinalCallScript({
       <div className="mina-final-call-audio-controls">
         <button type="button" onClick={() => {
           setVoiceStatus("idle");
-          speakMinaFinalLine(current.ja, setVoiceStatus);
+          playMinaFinalLine(index, current.ja, setVoiceStatus);
         }} aria-label="Minaの今のセリフを音声で再生">
           🔊 もう一度聴く <small>重听这句话</small>
         </button>
         <span role="status">{
-          !canSpeakMinaFinalCall() ? "此设备不支持语音朗读" :
+          !hasMinaRecordedVoice(index) && !canSpeakMinaFinalCall() ? "此设备不支持语音朗读" :
           voiceStatus === "error" ? "语音播放失败，请检查日语语音或刷新后重试" :
           voiceStatus === "speaking" ? "播放中 · 日本語" :
           voiceStatus === "finished" ? "播放结束 · 可重听" :
-          "日本語音声 · 使用设备朗读"
+          hasMinaRecordedVoice(index) ? "VoiceStudio · AI 日语配音" : "设备日语语音 · AI 配音待生成"
         }</span>
       </div>
       <span className="mina-final-call-progress">{index + 1} / {minaFinalCallLines.length}</span>
       {index < minaFinalCallLines.length - 1 ? (
-        <button type="button" className="mina-final-call-next" onClick={onAdvance}>
+        <button type="button" className="mina-final-call-next" onClick={() => { setVoiceStatus("idle"); onAdvance(); }}>
           続きを聞く
         </button>
       ) : (
