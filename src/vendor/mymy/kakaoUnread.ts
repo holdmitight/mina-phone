@@ -1,5 +1,24 @@
 import type { Item } from "../../schema";
 
+/**
+ * Some original template messages carry later timestamps than the found-phone
+ * scene. Scripted new arrivals must remain at the end of the corresponding
+ * conversation, otherwise both the preview and unread boundary hide them.
+ * Archival backstory entries keep their ordinary date order.
+ */
+export function orderKakaoMessages(items: readonly Item[]): Item[] {
+  const isLiveStoryMessage = (item: Item) =>
+    item.id === "mina-story-cafe-sana-ping" ||
+    item.id === "mina-story-jeongyeon-gift-ping" ||
+    item.id.startsWith("mina-sana-interactive-");
+  return [...items].sort((a, b) => {
+    const aLive = isLiveStoryMessage(a);
+    const bLive = isLiveStoryMessage(b);
+    if (aLive !== bLive) return aLive ? 1 : -1;
+    return a.time.localeCompare(b.time);
+  });
+}
+
 /** Chat-list unread counts belong to incoming messages, never to Mina's replies. */
 const explicitlyUnread = (item: Item): boolean =>
   Boolean(item.meta.unread && item.meta.unread !== "0");
