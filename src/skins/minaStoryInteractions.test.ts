@@ -358,6 +358,40 @@ describe("Mina cross-app discoveries", () => {
     expect(notYet.clues).not.toContain(clues.sanaFinished);
   });
 
+  it("makes Mina call only after the real 2025 draft and 💗 chat were both read", () => {
+    let state = initialRuntime(fixture);
+    state = discoverMinaClue(state, clues.giftTrailResolved);
+    state = discoverMinaClue(state, clues.summerPlaylistSeen);
+    state = discoverMinaClue(state, clues.lineBreakupSeen);
+    expect(state.clues).toContain(clues.unsentReunionReady);
+    expect(state.incomingCall).toBeNull();
+    state = discoverMinaClue(state, clues.heartThreadSeen);
+    expect(state.incomingCall).toBeNull();
+    state = discoverMinaClue(state, clues.finalLetterRead);
+    expect(state.incomingCall).toEqual({
+      caller: "Jeongyeon",
+      target: "mina-story-final-call",
+      status: "ringing",
+    });
+    expect(state.clues).toContain(clues.finalCallOffered);
+    expect(discoverMinaClue(state, clues.finalLetterRead)).toBe(state);
+    expect(JSON.parse(JSON.stringify(state)).incomingCall?.caller).toBe("Jeongyeon");
+  });
+
+  it("offers the ending call regardless of whether the player reads 💗 or the final draft first", () => {
+    let state = initialRuntime(fixture);
+    state = discoverMinaClue(state, clues.heartThreadSeen);
+    state = discoverMinaClue(state, clues.finalLetterRead);
+    expect(state.incomingCall).toBeNull();
+    state = discoverMinaClue(state, clues.giftTrailResolved);
+    state = discoverMinaClue(state, clues.summerPlaylistSeen);
+    expect(state.incomingCall).toBeNull();
+    state = discoverMinaClue(state, clues.lineBreakupSeen);
+    expect(state.incomingCall?.target).toBe("mina-story-final-call");
+    const dismissed = { ...state, incomingCall: null };
+    expect(discoverMinaClue(dismissed, clues.heartThreadSeen)).toBe(dismissed);
+  });
+
   it("retains all progress with a serializable runtime and ignores unrecognized clues", () => {
     let state = initialRuntime(fixture);
     state = discoverMinaClue(state, clues.cafeVisit);
