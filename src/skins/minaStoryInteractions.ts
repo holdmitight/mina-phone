@@ -136,13 +136,13 @@ export function normalizeMinaStoryRuntime(runtime: Runtime): Runtime {
   }
   // Do not leave an unrelated ghost notification after the caller is migrated.
   if (normalized.notifications.some((notice) =>
-    /^(?:君|💗|♡)(?:\\s*♡)?\\s*来电$/u.test(notice.trim()) ||
+    /^(?:君|💗|♡)(?:\s*♡)?\s*来电$/u.test(notice.trim()) ||
     notice === "君 ♡ 来电"
   )) {
     normalized = {
       ...normalized,
       notifications: normalized.notifications.filter((notice) =>
-        !/^(?:君|💗|♡)(?:\\s*♡)?\\s*来电$/u.test(notice.trim()) &&
+        !/^(?:君|💗|♡)(?:\s*♡)?\s*来电$/u.test(notice.trim()) &&
         notice !== "君 ♡ 来电"
       ),
     };
