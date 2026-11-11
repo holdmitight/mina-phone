@@ -10,6 +10,7 @@ export function orderKakaoMessages(items: readonly Item[]): Item[] {
   const isLiveStoryMessage = (item: Item) =>
     item.id === "mina-story-cafe-sana-ping" ||
     item.id === "mina-story-jeongyeon-gift-ping" ||
+    item.id.startsWith("mina-jeongyeon-interactive-") ||
     item.id.startsWith("mina-sana-interactive-");
   return [...items].sort((a, b) => {
     const aLive = isLiveStoryMessage(a);

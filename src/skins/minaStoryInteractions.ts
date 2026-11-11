@@ -1,6 +1,8 @@
 import { makeItem, type Runtime, type Work } from "../schema";
 import { minaUnsentLetter } from "./minaUnsentArchive";
 import { isSanaBranch, parseSanaAttempts, recoverSanaAttemptHistory } from "../vendor/mymy/mina-sana-replies";
+import { parseSanaAdaptiveTurns } from "../vendor/mymy/sanaAdaptive";
+import { parseJeongyeonTurns } from "../vendor/mymy/mina-jeongyeon-replies";
 
 export const minaClueKeys = {
   cafeVisit: "mina:map:cafe-visit",
@@ -120,6 +122,22 @@ export function dialMinaFinalCall(runtime: Runtime): Runtime {
       notice !== "Phone: 不明な番号 · 不在着信（タップして折り返す）"
     ),
   };
+}
+
+/** Arrival text follows the conversation already stored on this phone. */
+function minaChatArrivals(runtime: Runtime) {
+  const chatUi = runtime.ui?.kakao;
+  const sanaTurns = parseSanaAdaptiveTurns(Array.isArray(chatUi?.minaSanaChatTurns) ? chatUi.minaSanaChatTurns : []);
+  const jeongyeonTurns = parseJeongyeonTurns(Array.isArray(chatUi?.minaJeongyeonChatTurns) ? chatUi.minaJeongyeonChatTurns : []);
+  const sanaArrival = sanaTurns.length
+    ? sanaTurns.some((turn) => /^(phone-|identity-evasive)/u.test(turn.topic))
+      ? "さっきの話、ちゃんと読んだよ。今このスマホを持っている人と話してるんだね。返す方法、一緒に考えよう。"
+      : "さっきの話の続き、聞いてもいい？無理に話さなくても大丈夫だよ。"
+    : "みーたん、まだ起きてる？";
+  const giftArrival = jeongyeonTurns.length
+    ? { body: "아, 그리고 미나가 전에 직접 만들던 작은 게 있었어요. 그 일도 확인하고 싶으니, 연락이 닿으면 저한테 연락해 달라고 전해 주세요.", zh: "对了，米娜之前一直在亲手做一件小东西。那件事我也想确认一下；如果联系上她，请转告她联系我。" }
+    : { body: "야, 그거 이번엔 성공했어?ㅋㅋ", zh: "喂，这次那个终于做成功了吗？哈哈" };
+  return { sanaArrival, giftArrival, earlySana: sanaTurns.some(turn => turn.beforePrompt), earlyJeongyeon: jeongyeonTurns.some(turn => !turn.afterGift) };
 }
 
 /** Migrate already-started saves in place. Do not reset choices, chats,
@@ -246,6 +264,21 @@ export function normalizeMinaStoryRuntime(runtime: Runtime): Runtime {
     changed = true;
   }
 
+  // Repair the stale late-arriving question in existing saves too, keeping
+  // IDs/read receipts and every player message rather than sending it again.
+  const arrivals = minaChatArrivals(normalized);
+  const repairedKakao = (normalized.messages.kakao ?? []).map(item => {
+    if (arrivals.earlyJeongyeon && item.id === "mina-story-jeongyeon-gift-ping" && item.body === "야, 그거 이번엔 성공했어?ㅋㅋ")
+      return { ...item, body: arrivals.giftArrival.body, meta: { ...item.meta, zh: arrivals.giftArrival.zh } };
+    if (arrivals.earlySana && item.id === "mina-story-cafe-sana-ping" && item.body === "みーたん、まだ起きてる？")
+      return { ...item, body: arrivals.sanaArrival };
+    return item;
+  });
+  if (repairedKakao.some((item, i) => item !== normalized.messages.kakao[i]))
+    normalized = { ...normalized, messages: { ...normalized.messages, kakao: repairedKakao }, notifications: normalized.notifications.map(notice =>
+      arrivals.earlyJeongyeon && notice === "KakaoTalk: Jeongyeon：야, 그거 이번엔 성공했어?ㅋㅋ" ? "KakaoTalk: Jeongyeon：" + arrivals.giftArrival.body :
+      arrivals.earlySana && notice === "KakaoTalk: Sana：みーたん、まだ起きてる？" ? "KakaoTalk: Sana：" + arrivals.sanaArrival : notice) };
+
   // Repair older saves whose Sana branch finished before the Jeongyeon
   // notification was recorded. Reopening KakaoTalk is not required.
   const chatUi = normalized.ui?.kakao;
@@ -290,6 +323,7 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
   }
   let messages = runtime.messages;
   let notifications = runtime.notifications;
+  const { sanaArrival, giftArrival } = minaChatArrivals(runtime);
 
   // Reconcile saved games from older builds: both clues may already be
   // recorded even if their unlocked content was never inserted.
@@ -303,7 +337,7 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
       changed = true;
       notifications = [
         ...notifications,
-        "KakaoTalk: Sana：みーたん、まだ起きてる？",
+        "KakaoTalk: Sana：" + sanaArrival,
       ];
     }
     if (!(messages.kakao ?? []).some((m) => m.id === "mina-story-cafe-sana-ping")) {
@@ -313,7 +347,7 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
         id: "mina-story-cafe-sana-ping",
         title: "Sana",
         sender: "Sana",
-        body: "みーたん、まだ起きてる？",
+        body: sanaArrival,
         time: `${currentDate} ${currentTime}`,
         outgoing: false,
         read: false,
@@ -418,7 +452,7 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
     if (!clues.includes(minaClueKeys.jeongyeonGiftReady)) {
       clues.push(minaClueKeys.jeongyeonGiftReady);
       changed = true;
-      notifications = [...notifications, "KakaoTalk: Jeongyeon：야, 그거 이번엔 성공했어?ㅋㅋ"];
+      notifications = [...notifications, "KakaoTalk: Jeongyeon：" + giftArrival.body];
     }
     const oldGiftTalk = [
       ["01", "Jeongyeon", "야, 아직도 그거 만들고 있어?ㅋㅋ", "2025-11-07 22:11"],
@@ -445,12 +479,12 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
         id: "mina-story-jeongyeon-gift-ping",
         title: "Jeongyeon",
         sender: "Jeongyeon",
-        body: "야, 그거 이번엔 성공했어?ㅋㅋ",
+        body: giftArrival.body,
         time: `${(runtime.date || "2025-11-09").replace(/^2026-11-/u, "2025-11-")} ${runtime.time || "21:09"}`,
         outgoing: false,
         read: false,
         folder: "聊天",
-        meta: { story: "gift-ping" },
+        meta: { story: "gift-ping", zh: giftArrival.zh },
       }));
     }
     if (additions.length) {

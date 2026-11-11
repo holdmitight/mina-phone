@@ -4,14 +4,14 @@
  */
 import { makeItem, type Item } from "../../schema";
 
-export type JeongyeonTopic = "lost" | "found" | "return" | "identity" | "evasive" | "location" | "gift" | "hello" | "other";
-export type JeongyeonTurn = { text: string; reply: string; zh: string; topic: JeongyeonTopic };
+export type JeongyeonTopic = "lost" | "found" | "return" | "identity" | "evasive" | "location" | "gift" | "hello" | "other" | "correction" | "not-yet";
+export type JeongyeonTurn = { text: string; reply: string; zh: string; topic: JeongyeonTopic; afterGift?: boolean };
 const device = /(?:手机|手機|スマホ|휴대폰|핸드폰|폰|phone|mobile)/iu;
 const mina = /(?:米娜|mina|ミナ|みーたん|미나|她|her)/iu;
 const lost = /(?:丢|丟|不见|不見|遗失|遺失|弄丢|弄丟|なくした|なくなった|失くした|lost|missing|잃어버|없어졌|분실)/iu;
 const phoneFound = /(?:捡到|撿到|拾到|拾った|picked up|주웠|found (?:her |mina.?s |the )?phone|找到(?:了)?(?:米娜的|她的|这部|這部|这个|這個)?(?:手机|手機)|(?:手机|手機)找到了|폰을 찾았)/iu;
 const returnIt = /(?:还给|還給|归还|歸還|交还|交還|物归原主|返す|返却|return|give.*back|돌려주|반납)/iu;
-const notMina = /(?:我不是(?:米娜|mina|ミナ|南|她)|不是(?:米娜|mina|ミナ|南)本人|i.?m not mina|not mina|ミナじゃない|미나가 아니)/iu;
+const notMina = /(?:我不是(?:米娜|mina|ミナ|南|她)|^我不是(?:呢|呀|啊|哦)?[。！!\s]*$|不是(?:米娜|mina|ミナ|南)本人|i.?m not mina|not mina|ミナじゃない|미나가 아니)/iu;
 const evade = /(?:你猜|猜猜|猜我|不告诉|不告訴|秘密|保密|不重要|别问|別問|guess who|not telling|none of your business|비밀|教えない)/iu;
 const where = /(?:怎么|怎麼|如何|怎样|怎樣|怎样才|怎样能|去哪里|去哪|哪里|哪裡|在哪|在哪里|在哪儿|在哪裡|何处|何處|where|how|どこ|どうすれば|어디|어떻게).{0,18}(?:找|联系|聯繫|见|見|找到|遇到|聯絡|contact|find|meet|reach|会える|見つけ|찾|만나).{0,12}(?:米娜|mina|ミナ|她|her|미나)?|(?:米娜|mina|ミナ|她|her|미나).{0,9}(?:在哪|哪里|哪裡|在哪里|where|어디)/iu;
 const help = /(?:联系米娜|聯絡米娜|联系她|聯絡她|找她|找到她|怎么找她|怎麼找她|见她|見她|把手机交给|把手機交給|告诉她|告訴她|帮我|幫我|能帮忙|能幫忙|call (?:her|mina)|contact (?:her|mina)|reach (?:her|mina)|find (?:her|mina)|連絡して|연락해|찾아 줘)/iu;
@@ -31,6 +31,11 @@ export function replyToJeongyeonText(text: string, earlier: readonly JeongyeonTu
   const concerned = earlier.some((turn) => ["lost", "found", "return", "identity", "evasive", "location", "gift"].includes(turn.topic));
   const finderDisclosed = earlier.some((turn) => ["found", "return"].includes(turn.topic));
   const same = (topic: JeongyeonTopic) => earlier.filter((turn) => turn.topic === topic).length;
+
+  if (/(?:说得?不对|說得?不對|理解错|理解錯|答非所问|答非所問|不是这个意思|不是這個意思|you misunderstood|that's wrong|そうじゃない|違うって)/iu.test(value))
+    return message("아, 내가 잘못 이해했네. 어떤 부분이 달랐어? 폰 얘기인지, 아까 물어본 일인지 알려 줄래?", "啊，是我理解错了。是哪部分不对？你说的是手机，还是我刚才问的那件事？", "correction", text);
+  if (/^(?:没有[，,\s]*)?(?:还没(?:有|呢|做好)?|還沒(?:有|呢)?|まだ(?:だよ|です|だ)?|not yet|아직)[。！!\s]*$/iu.test(value))
+    return message(concerned ? "아직이군요. 폰은 안전하게 가지고 계신가요? 제가 미나에게 연락해 볼게요." : "아직이구나. 서두르지 않아도 돼. 뭔가 막히는 게 있어?", concerned ? "还没有啊。手机还妥善保管着吗？我会试着联系米娜。" : "还没有啊，不用着急。是遇到什么困难了吗？", "not-yet", text);
 
   if (notMina.test(value))
     return message("그럼 지금 누구랑 얘기하고 있는 거예요? 미나의 폰을 어디서 주웠어요?",
@@ -92,28 +97,35 @@ export function parseJeongyeonTurns(raw: readonly string[]): JeongyeonTurn[] {
       if (typeof turn.text !== "string" || !turn.text.trim() || turn.text.length > 2000 ||
           typeof turn.reply !== "string" || turn.reply.length > 400 ||
           typeof turn.zh !== "string" || turn.zh.length > 400 ||
-          !["lost","found","return","identity","evasive","location","gift","hello","other"].includes(String(turn.topic))) continue;
-      out.push({ text: turn.text, reply: turn.reply, zh: turn.zh, topic: turn.topic as JeongyeonTopic });
+          !["lost","found","return","identity","evasive","location","gift","hello","other","correction","not-yet"].includes(String(turn.topic))) continue;
+      out.push({ text: turn.text, reply: turn.reply, zh: turn.zh, topic: turn.topic as JeongyeonTopic, ...(typeof turn.afterGift === "boolean" ? { afterGift: turn.afterGift } : {}) });
     } catch { /* Ignore old or corrupted local saves. */ }
   }
   return out.slice(-30);
 }
 
-export function minaJeongyeonInteractiveMessages(turns: readonly JeongyeonTurn[]): Item[] {
-  const start = Date.parse("2025-11-09T22:00:00Z");
-  const time = (index: number) => new Date(start + index * 60_000).toISOString().slice(0,16).replace("T"," ");
-  return turns.flatMap((turn, index) => [
+export function minaJeongyeonInteractiveMessages(turns: readonly JeongyeonTurn[], ping?: Item): Item[] {
+  // Persist which side of the later story arrival each turn belongs to.
+  // Missing flags in old saves describe the pre-arrival conversation.
+  const start = Date.parse((ping?.time || "2025-11-09 21:09").replace(" ", "T") + "Z");
+  const before = turns.filter((turn) => !turn.afterGift).length;
+  let pre = 0, post = 0;
+  const time = (index: number) => new Date(start + index * 1000).toISOString().slice(0,19).replace("T"," ");
+  return turns.flatMap((turn, index) => {
+    const offset = ping ? turn.afterGift ? 1 + post++ * 2 : -before * 2 + pre++ * 2 : index * 2;
+    return [
     makeItem({
       id: "mina-jeongyeon-interactive-" + index + "-input",
       title: "Jeongyeon", sender: "名井南", body: turn.text,
-      outgoing: true, read: true, time: time(index * 2), folder: "聊天",
+      outgoing: true, read: true, time: time(offset), folder: "聊天",
       meta: { local: "true", story: "jeongyeon-interactive" },
     }),
     makeItem({
       id: "mina-jeongyeon-interactive-" + index + "-reply",
       title: "Jeongyeon", sender: "Jeongyeon", body: turn.reply,
-      outgoing: false, read: true, time: time(index * 2 + 1), folder: "聊天",
+      outgoing: false, read: true, time: time(offset + 1), folder: "聊天",
       meta: { local: "true", story: "jeongyeon-interactive", zh: turn.zh },
     }),
-  ]);
+    ];
+  });
 }

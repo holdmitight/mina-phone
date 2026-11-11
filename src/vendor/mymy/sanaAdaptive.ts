@@ -5,12 +5,13 @@
 export type SanaTopic =
   | "meet-tomorrow" | "meet" | "avoid" | "affection" | "fear" | "regret"
   | "memory" | "why" | "deny" | "decision" | "question" | "short"
-  | "food" | "sleep" | "phone-lost" | "phone-found" | "phone-not-mina" | "phone-return" | "identity-evasive" | "unknown";
+  | "food" | "sleep" | "phone-lost" | "phone-found" | "phone-not-mina" | "phone-return" | "identity-evasive" | "correction" | "unknown";
 
 export type SanaAdaptiveTurn = {
   text: string;
   replies: string[];
   topic: SanaTopic;
+  beforePrompt?: boolean;
 };
 
 const tidy = (value: string) => value.normalize("NFKC").trim().toLowerCase();
@@ -45,6 +46,9 @@ const phoneContextTopics: SanaTopic[] = ["phone-lost", "phone-found", "phone-not
 
 export function classifySanaTopic(text: string): SanaTopic {
   const value = tidy(text);
+  if (/(?:说得?不对|說得?不對|理解错|理解錯|答非所问|答非所問|不是这个意思|不是這個意思|you misunderstood|that's wrong|そうじゃない|違うって)/iu.test(value)) return "correction";
+  // Elliptical denial of the assumed sender, not a reply about being awake.
+  if (/^(?:我不是(?:呢|呀|啊|哦)?|不是本人|不是米娜|私じゃない|ミナじゃない)[。！!\s]*$/iu.test(value)) return "phone-not-mina";
   // A lone question mark or reaction emoji is still a meaningful chat reply.
   // Do this before stripping punctuation and symbols.
   if (/^[?？]+$/u.test(text.trim())) return "why";
@@ -67,8 +71,8 @@ export function classifySanaTopic(text: string): SanaTopic {
   if (has(value, affectionate)) return "affection";
   if (has(value, regret)) return "regret";
   if (has(value, memory)) return "memory";
-  if (has(value, why) || /^[?？]+$/u.test(text.trim())) return "why";
   if (has(value, denial)) return "deny";
+  if (has(value, why) || /^[?？]+$/u.test(text.trim())) return "why";
   if (has(value, decision)) return "decision";
   if (has(value, sleeping)) return "sleep";
   if (has(value, food)) return "food";
@@ -103,6 +107,7 @@ export function replyToSanaText(text: string, earlier: readonly SanaAdaptiveTurn
       : topic;
   const previousSameTopic = earlier.filter((turn) => turn.topic === contextualTopic).length;
   const choices: Record<SanaTopic, string[]> = {
+    correction: ["ごめん、決めつけちゃった。どの部分が違った？あなたの言葉で聞かせて。"],
     "phone-lost": [
       "えっ、みーたんのスマホがなくなったの？……ちょっと待って。今このトークに返事してるのは誰？",
       "スマホをなくしたって……今話してるの、みーたん本人じゃないの？",
@@ -212,7 +217,7 @@ export function replyToSanaText(text: string, earlier: readonly SanaAdaptiveTurn
   };
   // Once the phone has been disclosed as missing, Sana no longer assumes the
   // sender is Mina. Do not identify A from a vague pronoun or a typing style.
-  const phoneFollowup = discussingPhone && !phoneContextTopics.includes(contextualTopic)
+  const phoneFollowup = discussingPhone && contextualTopic !== "correction" && !phoneContextTopics.includes(contextualTopic)
     ? contextualTopic === "short"
       ? "……ごめん、びっくりして。これ、みーたん本人からの返事じゃないってこと？"
       : contextualTopic === "question"
@@ -246,13 +251,17 @@ export function parseSanaAdaptiveTurns(raw: readonly string[]): SanaAdaptiveTurn
       // Earlier versions saved a generic reply to "Sana, she lost her phone".
       // Recover only the newly recognized lost-phone disclosure, preserving
       // the player's exact words and all unrelated old conversations.
-      const newlyRecognized = phoneContextTopics.includes(topic) &&
-        !phoneContextTopics.includes(turn.topic as SanaTopic);
+      const newlyRecognized = (phoneContextTopics.includes(topic) &&
+        !phoneContextTopics.includes(turn.topic as SanaTopic)) ||
+        (topic === "correction" && turn.topic !== "correction") ||
+        (parsed.some((earlier) => phoneContextTopics.includes(earlier.topic)) &&
+          !phoneContextTopics.includes(topic) && topic !== "correction");
       const contextual = newlyRecognized ? replyToSanaText(turn.text, parsed) : null;
       parsed.push({
         text: turn.text,
         replies: contextual?.replies ?? [...turn.replies] as string[],
         topic: contextual?.topic ?? topic,
+        ...(typeof turn.beforePrompt === "boolean" ? { beforePrompt: turn.beforePrompt } : {}),
       });
     } catch { /* Ignore corrupt local playthrough entries. */ }
   }

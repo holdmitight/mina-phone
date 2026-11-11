@@ -34,7 +34,7 @@ export const minaSanaChoices: readonly {
   },
 ] as const;
 
-export type SanaStage = "" | "awake" | SanaBranch;
+export type SanaStage = "" | "awake" | "direct" | SanaBranch;
 export type SanaAttempt = { phase: "" | "awake"; text: string };
 
 /**
@@ -65,6 +65,7 @@ export function matchSanaFreeText(text: string, stage: SanaStage): "awake" | San
       : null;
   }
   if (stage !== "awake") return null;
+  if (/^(?:なんでもない|何でもない)/u.test(value)) return "deny";
   // A remembered person or the past is more specific than generic denials
   // and can coexist with "nothing much"/"why" in an otherwise natural message.
   if (/(?:昔|思い出|思いだ|思い返|過去|懐かし|あの頃|以前|前のこと|昔の人|あの人のこと|想起|想起来|想到了|想她|想他|回忆|过去|以前|从前|当年|那个人|十年前|旧事|有点怀念|以前的事|以前的人|oldtimes|olddays|backthen|past|remembered|remembering|memories|nostalg|옛날|예전|추억|과거|생각났|생각나)/u.test(value))
@@ -169,8 +170,8 @@ function timeAfter(pingTime: string, minutes: number): string {
   const normalized = pingTime.replace(" ", "T");
   const date = new Date(normalized.endsWith("Z") ? normalized : normalized + "Z");
   if (Number.isNaN(date.getTime())) return pingTime;
-  date.setUTCMinutes(date.getUTCMinutes() + minutes);
-  return date.toISOString().slice(0, 16).replace("T", " ");
+  date.setUTCSeconds(date.getUTCSeconds() + minutes);
+  return date.toISOString().slice(0, 19).replace("T", " ");
 }
 
 function line(
@@ -229,17 +230,21 @@ export function minaSanaInteractiveMessages(
     ],
     "initial",
   );
-  if (stage !== "awake" && !isSanaBranch(stage)) return beginning;
+  if (stage !== "direct" && stage !== "awake" && !isSanaBranch(stage)) return beginning;
   // A stranger who opens with "I'm not Mina" must receive a direct
   // response, not the four scripted messages addressed to Mina.
-  if (visitorMode) {
+  if (visitorMode || stage === "direct") {
     const messages = [...beginning];
     let minute = 2 + 2 * startAttempts.length;
+    let before = -adaptiveTurns.filter((turn) => turn.beforePrompt).reduce((sum, turn) => sum + 1 + turn.replies.length, 0);
     adaptiveTurns.forEach((turn, index) => {
-      messages.push(line(ping, "visitor-" + index + "-input", turn.text, minute++, true));
+      let offset = turn.beforePrompt ? before : minute;
+      messages.push(line(ping, "visitor-" + index + "-input", turn.text, offset++, true));
       turn.replies.forEach((reply, replyIndex) => {
-        messages.push(line(ping, "visitor-" + index + "-reply-" + replyIndex, reply, minute++, false));
+        messages.push(line(ping, "visitor-" + index + "-reply-" + replyIndex, reply, offset++, false));
       });
+      if (turn.beforePrompt) before = offset;
+      else minute = offset;
     });
     return messages;
   }

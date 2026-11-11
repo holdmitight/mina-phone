@@ -106,12 +106,12 @@ describe("free-text Sana KakaoTalk replies", () => {
     expect(matchSanaFreeText(typed, stage as SanaStage)).toBeNull();
   });
 
-  it("does not send dynamic story responses before the cafe clues unlock Sana's message", () => {
+  it("keeps the story intro locked but allows early free-text conversation", () => {
     expect(hasSanaStoryPrompt(existing)).toBe(false);
     expect(minaSanaInteractiveMessages(undefined, "awake")).toEqual([]);
     const html = renderToStaticMarkup(createElement(MymyKakao, props("", existing)));
     expect(html).not.toContain("kz-story-reply-bar");
-    expect(html).not.toContain("自由に返信を入力");
+    expect(html).toContain("自由に返信を入力");
   });
 
   it("shows the enabled normal chat composer rather than quick reply buttons", () => {
@@ -152,7 +152,7 @@ describe("free-text Sana KakaoTalk replies", () => {
     expect(html).toContain(expected);
     expect(html).not.toContain(other);
     expect(html).not.toContain("kz-story-reply-bar");
-    expect(html).not.toContain("自由に返信を入力");
+    expect(html).toContain("自由に返信を入力");
   });
 
   it("saves unrecognized messages and displays Sana's clarification instead of guessing", () => {
@@ -170,7 +170,7 @@ describe("free-text Sana KakaoTalk replies", () => {
     expect(story.map((line) => line.body)).toContain("お茶でも飲もうか");
     expect(story.map((line) => line.body)).toContain("このゲーム面白い");
     expect(story.map((line) => line.body)).toContain("ん？まだ起きてる？笑");
-    expect(story.map((line) => line.body)).toContain("え、どういうこと？笑 もう少し教えて〜");
+    expect(story.map((line) => line.body)).toContain("うん、聞いてるよ。もう少し詳しく教えてくれる？");
     expect(story.map((line) => line.time)).toEqual([...story.map((line) => line.time)].sort());
   });
 

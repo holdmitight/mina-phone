@@ -120,21 +120,26 @@ export function MymyKakao(p: SkinProps) {
     sanaReplyText,
     parseSanaAttempts(sanaAttempts),
   );
-  const adaptiveTurns = parseSanaAdaptiveTurns(sanaChatTurns);
+  const legacyIdentity = classifySanaTopic(recoveredSana.awakeText) === "phone-not-mina";
+  const adaptiveTurns = parseSanaAdaptiveTurns([
+    ...(legacyIdentity ? [JSON.stringify(replyToSanaText(recoveredSana.awakeText, []))] : []),
+    ...sanaChatTurns,
+  ]);
   const legacyFollowAttempts = recoveredSana.attempts.filter((attempt) => attempt.phase === "awake");
   const migratedTurns = legacyFollowAttempts.map((attempt) => replyToSanaText(attempt.text, []));
   const jeongyeonTurns = parseJeongyeonTurns(jeongyeonChatTurns);
-  const jeongyeonStoryItems = minaJeongyeonInteractiveMessages(jeongyeonTurns);
+  const giftPing = p.items.find((item) => item.id === "mina-story-jeongyeon-gift-ping");
+  const jeongyeonStoryItems = minaJeongyeonInteractiveMessages(jeongyeonTurns, giftPing);
   const sanaStoryItems = minaSanaInteractiveMessages(
-    sanaPing,
-    recoveredSana.stage,
+    sanaPing ?? (isMinaStory ? makeItem({ id: "sana-session", title: "Sana", time: "2025-11-09 " + (p.virtualTime || "21:09") }) : undefined),
+    legacyIdentity ? "direct" : recoveredSana.stage,
     recoveredSana.awakeText,
     recoveredSana.replyText,
     recoveredSana.attempts,
     adaptiveTurns,
   );
   const sanaReplyPending =
-    !p.creator && p.thread === "Sana" && !!sanaPing;
+    !p.creator && isMinaStory && p.thread === "Sana";
   const sourceItems = isMinaStory
     ? [...p.items, ...minaKakao2025Items, ...sanaStoryItems, ...jeongyeonStoryItems]
     : p.items;
@@ -196,6 +201,27 @@ export function MymyKakao(p: SkinProps) {
     const node = scroll.current;
     if (node) node.scrollTop = node.scrollHeight;
   }, [p.thread, messages.length]);
+  // Earlier builds saved pre-prompt Sana messages as outgoing-only archive
+  // text. Recover those exact inputs into the same contextual conversation.
+  useEffect(() => {
+    if (!isMinaStory || p.creator) return;
+    const legacy: { raw: string; text: string }[] = [];
+    for (const raw of sent) {
+      try {
+        const entry: unknown = JSON.parse(raw);
+        if (Array.isArray(entry) && entry[0] === "Sana" && typeof entry[1] === "string" && entry[1].trim())
+          legacy.push({ raw, text: entry[1] });
+      } catch { /* Ignore malformed local entries. */ }
+    }
+    if (!legacy.length) return;
+    const turns: ReturnType<typeof replyToSanaText>[] = [];
+    for (const entry of legacy)
+      turns.push({ ...replyToSanaText(entry.text, turns), beforePrompt: true });
+    setSanaChatTurns([...turns.map((turn) => JSON.stringify(turn)), ...sanaChatTurns].slice(-30));
+    setSanaStage("direct");
+    const recovered = new Set(legacy.map((entry) => entry.raw));
+    setSent(sent.filter((raw) => !recovered.has(raw)));
+  }, [isMinaStory, p.creator, sent.join("|体|")]);
   // Repair older saves stuck on a valid first message such as 「まだです」.
   // Keep the exact typed text and persist the recovered stage for reloading.
   useEffect(() => {
@@ -312,7 +338,7 @@ export function MymyKakao(p: SkinProps) {
                     <span className="kzt">
                       {m.meta.unread || ""}
                       <br />
-                      {m.time.slice(-5)}
+                      {m.time.includes(" ") ? m.time.slice(11, 16) : m.time.slice(0, 5)}
                     </span>
                   )}
                   <button
@@ -327,7 +353,7 @@ export function MymyKakao(p: SkinProps) {
                     )}
                   </button>
                   {!m.outgoing && run.last && (
-                    <span className="kzt">{m.time.slice(-5)}</span>
+                    <span className="kzt">{m.time.includes(" ") ? m.time.slice(11, 16) : m.time.slice(0, 5)}</span>
                   )}
                   </div>
                 </Fragment>
@@ -335,6 +361,13 @@ export function MymyKakao(p: SkinProps) {
             })}
             {!messages.length && <Blank />}
           </div>
+          {isMinaStory && !p.creator && ["Sana", "Jeongyeon"].includes(p.thread) && (
+            <div className="kakao-reply-suggestions" aria-label="接话建议">
+              {["我不是米娜，我捡到了她的手机", "你理解错了", "我想把手机还给她"].map((text) => (
+                <button key={text} type="button" onClick={() => setDraft(text)}>{text}</button>
+              ))}
+            </div>
+          )}
           <form
             className="kzinp"
             onSubmit={(e) => {
@@ -347,29 +380,26 @@ export function MymyKakao(p: SkinProps) {
                 // message. Never answer a stranger with Mina's scripted intro.
                 if (stage === "") {
                   const topic = classifySanaTopic(text);
-                  if (["phone-lost", "phone-found", "phone-not-mina", "phone-return", "identity-evasive"].includes(topic)) {
-                    const turn = replyToSanaText(text, []);
-                    setSanaChatTurns((old) => [...old, JSON.stringify(turn)].slice(-30));
-                    setSanaStage("awake");
-                  } else if (topic === "sleep") {
-                    setSanaAttempts((old) => [
-                      ...old, JSON.stringify(["", text]),
-                    ].slice(-12));
-                  } else {
+                  const acknowledgment = /^(?:没有[，,\s]*)?(?:还没(?:有|呢|睡)?|嗯+|うん|まだ(?:です|だよ)?|not yet|yes|en|nono)[。！!\s]*$/iu.test(text);
+                  if (sanaPing && acknowledgment && !["phone-not-mina", "correction"].includes(topic)) {
                     setSanaAwakeText(text);
                     setSanaStage("awake");
+                  } else {
+                    const turn = { ...replyToSanaText(text, []), beforePrompt: !sanaPing };
+                    setSanaChatTurns((old) => [...old, JSON.stringify(turn)].slice(-30));
+                    setSanaStage("direct");
                   }
                 } else {
-                  const nextTurn = replyToSanaText(text, [...migratedTurns, ...adaptiveTurns]);
+                  const nextTurn = { ...replyToSanaText(text, [...migratedTurns, ...adaptiveTurns]), beforePrompt: !sanaPing };
                   const nextTurns = [...adaptiveTurns, nextTurn];
                   setSanaChatTurns((old) => [...old, JSON.stringify(nextTurn)].slice(-30));
-                  if (sanaConversationCanContinueStory([...migratedTurns, ...nextTurns]))
+                  if (sanaPing && sanaConversationCanContinueStory([...migratedTurns, ...nextTurns]))
                     p.onClue?.(minaClueKeys.sanaFinished);
                 }
               } else if (isMinaStory && !p.creator && p.thread === "Jeongyeon") {
                 // Unlike other read-only archives, Jeongyeon responds to the
                 // player's typed messages and remembers the lost-phone context.
-                const turn = replyToJeongyeonText(text, jeongyeonTurns);
+                const turn = { ...replyToJeongyeonText(text, jeongyeonTurns), afterGift: Boolean(giftPing) };
                 setJeongyeonChatTurns((old) => [...old, JSON.stringify(turn)].slice(-30));
               } else {
                 setSent([
@@ -501,7 +531,7 @@ export function MymyKakao(p: SkinProps) {
                       )}
                     </span>
                     <span className="kzkmt">
-                      {last.time.slice(-5)}
+                      {last.time.includes(" ") ? last.time.slice(11, 16) : last.time.slice(0, 5)}
                       {unreadCount > 0 && (
                         <i className="kzkbd" aria-label={unreadCount + "件未読"}>
                           {unreadCount > 99 ? "99+" : unreadCount}
