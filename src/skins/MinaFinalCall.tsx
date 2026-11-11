@@ -38,7 +38,7 @@ export function playMinaFinalLine(
     }
     // Refresh the edited self-introduction immediately on iPhone Safari.
     const audio = new Audio(import.meta.env.BASE_URL + "mina-voice/" + file +
-      (id === 0 ? "?v=watashi-dayo-20261111" : ""));
+      (id === 0 ? "?v=intro-d866c7a4" : ""));
     activeVoiceAudio = audio;
     let fellBack = false;
     const fallback = () => {
