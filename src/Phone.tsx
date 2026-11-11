@@ -107,8 +107,8 @@ export function AppIcon({
 }
 type PhoneProps = Omit<Parameters<typeof PhoneRuntime>[0], "deviceLayout">;
 export function Phone(props: PhoneProps) {
-  // Present the established 2015–2025 fiction without rewriting the user's
-  // editable story JSON or resetting a saved playthrough.
+  // Keep Mina's authored fiction intact. Standalone playthroughs intentionally
+  // restart whenever the player reloads; authoring data is not affected.
   const narrativeWork = useMemo(
     () => props.creator ? props.work : normalizeMinaStoryWork(props.work),
     [props.work, props.creator],
@@ -179,9 +179,15 @@ function PhoneRuntime({
   const [panel, setPanel] = useState("");
   const normalizeStorySave = (value: Runtime) =>
     !creator && isMinaStoryWork(work) ? normalizeMinaStoryRuntime(value) : value;
-  const [own, setOwn] = useState(() => normalizeStorySave(initialRuntime(work)));
-  const [ready, setReady] = useState(creator || !!external);
-  const [loadError, setLoadError] = useState("");
+  // Standalone players are ephemeral: start from the opening event on every
+  // page load. No stored chat messages, clues, call states or endings survive.
+  // The Studio's externally controlled runtime and creator preview are intact.
+  const [own, setOwn] = useState(() =>
+    normalizeStorySave(creator || external
+      ? initialRuntime(work)
+      : dispatch(work, initialRuntime(work), "start")),
+  );
+  const ready = true;
   useEffect(() => {
     const el = shell.current;
     if (!el) return;
@@ -216,35 +222,13 @@ function PhoneRuntime({
     onRuntime?.(normalized);
   };
   useEffect(() => {
-    let active = true;
+    // Remove old per-story saves previously written by this game. We do not
+    // read or write saves for player sessions anymore.
     if (creator || external) return;
-    void db.saves
-      .get(work.id)
-      .then((saved) => {
-        if (!active) return;
-        if (saved && saved.state.revision === work.updatedAt)
-          setOwn(normalizeStorySave(saved.state));
-        else {
-          setOwn(normalizeStorySave(dispatch(work, initialRuntime(work), "start")));
-          if (saved) setLoadError("作品が更新されたため、新しく開始しました。");
-        }
-        setReady(true);
-      })
-      .catch(() => {
-        setOwn(normalizeStorySave(dispatch(work, initialRuntime(work), "start")));
-        setLoadError("保存データを読み込めませんでした。このまま遊べます。");
-        setReady(true);
-      });
-    return () => {
-      active = false;
-    };
-  }, [work.id, work.updatedAt, creator, external]);
-  useEffect(() => {
-    if (!creator && !external && ready)
-      void db.saves
-        .put({ id: work.id, state: own })
-        .catch(() => setLoadError("保存できませんでした。ブラウザの保存設定を確認してください。"));
-  }, [own, creator, work.id, external, ready]);
+    void db.saves.delete(work.id).catch(() => {
+      // Private browsing may disable IndexedDB. This must never block play.
+    });
+  }, [work.id, creator, external]);
   useEffect(() => {
     if (creator || !ready) return;
     const interval = setInterval(() => {
@@ -375,7 +359,6 @@ function PhoneRuntime({
         (_, i) => i !== index,
       ),
     });
-  if (!ready) return <div className="phone-loading">保存データを読み込み中…</div>;
   return (
     <div
       ref={shell}
@@ -913,11 +896,6 @@ function PhoneRuntime({
             </div>
           )}
           {keyboard && <DeviceKeyboard close={() => setKeyboard(false)} />}
-          {loadError && (
-            <button className="runtime-error" onClick={() => setLoadError("")}>
-              {loadError}
-            </button>
-          )}
           <button
             className="home-indicator"
             aria-label="ホーム画面に戻る"

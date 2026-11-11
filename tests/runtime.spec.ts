@@ -90,7 +90,7 @@ for (const [choice, ending] of [
   ["留在失物招领", "等待：你留下联系方式，等主人取回手机。"],
 ])
   test(
-    "example puzzle, call, ending and persisted save: " + choice,
+    "example puzzle and ending reset after refresh: " + choice,
     async ({ page }) => {
       await page.goto("/");
       await page.getByRole("button", { name: "轻触解锁" }).click();
@@ -141,10 +141,15 @@ for (const [choice, ending] of [
       await page
         .locator(".phone-screen")
         .screenshot({ path: `outputs/v0.6/ending-${choice}.png` });
+      // A browser refresh is a new game, not a resume from a saved ending.
       await page.reload();
       await expect(page.locator(".lock-clock-block")).toContainText("10月24日");
       await page.getByRole("button", { name: "轻触解锁" }).click();
-      await expect(page.getByText(ending, { exact: true })).toBeVisible();
+      await expect(page.getByText(ending, { exact: true })).toHaveCount(0);
+      await open(page, "相册");
+      await expect(
+        page.getByRole("button", { name: "查看藏起来的照片" }),
+      ).toHaveCount(0);
     },
   );
 test("mobile viewport, no overflow", async ({ page }) => {
