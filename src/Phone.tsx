@@ -705,7 +705,7 @@ function PhoneRuntime({
                               ...runtime.ui,
                               minaFinalCall: {
                                 ...runtime.ui?.minaFinalCall,
-                                step: Math.min(currentStep + 1, 7),
+                                step: Math.min(currentStep + 1, minaFinalCallLines.length - 1),
                               },
                             },
                           });
@@ -721,7 +721,7 @@ function PhoneRuntime({
                               ...runtime.ui,
                               minaFinalCall: {
                                 ...runtime.ui?.minaFinalCall,
-                                step: 8,
+                                step: minaFinalCallLines.length,
                                 answer: choice,
                                 response: outcome.ja,
                               },

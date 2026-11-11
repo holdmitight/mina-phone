@@ -10,18 +10,19 @@ describe("the final fictional phone call from Mina", () => {
       onAdvance: vi.fn(),
       onChoose: vi.fn(),
     }));
-    expect(html).toContain("もしもし");
+    expect(html).toContain("びっくりさせてごめん");
+    expect(html).not.toContain("もしもし");
     expect(html).toContain("続きを聞く");
     expect(html).not.toContain("レゴの指輪");
     expect(html).not.toContain("偶然じゃない");
-    expect(minaFinalCallLines).toHaveLength(8);
+    expect(minaFinalCallLines).toHaveLength(7);
   });
 
   it("makes it clear Mina borrowed Jeongyeon's phone to reach A without identifying A early", () => {
-    expect(minaFinalCallLines[1].ja).toContain("定延のスマホを借りてる");
-    expect(minaFinalCallLines[3].ja).toContain("レゴの指輪");
-    expect(minaFinalCallLines[5].ja).toContain("偶然じゃない");
-    expect(minaFinalCallLines[4].ja).toContain("自分の手");
+    expect(minaFinalCallLines[0].ja).toContain("ジョンヨンのスマホを借りてる");
+    expect(minaFinalCallLines[2].ja).toContain("レゴの指輪");
+    expect(minaFinalCallLines[4].ja).toContain("偶然じゃない");
+    expect(minaFinalCallLines[3].ja).toContain("自分の手");
   });
 
   it("lets the player hear the full question before choosing what to say", () => {
@@ -63,13 +64,13 @@ describe("the final fictional phone call from Mina", () => {
     vi.stubGlobal("SpeechSynthesisUtterance", TestUtterance);
     try {
       expect(canSpeakMinaFinalCall()).toBe(true);
-      expect(speakMinaFinalLine("……もしもし。")).toBe(true);
+      expect(speakMinaFinalLine("びっくりさせてごめん。")).toBe(true);
       expect(cancel).not.toHaveBeenCalled(); // iOS Safari can drop speak() after an immediate cancel().
       expect(speak).toHaveBeenCalledTimes(1);
       expect(speakMinaFinalLine("何回も作り直したの。")).toBe(true);
       expect(cancel).not.toHaveBeenCalled();
       expect(speak).toHaveBeenCalledTimes(2);
-      expect((spoken[0] as TestUtterance).text).toBe("……もしもし。");
+      expect((spoken[0] as TestUtterance).text).toBe("びっくりさせてごめん。");
       expect((spoken[0] as TestUtterance).lang).toBe("ja-JP");
       expect((spoken[0] as TestUtterance).voice).toEqual({ name: "Kyoko", lang: "ja-JP" });
       const html = renderToStaticMarkup(createElement(MinaFinalCallScript, {
@@ -80,7 +81,7 @@ describe("the final fictional phone call from Mina", () => {
       expect(html).toContain("もう一度聴く");
       expect(html).toContain("重听这句话");
       expect(hasMinaRecordedVoice("unavailable-voice-id")).toBe(false);
-      expect(playMinaFinalLine("unavailable-voice-id", "……もしもし。")).toBe(true);
+      expect(playMinaFinalLine("unavailable-voice-id", "びっくりさせてごめん。")).toBe(true);
       expect(speak).toHaveBeenCalledTimes(3);
       stopMinaFinalSpeech();
       expect(cancel).toHaveBeenCalledTimes(1);

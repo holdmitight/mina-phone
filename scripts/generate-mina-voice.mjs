@@ -9,8 +9,8 @@ import path from "node:path";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const source = await readFile(path.join(root, "src/skins/MinaFinalCall.tsx"), "utf8");
 const lines = [...source.matchAll(/\{\s*ja:\s*"([^"]+)"\s*,\s*zh:/gu)]
-  .slice(0, 8).map((match) => match[1]);
-if (lines.length !== 8) throw Error("Could not find all 8 final-call lines.");
+  .slice(0, 7).map((match) => match[1]);
+if (lines.length !== 7) throw Error("Could not find all 7 final-call lines.");
 
 const outcomes = {};
 for (const choice of ["meet", "time", "silence"]) {
