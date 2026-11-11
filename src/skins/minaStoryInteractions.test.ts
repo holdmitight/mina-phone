@@ -50,7 +50,7 @@ describe("Mina cross-app discoveries", () => {
         (item) => item.id === "mina-story-cafe-sana-ping",
       )).toBe(true);
       expect(state.notifications).toContain(
-        "KakaoTalk: Sana：みーたん、まだ起きてる？",
+        "KakaoTalk: Sana：みーたん、もう休憩に入った？",
       );
     }
   });
@@ -72,12 +72,12 @@ describe("Mina cross-app discoveries", () => {
     const chatFirst = discoverMinaClue(discoverMinaClue(start, clues.jeongyeonTalk), clues.cafeVisit);
     for (const result of [mapFirst, chatFirst]) {
       expect(result.clues).toContain(clues.cafeResolved);
-      expect(result.notifications).toContain("KakaoTalk: Sana：みーたん、まだ起きてる？");
+      expect(result.notifications).toContain("KakaoTalk: Sana：みーたん、もう休憩に入った？");
       expect(result.messages.kakao).toHaveLength(1);
       expect(result.messages.kakao[0]).toMatchObject({
         id: "mina-story-cafe-sana-ping",
         title: "Sana",
-        body: "みーたん、まだ起きてる？",
+        body: "みーたん、もう休憩に入った？",
         outgoing: false,
       });
       expect(
@@ -571,4 +571,21 @@ describe("Mina cross-app discoveries", () => {
     expect(copied.messages.notes[0].body).toContain("雨が強い。");
     expect(discoverMinaClue(state, "other-app:unknown")).toBe(state);
   });
+});
+
+it("delivers afternoon messages once across skipped, repeated and out-of-order clues", async () => {
+  const { advanceMinaAfternoon } = await import("./minaAfternoon");
+  const { orderKakaoMessages, unreadKakaoMessages, markKakaoThreadRead } = await import("../vendor/mymy/kakaoUnread");
+  const start = advanceMinaAfternoon(initialRuntime(fixture));
+  expect(start.time).toBe("15:47");
+  const letter = advanceMinaAfternoon({ ...start, read: ["note-draft"] });
+  expect(letter.time).toBe("17:05");
+  const messages = orderKakaoMessages(letter.messages.kakao);
+  expect(messages.map(item => item.time.slice(-5))).toEqual(["15:58", "16:46", "17:05"]);
+  expect(unreadKakaoMessages(messages, [])).toHaveLength(3);
+  expect(unreadKakaoMessages(messages, markKakaoThreadRead([], [messages[0]]))).toHaveLength(2);
+  const later = advanceMinaAfternoon({ ...letter, clues: [clues.cafeVisit] });
+  expect(later.time).toBe("17:05");
+  expect(later.notifications).toEqual(letter.notifications);
+  expect(advanceMinaAfternoon({ ...later, clues: [clues.finalCallOffered] }).time).toBe("17:16");
 });

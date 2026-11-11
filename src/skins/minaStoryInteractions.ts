@@ -1,3 +1,4 @@
+import { afternoonTime, afternoonStart } from "./minaAfternoon";
 import { makeItem, type Runtime, type Work } from "../schema";
 import { minaUnsentLetter } from "./minaUnsentArchive";
 import { isSanaBranch, parseSanaAttempts, recoverSanaAttemptHistory } from "../vendor/mymy/mina-sana-replies";
@@ -50,7 +51,9 @@ export function normalizeMinaStoryWork(work: Work): Work {
       app,
       items.map((item) => ({
         ...item,
-        time: item.time.replace(/^2026-11-/u, "2025-11-"),
+        time: app === "notes" && item.time === "2026-11-09 21:09" ? "2025-11-09 " + afternoonStart :
+          app === "kakao" && item.time.startsWith("2026-11-09 ") && item.time.slice(11) > afternoonStart
+            ? item.time.replace("2026-11-09", "2025-11-08") : item.time.replace(/^2026-11-/u, "2025-11-"),
       })),
     ]),
   );
@@ -58,6 +61,7 @@ export function normalizeMinaStoryWork(work: Work): Work {
     ...work,
     phone: {
       ...work.phone,
+      time: afternoonStart,
       date: work.phone.date?.replace(/^2026-11-/u, "2025-11-") ?? "2025-11-09",
     },
     data,
@@ -135,7 +139,7 @@ function minaChatArrivals(runtime: Runtime) {
     ? sanaTurns.some((turn) => /^(phone-|identity-evasive)/u.test(turn.topic))
       ? "さっきの話、ちゃんと読んだよ。今このスマホを持っている人と話してるんだね。返す方法、一緒に考えよう。"
       : "さっきの話の続き、聞いてもいい？無理に話さなくても大丈夫だよ。"
-    : "みーたん、まだ起きてる？";
+    : "みーたん、もう休憩に入った？";
   const giftArrival = jeongyeonTurns.length
     ? { body: "아, 그리고 미나가 전에 직접 만들던 작은 게 있었어요. 그 일도 확인하고 싶으니, 연락이 닿으면 저한테 연락해 달라고 전해 주세요.", zh: "对了，米娜之前一直在亲手做一件小东西。那件事我也想确认一下；如果联系上她，请转告她联系我。" }
     : { body: "야, 그거 이번엔 성공했어?ㅋㅋ", zh: "喂，这次那个终于做成功了吗？哈哈" };
@@ -344,7 +348,7 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
     }
     if (!(messages.kakao ?? []).some((m) => m.id === "mina-story-cafe-sana-ping")) {
       const currentDate = (runtime.date || "2025-11-09").replace(/^2026-11-/u, "2025-11-");
-      const currentTime = runtime.time || "21:09";
+      const currentTime = [String(runtime.ui?.minaAfternoon?.time || afternoonStart), afternoonTime({ ...runtime, clues })].sort().at(-1)!;
       const ping = makeItem({
         id: "mina-story-cafe-sana-ping",
         title: "Sana",
@@ -461,7 +465,7 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
       ["02", "名井南", "응…… 생각보다 어려워.", "2025-11-07 22:12"],
       ["03", "Jeongyeon", "그냥 다른 거 사서 주면 안 돼?", "2025-11-07 22:13"],
       ["04", "名井南", "안 돼. 내가 직접 만들어 주고 싶어.", "2025-11-07 22:15"],
-      ["05", "Jeongyeon", "ㅋㅋ 알았어. 이번엔 꼭 전해 줘.", "2025-11-07 22:16"],
+      ["05", "Jeongyeon", "ㅋㅋ 알았어. 이번엔 꼭 전해 줘.", "2025-11-07 17:16"],
     ] as const;
     const current = messages.kakao ?? [];
     const additions = oldGiftTalk.filter(([id]) => !current.some((item) => item.id === "mina-story-gift-archive-" + id))
@@ -482,7 +486,7 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
         title: "Jeongyeon",
         sender: "Jeongyeon",
         body: giftArrival.body,
-        time: `${(runtime.date || "2025-11-09").replace(/^2026-11-/u, "2025-11-")} ${runtime.time || "21:09"}`,
+        time: `${(runtime.date || "2025-11-09").replace(/^2026-11-/u, "2025-11-")} ${[String(runtime.ui?.minaAfternoon?.time || afternoonStart), afternoonTime({ ...runtime, clues })].sort().at(-1)!}`,
         outgoing: false,
         read: false,
         folder: "聊天",

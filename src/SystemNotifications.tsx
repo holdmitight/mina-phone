@@ -27,12 +27,14 @@ export function notificationContent(text: string, apps: Work["apps"]) {
 }
 export function SystemNotifications({
   notices,
+  noticeTimes,
   apps,
   onOpen,
   onDismiss,
   compact = false,
 }: {
   notices: string[];
+  noticeTimes?: Record<string, unknown>;
   apps: Work["apps"];
   onOpen: (index: number) => void;
   onDismiss: (index: number) => void;
@@ -73,7 +75,7 @@ export function SystemNotifications({
                   <strong>{n.title}</strong>
                   <span>{n.body}</span>
                 </span>
-                <time>今</time>
+                <time>{typeof noticeTimes?.[text] === "string" ? String(noticeTimes[text]) : "今"}</time>
               </button>
               {!compact && (
                 <button

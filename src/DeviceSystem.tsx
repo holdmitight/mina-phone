@@ -62,6 +62,7 @@ export function DeviceLock({
   work,
   time,
   notices,
+  noticeTimes,
   onDismiss,
   pinOpen,
   setPinOpen,
@@ -73,6 +74,7 @@ export function DeviceLock({
   work: Work;
   time: string;
   notices: string[];
+  noticeTimes?: Record<string, unknown>;
   onDismiss: (index: number) => void;
   pinOpen: boolean;
   setPinOpen: (v: boolean) => void;
@@ -127,6 +129,7 @@ export function DeviceLock({
           <div className="lock-notifications">
             {work.phone.notifications && (
               <SystemNotifications
+                noticeTimes={noticeTimes}
                 compact
                 notices={notices}
                 apps={work.apps}
@@ -232,10 +235,12 @@ export function DeviceLock({
 }
 export function ControlCenter({
   battery = 94,
+  onLock,
   network,
   close,
 }: {
   battery?: number;
+  onLock?: () => void;
   network: string;
   close: () => void;
 }) {
@@ -284,6 +289,7 @@ export function ControlCenter({
         </span>
       </div>
       <nav className="cc-page-rail" aria-label="コントロールのカテゴリ">
+        {onLock && <button aria-label="画面をロック" onClick={onLock}><Lock size={18} /></button>}
         {[Heart, Music2, House, Radio].map((Icon, i) => (
           <button
             key={i}

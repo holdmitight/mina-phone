@@ -26,6 +26,7 @@ import {
 import { AppArtwork, hasNativeArtwork } from "./AppArtwork";
 import { getFields } from "./fields";
 import { catalogSkins } from "./skins/catalog";
+import { advanceMinaAfternoon } from "./skins/minaAfternoon";
 import { dialMinaFinalCall, discoverMinaClue, isMinaFinalCallComplete, isMinaFinalCallReady, isMinaStoryWork, normalizeMinaStoryWork, normalizeMinaStoryRuntime, minaClueKeys } from "./skins/minaStoryInteractions";
 import { MinaFinalCallScript, minaFinalCallLines, minaFinalCallOutcomes, minaFinalMissedCallNotice, playMinaFinalLine, stopMinaFinalSpeech, type MinaFinalCallChoice } from "./skins/MinaFinalCall";
 import "./skins/minaFinalCall.css";
@@ -178,7 +179,7 @@ function PhoneRuntime({
   const [folder, setFolder] = useState("");
   const [panel, setPanel] = useState("");
   const normalizeStorySave = (value: Runtime) =>
-    !creator && isMinaStoryWork(work) ? normalizeMinaStoryRuntime(value) : value;
+    !creator && isMinaStoryWork(work) ? advanceMinaAfternoon(normalizeMinaStoryRuntime(value)) : value;
   // Standalone players are ephemeral: start from the opening event on every
   // page load. No stored chat messages, clues, call states or endings survive.
   // The Studio's externally controlled runtime and creator preview are intact.
@@ -328,11 +329,9 @@ function PhoneRuntime({
     const target = notificationContent(notice, work.apps).appId;
     if (work.apps.some((a) => a.id === target && a.installed)) {
       if (target === "kakao") {
-        const thread = notice.includes("Sana：")
-          ? "Sana"
-          : notice.includes("Jeongyeon：")
-            ? "Jeongyeon"
-            : null;
+        const thread = runtimeRef.current.messages.kakao?.find(item =>
+          notice === "KakaoTalk: " + item.title + "：" + item.body)?.title ??
+          (notice.includes("Sana：") ? "Sana" : notice.includes("Jeongyeon：") ? "Jeongyeon" : null);
         if (thread) setNoticeThread((previous) => ({
           appId: target,
           thread,
@@ -492,6 +491,7 @@ function PhoneRuntime({
                     : work
                 }
                 time={displayTime}
+                noticeTimes={s.ui?.minaNoticeTimes}
                 notices={s.notifications}
                 onDismiss={dismissNotice}
                 pinOpen={pinOpen}
@@ -610,6 +610,9 @@ function PhoneRuntime({
           {panel === "control" && (
             <ControlCenter
               battery={work.phone.battery}
+              onLock={!creator && !locked && !s.incomingCall ? () => {
+                setPanel(""); setPinOpen(false); setKeyboard(false); setQuickCamera(false); setLocked(true);
+              } : undefined}
               network={work.phone.network}
               close={() => setPanel("")}
             />
@@ -626,6 +629,7 @@ function PhoneRuntime({
                   <h2>通知センター</h2>
                   {work.phone.notifications && s.notifications.length ? (
                     <SystemNotifications
+                      noticeTimes={s.ui?.minaNoticeTimes}
                       notices={s.notifications}
                       apps={work.apps}
                       onOpen={(index) => {
@@ -685,7 +689,7 @@ function PhoneRuntime({
           {!creator && s.endings.length > 0 && !locked && (
             <div className="story-overlay ending">
               <span className="eyebrow">エンディング · {s.endings.length}</span>
-              <h2>今夜の物語は、ここまで。</h2>
+              <h2>今日の物語は、ここまで。</h2>
               <p>{s.endings[s.endings.length - 1]}</p>
               {s.ui?.minaFinalCall?.answer === "meet" && (
                 <img className="ending-ring-film" src={import.meta.env.BASE_URL + "mina-media/ring-reunion.gif"}

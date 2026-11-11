@@ -129,10 +129,10 @@ export function parseJeongyeonTurns(raw: readonly string[]): JeongyeonTurn[] {
   return out.slice(-30);
 }
 
-export function minaJeongyeonInteractiveMessages(turns: readonly JeongyeonTurn[], ping?: Item): Item[] {
+export function minaJeongyeonInteractiveMessages(turns: readonly JeongyeonTurn[], ping?: Item, sessionTime = "21:09"): Item[] {
   // Persist which side of the later story arrival each turn belongs to.
   // Missing flags in old saves describe the pre-arrival conversation.
-  const start = Date.parse((ping?.time || "2025-11-09 21:09").replace(" ", "T") + "Z");
+  const start = Date.parse((ping?.time || "2025-11-09 " + sessionTime).replace(" ", "T") + "Z");
   const before = turns.filter((turn) => !turn.afterGift).length;
   let pre = 0, post = 0;
   const time = (index: number) => new Date(start + index * 1000).toISOString().slice(0,19).replace("T"," ");

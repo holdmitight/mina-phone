@@ -145,7 +145,7 @@ export function MymyKakao(p: SkinProps) {
   const migratedTurns = legacyFollowAttempts.map((attempt) => replyToSanaText(attempt.text, []));
   const jeongyeonTurns = parseJeongyeonTurns(jeongyeonChatTurns);
   const giftPing = p.items.find((item) => item.id === "mina-story-jeongyeon-gift-ping");
-  const jeongyeonStoryItems = minaJeongyeonInteractiveMessages(jeongyeonTurns, giftPing);
+  const jeongyeonStoryItems = minaJeongyeonInteractiveMessages(jeongyeonTurns, giftPing, p.virtualTime);
   const sanaStoryItems = minaSanaInteractiveMessages(
     sanaPing ?? (isMinaStory ? makeItem({ id: "sana-session", title: "Sana", time: "2025-11-09 " + (p.virtualTime || "21:09") }) : undefined),
     legacyIdentity ? "direct" : recoveredSana.stage,
