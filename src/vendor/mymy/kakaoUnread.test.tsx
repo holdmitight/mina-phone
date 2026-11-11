@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { makeItem, type Item } from "../../schema";
 import type { SkinProps } from "../../AppSkins";
 import { MymyKakao } from "./Apps";
-import { markKakaoThreadRead, unreadKakaoMessages } from "./kakaoUnread";
+import { markKakaoThreadRead, orderKakaoMessages, unreadKakaoMessages } from "./kakaoUnread";
 
 const oldSana = makeItem({
   id: "kaka-sana-1",
@@ -117,6 +117,43 @@ describe("KakaoTalk unread incoming messages", () => {
     });
     expect(unreadKakaoMessages([oldSana, sanaPing, outgoing], [])).toHaveLength(0);
     expect(unreadKakaoMessages([oldSana], [])).toHaveLength(0);
+  });
+
+  it("keeps new Jeongyeon arrivals at the bottom despite later-dated authored messages", () => {
+    const lateOld = makeItem({
+      id: "old-jeongyeon-next-year",
+      title: "Jeongyeon",
+      sender: "Jeongyeon",
+      body: "過去のメッセージ",
+      time: "2026-11-10 22:14",
+      read: true,
+    });
+    const ordered = orderKakaoMessages([jeongyeonPing, lateOld, oldJeongyeon]);
+    expect(ordered.at(-1)?.id).toBe(jeongyeonPing.id);
+    expect(unreadKakaoMessages(ordered, [])).toHaveLength(1);
+    const html = renderToStaticMarkup(createElement(MymyKakao, phoneProps([
+      oldSana, lateOld, jeongyeonPing,
+    ])));
+    expect(html).toContain('aria-label="Jeongyeon 未読1件"');
+    expect(html).toContain("야, 그거 이번엔 성공했어?ㅋㅋ");
+    const seen = markKakaoThreadRead([], ordered);
+    expect(unreadKakaoMessages(ordered, seen)).toHaveLength(0);
+  });
+
+  it("shows an actionable Jeongyeon popup while Sana's chat is open and hides it after read", () => {
+    const pending = {
+      ...phoneProps([oldSana, oldJeongyeon, sanaPing, jeongyeonPing]),
+      thread: "Sana",
+    };
+    const html = renderToStaticMarkup(createElement(MymyKakao, pending));
+    expect(html).toContain('aria-label="Jeongyeonから新しいメッセージ"');
+    expect(html).toContain("kakao-story-popup-open");
+    expect(html).toContain("야, 그거 이번엔 성공했어?ㅋㅋ");
+    const read = renderToStaticMarkup(createElement(MymyKakao, {
+      ...pending,
+      ui: { mymyKktSeenIncoming: [jeongyeonPing.id] },
+    }));
+    expect(read).not.toContain('aria-label="Jeongyeonから新しいメッセージ"');
   });
 
   it("honors an authored unread marker but clears it after opening the chat", () => {
