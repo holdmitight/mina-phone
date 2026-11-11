@@ -218,3 +218,124 @@
 .mina-spotify .mina-spotify-mini-cover .mina-spotify-summer-art {
   width: 100%; height: 100%;
 }
+
+/* Spotify's licensed iframe owns all audio playback and native controls. */
+.mina-spotify-live-sheet {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  color: #f8f8f8;
+  background: #111;
+  overflow: hidden;
+}
+.mina-spotify-live-header {
+  padding: 16px 15px 12px;
+  min-height: 64px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid #2b2b2b;
+}
+.mina-spotify-live-header>div {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+.mina-spotify-live-header small { font-size: 10px; color: #1ed760; }
+.mina-spotify-live-header strong {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 15px;
+  font-weight: 700;
+}
+.mina-spotify-live-header>button {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  background: #282828;
+  border-radius: 50%;
+}
+.mina-spotify-live-content {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 12px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  overscroll-behavior: contain;
+}
+.mina-spotify-live-embed {
+  display: block;
+  width: 100%;
+  min-width: min(280px, 100%);
+  height: 352px;
+  border: 0;
+  flex: none;
+  border-radius: 13px;
+  overflow: hidden;
+  background: #222;
+}
+.mina-spotify-playback-hint {
+  margin: 0;
+  color: #c0c0c0;
+  font-size: 11px;
+  line-height: 1.65;
+}
+.mina-spotify-live-sheet .mina-spotify-open-original {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: flex-start;
+  color: #1ed760;
+  font-size: 12px;
+  text-decoration: none;
+  font-weight: 700;
+}
+.mina-spotify-link-form {
+  margin-top: 5px;
+  padding-top: 12px;
+  border-top: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mina-spotify-link-form label { color: #dfdfdf; font-size: 11px; font-weight: 700; }
+.mina-spotify-link-form input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid #484848;
+  border-radius: 7px;
+  background: #242424;
+  color: #fff;
+  padding: 9px 10px;
+  font-size: 12px;
+  outline: none;
+}
+.mina-spotify-link-form input:focus { border-color: #1ed760; }
+.mina-spotify-live-sheet .mina-spotify-link-form button {
+  align-self: flex-end;
+  border-radius: 999px;
+  padding: 9px 18px;
+  background: #1ed760;
+  color: #0d1912;
+  font-weight: 800;
+  font-size: 12px;
+}
+.mina-spotify-live-sheet .mina-spotify-link-form button:disabled { opacity: .35; cursor: default; }
+.mina-spotify-link-error { color: #ffa9a9; font-size: 11px; margin: 0; }
+.mina-spotify-live-legal { color: #888; font-size: 10px; line-height: 1.5; margin: 0; }
+@media (max-width: 320px) {
+  .mina-spotify-live-content { padding-left: 8px; padding-right: 8px; }
+}

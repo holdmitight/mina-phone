@@ -1,13 +1,17 @@
 import { useState, type FormEvent } from "react";
 import {
   ArrowLeft, AudioLines, Check, ChevronRight, CirclePlus, Clock3, Headphones,
-  Home, LibraryBig, ListMusic, Mic2, MoreHorizontal, Pause, Play, Plus,
+  Home, LibraryBig, ListMusic, Mic2, MoreHorizontal, Play, Plus,
   Search, Speaker, X,
 } from "lucide-react";
 import { useSkinState } from "../skinState";
 import type { Props } from "./shared";
 import { spotifyReferenceArt } from "./spotifyReferenceArt";
 import { minaClueKeys } from "./minaStoryInteractions";
+import {
+  parseSpotifyShareUrl, spotifyEmbedUrl, spotifyOpenUrl, spotifySourceForEntry,
+  type SpotifySource,
+} from "./minaSpotifyPlayback";
 import "./mina-spotify.css";
 
 type SpotifyScreen = "home" | "search" | "library" | "create";
@@ -56,7 +60,11 @@ export function MinaSpotifySkin(p: Props) {
   const [saved, setSaved] = useSkinState<string[]>(p, "mina-spotify-liked", ["kinggnu"]);
   const [created, setCreated] = useSkinState<string[]>(p, "mina-spotify-created", []);
   const [currentId, setCurrentId] = useSkinState<string>(p, "mina-spotify-current", "kinggnu");
-  const [playing, setPlaying] = useState(true);
+  const [playerOpen, setPlayerOpen] = useState(false);
+  const [playerSource, setPlayerSource] = useState<SpotifySource | null>(null);
+  const [playerTitle, setPlayerTitle] = useState("");
+  const [spotifyLink, setSpotifyLink] = useState("");
+  const [spotifyLinkError, setSpotifyLinkError] = useState("");
   const [homeFilter, setHomeFilter] = useState("すべて");
   const [query, setQuery] = useState("");
   const [searchEdit, setSearchEdit] = useState(false);
@@ -94,16 +102,38 @@ export function MinaSpotifySkin(p: Props) {
     setNotice("");
   }
   function setSong(entry: Entry) {
-    setCurrentId(entry.id);
-    setPlaying(true);
-    setNotice("デモ表示です。音楽のストリーミング再生はできません。");
+    const source = spotifySourceForEntry(entry.id);
+    if (resolveEntry(entry.id)) setCurrentId(entry.id);
+    setPlayerSource(source);
+    setPlayerTitle(entry.title);
+    setSpotifyLinkError("");
+    setNotice("");
+    // Safari/iOS requires a direct tap on Spotify's own play button.
+    // We deliberately never claim playback began or synthesize a fake state.
+    setPlayerOpen(true);
   }
   function toggleSave(id: string) {
     setSaved((before) => before.includes(id) ? before.filter((value) => value !== id) : [...before, id]);
   }
-  function togglePlaying() {
-    setPlaying((before) => !before);
-    setNotice("デモ表示です。音声は再生されません。");
+  function openCurrentPlayer() {
+    if (playerSource || playerOpen) {
+      setPlayerOpen(true);
+    } else {
+      setSong(current);
+    }
+  }
+  function submitSpotifyLink(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const source = parseSpotifyShareUrl(spotifyLink);
+    if (!source) {
+      setSpotifyLinkError("Spotifyの曲・アルバム・プレイリストの共有リンクを貼り付けてください。");
+      return;
+    }
+    setPlayerSource(source);
+    setPlayerTitle("共有されたSpotifyの音楽");
+    setSpotifyLinkError("");
+    setNotice("");
+    setPlayerOpen(true);
   }
   function addPlaylist(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -141,7 +171,7 @@ export function MinaSpotifySkin(p: Props) {
             <button className={saved.includes(selectedEntry.id) ? "liked" : ""} onClick={() => toggleSave(selectedEntry.id)} aria-label={saved.includes(selectedEntry.id)?"ライブラリから削除":"ライブラリに保存"}>
               {saved.includes(selectedEntry.id) ? <Check size={23}/> : <CirclePlus size={23}/>}
             </button>
-            <button className="mina-spotify-large-play" aria-label="デモの再生状態を切り替える" onClick={() => setSong(selectedEntry)}><Play size={25} fill="currentColor"/></button>
+            <button className="mina-spotify-large-play" aria-label="Spotifyで再生する" onClick={() => setSong(selectedEntry)}><Play size={25} fill="currentColor"/></button>
           </div>
           <p className="mina-spotify-detail-caption">{selectedEntry.id === summerEntry.id ? "この夏の記憶" : "おすすめの曲"}</p>
           {selectedEntry.id === summerEntry.id ? (
@@ -149,7 +179,7 @@ export function MinaSpotifySkin(p: Props) {
               <p className="mina-spotify-summer-caption">昔のメモに残っていた、三つの小さな記憶。</p>
               {summerTracks.map((track, index) => (
                 <button className="mina-spotify-detail-song" key={track.id}
-                  onClick={() => setNotice("保存された思い出のメモです。音声は再生されません。")}>
+                  onClick={() => setNotice("これはミナの2015年の思い出のメモです。音源が登録されていないため再生できません。")}>
                   <span className="mina-spotify-summer-number">{index + 1}</span>
                   <span><strong>{track.title}</strong><small>{track.subtitle}</small></span>
                   <MoreHorizontal size={16}/>
@@ -262,14 +292,54 @@ export function MinaSpotifySkin(p: Props) {
       )}
     </div>
     {notice && <p className="mina-spotify-notice" role="status">{notice}<button onClick={()=>setNotice("")} aria-label="通知を閉じる"><X size={14}/></button></p>}
+    {playerOpen && (
+      <div className="mina-spotify-live-sheet" role="dialog" aria-modal="true" aria-label="Spotifyの音楽プレイヤー">
+        <header className="mina-spotify-live-header">
+          <div><small>Spotifyで聴く</small><strong>{playerTitle || current.title}</strong></div>
+          <button type="button" aria-label="Spotifyプレイヤーを閉じる" onClick={() => {
+            // Unmounting the official iframe stops the track.
+            setPlayerOpen(false);
+            setPlayerSource(null);
+          }}><X size={21}/></button>
+        </header>
+        <div className="mina-spotify-live-content">
+          {playerSource ? (
+            <>
+              <iframe
+                key={spotifyEmbedUrl(playerSource)}
+                className="mina-spotify-live-embed"
+                title={playerTitle + " - Spotify"}
+                src={spotifyEmbedUrl(playerSource)}
+                width="100%"
+                height="352"
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                loading="eager"
+              />
+              <p className="mina-spotify-playback-hint">上のSpotifyプレイヤーの ▶ を押すと実際に音が流れます。再生できる長さはSpotifyのログイン状態・地域・ブラウザによって異なります。</p>
+              <a className="mina-spotify-open-original" target="_blank" rel="noopener noreferrer" href={spotifyOpenUrl(playerSource)}>Spotifyで直接開く <ChevronRight size={16}/></a>
+            </>
+          ) : (
+            <p className="mina-spotify-playback-hint">この項目にはまだSpotifyの再生リンクが登録されていません。下に曲・アルバム・プレイリストの共有リンクを貼ると、この画面で再生できます。</p>
+          )}
+          <form className="mina-spotify-link-form" onSubmit={submitSpotifyLink}>
+            <label htmlFor="mina-spotify-share-link">Spotify共有リンクを追加</label>
+            <input id="mina-spotify-share-link" inputMode="url" value={spotifyLink} onChange={(event)=>setSpotifyLink(event.target.value)}
+              placeholder="https://open.spotify.com/track/..." aria-label="Spotify共有リンク" />
+            <button type="submit" disabled={!spotifyLink.trim()}>読み込む</button>
+          </form>
+          {spotifyLinkError && <p role="alert" className="mina-spotify-link-error">{spotifyLinkError}</p>}
+          <p className="mina-spotify-live-legal">このゲームは楽曲データを保存・配信しません。再生はSpotify公式プレイヤーが行います。</p>
+        </div>
+      </div>
+    )}
     <div className="mina-spotify-bottom">
       <div className="mina-spotify-mini-player">
         <button onClick={()=>viewEntry(current)} aria-label={current.title+"の詳細を見る"} className="mina-spotify-mini-cover"><Artwork item={current}/></button>
         <button className="mina-spotify-mini-text" onClick={()=>viewEntry(current)}><strong>{current.title}</strong><small>{current.subtitle||"Spotify"}</small></button>
         <button className="mina-spotify-device" aria-label="再生デバイス情報" onClick={()=>setNotice("このデモはデバイスに接続していません。")}><Speaker size={20}/></button>
         <button className="mina-spotify-like" aria-label="保存を切り替える" onClick={()=>toggleSave(current.id)}>{saved.includes(current.id)?<Check size={18}/>:<CirclePlus size={19}/>}</button>
-        <button className="mina-spotify-pause" aria-label={playing?"一時停止（デモ）":"再生（デモ）"} onClick={togglePlaying}>{playing?<Pause size={24} fill="currentColor"/>:<Play size={24} fill="currentColor"/>}</button>
-        <div className="mina-spotify-progress"/>
+        <button className="mina-spotify-pause" aria-label="Spotifyプレイヤーを開く" onClick={openCurrentPlayer}><Play size={24} fill="currentColor"/></button>
+
       </div>
       <nav className="mina-spotify-bottom-nav" aria-label="Spotifyのナビゲーション">
         {[
