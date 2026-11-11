@@ -413,7 +413,7 @@ export function MymyKakao(p: SkinProps) {
               } else if (isMinaStory && !p.creator && p.thread === "Jeongyeon") {
                 // Unlike other read-only archives, Jeongyeon responds to the
                 // player's typed messages and remembers the lost-phone context.
-                const turn = { ...replyToJeongyeonText(text, jeongyeonTurns), afterGift: Boolean(giftPing) };
+                const turn = { ...replyToJeongyeonText(text, jeongyeonTurns, Boolean(giftPing)), afterGift: Boolean(giftPing) };
                 setJeongyeonChatTurns((old) => [...old, JSON.stringify(turn)].slice(-30));
               } else {
                 setSent([

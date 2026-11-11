@@ -104,3 +104,20 @@ describe("Jeongyeon responds to the phone's finder", () => {
     expect(parseJeongyeonTurns(["invalid", JSON.stringify({text:"X",reply:"Y",zh:"中文",topic:"nonsense"})])).toEqual([]);
   });
 });
+
+it("follows the gift question through a short answer and a clarification", () => {
+  const yes = replyToJeongyeonText("是", [], true);
+  expect(yes.zh).toContain("亲手送");
+  const saved = parseJeongyeonTurns([JSON.stringify(yes)]);
+  expect(replyToJeongyeonText("啊？", saved, true).zh).toContain("备忘录");
+  expect(replyToJeongyeonText("没做好", [], true).topic).toBe("not-yet");
+  expect(replyToJeongyeonText("是", []).topic).not.toBe("finished");
+});
+
+it("remembers a disclosed identity even midway through the gift conversation", () => {
+  const gift = replyToJeongyeonText("拼好了", [], true);
+  const finder = replyToJeongyeonText("我不是机主", [gift], true);
+  const place = replyToJeongyeonText("咖啡店", [gift, finder], true);
+  expect(place.zh).toContain("店员");
+  expect(replyToJeongyeonText("是", [gift, finder, place], true).zh).toContain("联系米娜");
+});
