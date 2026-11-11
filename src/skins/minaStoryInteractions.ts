@@ -78,6 +78,41 @@ export function normalizeMinaStoryRuntime(runtime: Runtime): Runtime {
     ]),
   );
   let normalized = changed ? { ...runtime, date, messages } : runtime;
+  // IMPORTANT: The original story's "今夜は、声を聞いておやすみ" choice
+  // still emits a DIFFERENT call event ("call-evening" / "君 ♡ 来电").
+  // Route it through the real Mina finale, not the old silent generic call
+  // screen. This also upgrades calls in saved playthroughs without a reset.
+  const legacyCall = normalized.incomingCall?.target === "call-evening";
+  if (legacyCall && normalized.incomingCall) {
+    const oldCall = normalized.incomingCall;
+    normalized = {
+      ...normalized,
+      incomingCall: {
+        ...oldCall,
+        caller: "不明な番号",
+        target: "mina-story-final-call",
+      },
+      clues: normalized.clues.includes(minaClueKeys.finalCallOffered)
+        ? normalized.clues
+        : [...normalized.clues, minaClueKeys.finalCallOffered],
+    };
+    changed = true;
+  }
+  // The old script also added a "君 ♡ 来电" notice. Do not leave an
+  // unrelated ghost notification after the caller is migrated.
+  if (normalized.notifications.some((notice) =>
+    /^(?:君|💗|♡)(?:\\s*♡)?\\s*来电$/u.test(notice.trim()) ||
+    notice === "君 ♡ 来电"
+  )) {
+    normalized = {
+      ...normalized,
+      notifications: normalized.notifications.filter((notice) =>
+        !/^(?:君|💗|♡)(?:\\s*♡)?\\s*来电$/u.test(notice.trim()) &&
+        notice !== "君 ♡ 来电"
+      ),
+    };
+    changed = true;
+  }
   // Earlier versions showed Jeongyeon as the caller. Reinterpret only
   // this fictional final call as an unknown number (Mina's identity is
   // revealed after answering). Preserve the save's call status and step.
