@@ -1,5 +1,6 @@
 import { makeItem, type Runtime, type Work } from "../schema";
 import { minaUnsentLetter } from "./minaUnsentArchive";
+import { isSanaBranch, parseSanaAttempts, recoverSanaAttemptHistory } from "../vendor/mymy/mina-sana-replies";
 
 export const minaClueKeys = {
   cafeVisit: "mina:map:cafe-visit",
@@ -73,7 +74,32 @@ export function normalizeMinaStoryRuntime(runtime: Runtime): Runtime {
       }),
     ]),
   );
-  return changed ? { ...runtime, date, messages } : runtime;
+  const normalized = changed ? { ...runtime, date, messages } : runtime;
+
+  // Repair older saves whose Sana branch finished before the Jeongyeon
+  // notification was recorded. Reopening KakaoTalk is not required.
+  const chatUi = normalized.ui?.kakao;
+  const stage = chatUi?.minaSanaReplyStage;
+  const attempts = Array.isArray(chatUi?.minaSanaAttempts)
+    ? parseSanaAttempts(chatUi.minaSanaAttempts)
+    : [];
+  const recovered = recoverSanaAttemptHistory(
+    typeof stage === "string" ? stage : "",
+    typeof chatUi?.minaSanaAwakeText === "string" ? chatUi.minaSanaAwakeText : "",
+    typeof chatUi?.minaSanaReplyText === "string" ? chatUi.minaSanaReplyText : "",
+    attempts,
+  );
+  const hasSanaPing = (normalized.messages.kakao ?? []).some(
+    (item) => item.id === "mina-story-cafe-sana-ping",
+  );
+  const needsJeongyeon =
+    hasSanaPing &&
+    isSanaBranch(recovered.stage) &&
+    (!(normalized.messages.kakao ?? []).some(
+      (item) => item.id === "mina-story-jeongyeon-gift-ping",
+    ) || !normalized.clues.includes(minaClueKeys.sanaFinished));
+  if (!needsJeongyeon) return normalized;
+  return discoverMinaClue(normalized, minaClueKeys.sanaFinished);
 }
 
 /**
