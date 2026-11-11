@@ -18,6 +18,7 @@
     "story:preview": "npm run dev",
     "story:test": "node scripts/story.mjs test",
     "voice:check": "node scripts/generate-mina-voice.mjs --check",
+    "voice:sample": "node scripts/generate-mina-voice.mjs --sample",
     "voice:generate": "node scripts/generate-mina-voice.mjs"
   },
   "dependencies": {
