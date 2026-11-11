@@ -14,11 +14,11 @@ export type SanaAdaptiveTurn = {
 };
 
 const tidy = (value: string) => value.normalize("NFKC").trim().toLowerCase();
-const compact = (value: string) => tidy(value).replace(/[\\s\\p{P}\\p{S}]/gu, "");
+const compact = (value: string) => tidy(value).replace(/[\s\p{P}\p{S}]/gu, "");
 const has = (v: string, re: RegExp) => re.test(v);
-const targets = /(?:あの子|あの人|彼女|彼|她|他|那个人|那個人|她的|her\\b|him\\b|that girl|그애|그 사람)/iu;
+const targets = /(?:あの子|あの人|彼女|彼|她|他|那个人|那個人|她的|her\b|him\b|that girl|그애|그 사람)/iu;
 const tomorrow = /(?:明日|あした|明天|明兒|明儿|tomorrow|tmrw|내일)/iu;
-const meeting = /(?:会いに|会える|会う|会って|会おう|会いたい|見に行|会いに行|会う予定|会わ|见面|見面|去见|见她|见他|会去见|找她|找他|約見|见到|見到|meet|see her|see him|seeing her|seeing him|going to see|gonna see|만나|보러 가|볼 거)/iu;
+const meeting = /(?:会いに|会える|会う|会って|会おう|会いたい|見に行|会いに行|会う予定|会わ|见面|見面|去见|见她|见他|会去见|找她|找他|約見|见到|見到|去見|見她|見他|meet|see her|see him|seeing her|seeing him|going to see|gonna see|만나|보러 가|볼 거)/iu;
 const refusal = /(?:会いたくない|会わない|会えない|見たくない|会うのやめ|不想见|不想見|不会见|不去见|不去見|不想去找|不想见面|won't meet|will not meet|don't want to meet|don't want to see|not seeing her|안 만나|만나기 싫)/iu;
 const affectionate = /(?:好き|大好き|愛して|恋し|会いたい|気になる|好きな人|想她|想他|喜欢她|喜歡她|喜欢他|愛她|爱她|我爱|我愛|舍不得|捨不得|miss her|miss him|i miss|love her|love him|still love|좋아해|보고 싶|사랑해)/iu;
 const afraid = /(?:怖|こわ|恐|緊張|不安|心配|勇気が|自信ない|害怕|怕她|怕他|担心|擔心|紧张|緊張|不敢|没勇气|沒勇氣|scared|afraid|nervous|anxious|worried|두려|무서|겁나)/iu;
@@ -148,7 +148,9 @@ export function replyToSanaText(text: string, earlier: readonly SanaAdaptiveTurn
     ],
   };
   // Vary by message history, not by a fixed reply regardless of what was typed.
-  const reply = choices[topic][priorSame % choices[topic].length];
+  const reply = topic === "meet" && priorMeeting
+    ? "うん、会いに行くって決めたんだね。今度はちゃんと気持ちを伝えられるといいね。"
+    : choices[topic][priorSame % choices[topic].length];
   return { text, replies: [reply], topic };
 }
 
