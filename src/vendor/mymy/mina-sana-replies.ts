@@ -1,4 +1,5 @@
 import { makeItem, type Item } from "../../schema";
+import { replyToSanaText, type SanaAdaptiveTurn } from "./sanaAdaptive";
 
 export type SanaBranch = "deny" | "why" | "memory";
 
@@ -58,7 +59,7 @@ export function matchSanaFreeText(text: string, stage: SanaStage): "awake" | San
   if (stage === "") {
     // Short replies such as 「まだです」 and 「嗯」 mean "still awake" here.
     // The previous recognizer missed both and trapped players in a loop.
-    if (/^(?:まだ(?:です|だよ|だ|ね|よ)?|嗯+|嗯呐|嗯呢)$/.test(value)) return "awake";
+    if (/^(?:まだ(?:です|だよ|だ|ね|よ)?|嗯+|嗯呐|嗯呢|en+|nono?|yes|yeah|yep|うん|응+|네)$/.test(value)) return "awake";
     return /(?:寝てない|寝てません|まだ寝|まだ起き|起きてる|寝ていない|眠ってない|まだ眠ってない|起きてます|眠くない|寝られない|寝れない|うん|はい|そうだよ|还没睡|还没有睡|没睡|没睡觉|还醒着|醒着呢|还在呢|还在线|睡不着|我在|还没休息|まだだよ|notyet|notasleep|imawake|stillup|iamup|awake|yep|yeah|yes|아직안자|아직안잤|안자고있|깨어있|응|네)/u.test(value)
       ? "awake"
       : null;
@@ -198,6 +199,7 @@ export function minaSanaInteractiveMessages(
   awakeText = "まだ寝てないよ。",
   replyText = "",
   attempts: readonly SanaAttempt[] = [],
+  adaptiveTurns: readonly SanaAdaptiveTurn[] = [],
 ): Item[] {
   if (!ping) return [];
 
@@ -235,14 +237,21 @@ export function minaSanaInteractiveMessages(
     ),
   ];
   const followOffset = awakeOffset + 5;
+  // Existing saves may contain arbitrary typed attempts from the earlier
+  // keyword-only version. Reinterpret each message by what it actually says,
+  // rather than replaying the same incorrect clarification.
+  const followResponses = followAttempts.map((attempt, index) =>
+    replyToSanaText(
+      attempt.text,
+      followAttempts.slice(0, index).map((earlier) => ({
+        ...replyToSanaText(earlier.text, []),
+      })),
+    ).replies[0],
+  );
   result.push(...renderAttempts(
     followAttempts,
     followOffset,
-    [
-      "え、どういうこと？笑 もう少し教えて〜",
-      "無理に話さなくてもいいよ。ちょっと気になっただけ。",
-      "うん、聞いてるよ〜",
-    ],
+    followResponses.length ? followResponses : [""],
     "follow",
   ));
 
@@ -256,5 +265,17 @@ export function minaSanaInteractiveMessages(
       result.push(line(ping, "reply-" + stage + "-" + index, reply, choiceOffset + index + 1, false)),
     );
   }
+
+  // All later messages, including after an older finished branch, continue
+  // naturally. Every bubble has a stable ID and is reconstructed from UI
+  // storage after reload without repeating a fixed canned response.
+  let offset = followOffset + followAttempts.length * 2;
+  if (isSanaBranch(stage)) offset += 1 + minaSanaChoices.find((choice) => choice.id === stage)!.responses.length;
+  adaptiveTurns.forEach((turn, index) => {
+    result.push(line(ping, "adaptive-" + index + "-input", turn.text, offset++, true));
+    turn.replies.forEach((reply, replyIndex) => {
+      result.push(line(ping, "adaptive-" + index + "-reply-" + replyIndex, reply, offset++, false));
+    });
+  });
   return result;
 }
