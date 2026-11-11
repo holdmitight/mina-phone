@@ -687,6 +687,16 @@ function PhoneRuntime({
               <span className="eyebrow">エンディング · {s.endings.length}</span>
               <h2>今夜の物語は、ここまで。</h2>
               <p>{s.endings[s.endings.length - 1]}</p>
+              {isMinaStoryWork(work) && s.ui?.minaFinalCall?.answer && (
+                <div className="mina-ending-film" aria-label="エンディングショートフィルム">
+                  <img
+                    src={`${import.meta.env.BASE_URL}ending-ring.gif`}
+                    alt="指輪の入った箱を差し出すレゴの女の子のエンディング映像"
+                    loading="eager"
+                    style={{ display: "block", width: "min(100%, 358px)", height: "auto", margin: "16px auto", borderRadius: 16 }}
+                  />
+                </div>
+              )}
               <button
                 onClick={() => {
                   update(dispatch(work, initialRuntime(work), "start"));
