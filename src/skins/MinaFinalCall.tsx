@@ -1,10 +1,12 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 
 /** Fictional ending: Mina borrows Jeongyeon's phone. The caller ID shows
  * Jeongyeon; Mina identifies herself only after the player answers.
  * Browser voices are generic Japanese TTS, not the real Mina's voice.
  */
-let activeSpeech: SpeechSynthesisUtterance | null = null;
+// Keep ALL queued utterances alive; Safari may otherwise garbage-collect
+// speech before it is audible. Do not cancel immediately before speak().
+const queuedSpeech: SpeechSynthesisUtterance[] = [];
 
 export function canSpeakMinaFinalCall(): boolean {
   return typeof window !== "undefined" &&
@@ -15,36 +17,51 @@ export function canSpeakMinaFinalCall(): boolean {
 export function stopMinaFinalSpeech(): void {
   if (!canSpeakMinaFinalCall()) return;
   window.speechSynthesis.cancel();
-  activeSpeech = null;
+  queuedSpeech.length = 0;
 }
 
-export function speakMinaFinalLine(ja: string): boolean {
-  if (!canSpeakMinaFinalCall()) return false;
+export function speakMinaFinalLine(
+  ja: string,
+  onStatus?: (status: "speaking" | "finished" | "error") => void,
+): boolean {
+  if (!canSpeakMinaFinalCall()) {
+    onStatus?.("error");
+    return false;
+  }
   try {
     const synth = window.speechSynthesis;
-    synth.cancel();
+    // Calling cancel() and then speak() in the SAME iOS Safari click can
+    // silently discard the utterance. Let the device queue each line.
     const speech = new SpeechSynthesisUtterance(ja);
     speech.lang = "ja-JP";
-    speech.rate = 0.88;
-    speech.pitch = 1.06;
+    speech.rate = 0.9;
+    speech.pitch = 1;
     speech.volume = 1;
-    // Prefer a built-in Japanese voice on this device. Avoid selecting an
-    // English voice for Japanese dialogue (which can sound like silence).
     const japanese = synth.getVoices().filter((voice) => /^ja(?:-|$)/iu.test(voice.lang));
-    speech.voice = japanese.find((voice) =>
+    const selected = japanese.find((voice) =>
       /kyoko|nanami|haruka|sayaka|hikari|mizuki|nozomi/i.test(voice.name),
-    ) ?? japanese[0] ?? null;
+    ) ?? japanese[0];
+    // Explicit null voices have caused silent failures in some WebKit builds.
+    if (selected) speech.voice = selected;
+    const release = () => {
+      const index = queuedSpeech.indexOf(speech);
+      if (index !== -1) queuedSpeech.splice(index, 1);
+    };
+    speech.onstart = () => onStatus?.("speaking");
     speech.onend = () => {
-      if (activeSpeech === speech) activeSpeech = null;
+      release();
+      onStatus?.("finished");
     };
     speech.onerror = () => {
-      if (activeSpeech === speech) activeSpeech = null;
+      release();
+      onStatus?.("error");
     };
-    activeSpeech = speech; // Safari may stop speech if the utterance is GC'd.
+    queuedSpeech.push(speech);
     synth.speak(speech);
     if (synth.paused) synth.resume();
     return true;
   } catch {
+    onStatus?.("error");
     return false;
   }
 }
@@ -97,6 +114,7 @@ export function MinaFinalCallScript({
 }): ReactNode {
   const index = Math.min(Math.max(0, step), minaFinalCallLines.length - 1);
   const current = minaFinalCallLines[index];
+  const [voiceStatus, setVoiceStatus] = useState<"idle" | "speaking" | "finished" | "error">("idle");
   return (
     <div className="mina-final-call-script" aria-live="polite">
       <div className="mina-final-call-speaker">MINA · 通話中</div>
@@ -104,11 +122,18 @@ export function MinaFinalCallScript({
       <p lang="zh-CN" className="mina-final-call-zh">{current.zh}</p>
       <div className="mina-final-call-audio-controls">
         <button type="button" onClick={() => {
-          speakMinaFinalLine(current.ja);
+          setVoiceStatus("idle");
+          speakMinaFinalLine(current.ja, setVoiceStatus);
         }} aria-label="Minaの今のセリフを音声で再生">
           🔊 もう一度聴く <small>重听这句话</small>
         </button>
-        <span>{canSpeakMinaFinalCall() ? "日本語音声 · 端末の読み上げ" : "この端末では音声読み上げを利用できません"}</span>
+        <span role="status">{
+          !canSpeakMinaFinalCall() ? "此设备不支持语音朗读" :
+          voiceStatus === "error" ? "语音播放失败，请检查日语语音或刷新后重试" :
+          voiceStatus === "speaking" ? "播放中 · 日本語" :
+          voiceStatus === "finished" ? "播放结束 · 可重听" :
+          "日本語音声 · 使用设备朗读"
+        }</span>
       </div>
       <span className="mina-final-call-progress">{index + 1} / {minaFinalCallLines.length}</span>
       {index < minaFinalCallLines.length - 1 ? (
