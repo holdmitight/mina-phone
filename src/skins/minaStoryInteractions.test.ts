@@ -5,6 +5,9 @@ import { choose } from "../engine";
 import { initialRuntime, makeItem, type Work } from "../schema";
 import {
   discoverMinaClue,
+  dialMinaFinalCall,
+  isMinaFinalCallReady,
+  isMinaFinalCallComplete,
   isMinaStoryWork,
   normalizeMinaStoryWork,
   normalizeMinaStoryRuntime,
@@ -379,8 +382,9 @@ describe("Mina cross-app discoveries", () => {
   it("removes the old mid-story phone option while keeping the finale separate", () => {
     const work = normalizeMinaStoryWork(compileStory(actualMinaStory).work);
     const decision = work.nodes.find((node) => node.id === "evening-decision");
-    expect(decision?.next).not.toContain("choose-call");
-    expect(decision?.next).toContain("choose-together");
+    expect(decision?.next).toEqual([]);
+    expect(work.nodes.find((node) => node.id === "read-secret-draft")?.next)
+      .not.toContain("evening-decision");
     expect(work.nodes.find((node) => node.id === "choose-call")
       ?.actions.some((action) => action.type === "call")).toBe(false);
     const initial = {
@@ -391,7 +395,7 @@ describe("Mina cross-app discoveries", () => {
       ],
     };
     const normalized = normalizeMinaStoryRuntime(initial);
-    expect(normalized.choices.map((choice) => choice.target)).toEqual(["choose-together"]);
+    expect(normalized.choices).toEqual([]);
     expect(normalized.incomingCall).toBeNull();
     const obsoleteChoice = choose(work, initial, "choose-call");
     expect(obsoleteChoice.incomingCall).toBeNull();
@@ -438,6 +442,7 @@ describe("Mina cross-app discoveries", () => {
       ...initialRuntime(fixture),
       incomingCall: { caller: "不明な番号", target: "mina-story-final-call", status: "answered" as const },
       clues: [clues.unsentReunionReady, clues.heartThreadSeen, clues.finalLetterRead],
+      messages: { notes: [makeItem({ id: "mina-story-unsent-2025" })] },
       notifications: ["Phone: 不明な番号 · 不在着信（タップして折り返す）"],
       ui: { minaFinalCall: { step: 4 } },
     };
@@ -481,6 +486,60 @@ describe("Mina cross-app discoveries", () => {
     expect(state.incomingCall?.target).toBe("mina-story-final-call");
     const dismissed = { ...state, incomingCall: null };
     expect(discoverMinaClue(dismissed, clues.heartThreadSeen)).toBe(dismissed);
+  });
+
+  it("rescues the real call after a stale save loses its ringing UI", () => {
+    let state = initialRuntime(fixture);
+    state = discoverMinaClue(state, clues.giftTrailResolved);
+    state = discoverMinaClue(state, clues.lineBreakupSeen);
+    expect(isMinaFinalCallReady(state)).toBe(false);
+    state = discoverMinaClue(state, clues.heartThreadSeen);
+    state = discoverMinaClue(state, clues.finalLetterRead);
+    expect(isMinaFinalCallReady(state)).toBe(true);
+    expect(state.incomingCall?.target).toBe("mina-story-final-call");
+    const lostCall = { ...state, incomingCall: null };
+    expect(isMinaFinalCallReady(lostCall)).toBe(true);
+    const resumed = dialMinaFinalCall(lostCall);
+    expect(resumed.incomingCall).toEqual({
+      caller: "Jeongyeon", target: "mina-story-final-call", status: "ringing",
+    });
+    expect(resumed.ui?.minaFinalCall?.step).toBe(0);
+    expect(dialMinaFinalCall(resumed)).toBe(resumed);
+    const completed = { ...lostCall, ui: { minaFinalCall: { answer: "meet", step: 7 } } };
+    expect(isMinaFinalCallComplete(completed)).toBe(true);
+    expect(dialMinaFinalCall(completed)).toBe(completed);
+  });
+
+  it("does not show the call action until BOTH the pinned chat and final letter were visited", () => {
+    let state = initialRuntime(fixture);
+    state = discoverMinaClue(state, clues.giftTrailResolved);
+    state = discoverMinaClue(state, clues.lineBreakupSeen);
+    expect(dialMinaFinalCall(state)).toBe(state);
+    state = discoverMinaClue(state, clues.heartThreadSeen);
+    expect(dialMinaFinalCall(state)).toBe(state);
+    state = discoverMinaClue(state, clues.finalLetterRead);
+    expect(isMinaFinalCallReady(state)).toBe(true);
+  });
+
+  it("migrates already-read final notes and clears the old goodnight ending overlay", () => {
+    let state = initialRuntime(fixture);
+    state = discoverMinaClue(state, clues.giftTrailResolved);
+    state = discoverMinaClue(state, clues.lineBreakupSeen);
+    const oldSave = {
+      ...state,
+      read: ["mina-story-unsent-2025"],
+      clues: [...state.clues.filter((clue) => clue !== clues.unsentReunionReady), clues.heartThreadSeen],
+      choices: [{ target: "choose-together", label: "一緒に帰る" }],
+      endings: ["同じ夜に帰る｜旧エンディング"],
+    };
+    const repaired = normalizeMinaStoryRuntime(oldSave);
+    expect(repaired.endings).toEqual([]);
+    expect(repaired.choices).toEqual([]);
+    expect(repaired.clues).toContain(clues.finalLetterRead);
+    expect(repaired.clues).toContain(clues.unsentReunionReady);
+    expect(isMinaFinalCallReady(repaired)).toBe(true);
+    expect(dialMinaFinalCall(repaired).incomingCall?.caller).toBe("Jeongyeon");
+    expect(normalizeMinaStoryRuntime(repaired)).toBe(repaired);
   });
 
   it("retains all progress with a serializable runtime and ignores unrecognized clues", () => {

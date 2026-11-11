@@ -58,14 +58,66 @@ export function normalizeMinaStoryWork(work: Work): Work {
       date: work.phone.date?.replace(/^2026-11-/u, "2025-11-") ?? "2025-11-09",
     },
     data,
-    // Remove the old mid-story telephone route. It used to hijack the
-    // finale; now the voiced call only rings after the last letter and 💗.
+    // The old goodnight-choice ending belonged to an earlier story draft.
+    // It cannot lead into Mina's actual 2025 reunion, so disconnect it
+    // completely. The real final call is gated by the letter and 💗.
     nodes: work.nodes.map((node) =>
-      node.id === "evening-decision"
-        ? { ...node, next: node.next.filter((id) => id !== "choose-call") }
-        : node.id === "choose-call"
-          ? { ...node, actions: node.actions.filter((action) => action.type !== "call") }
-          : node
+      node.id === "read-secret-draft"
+        ? { ...node, next: node.next.filter((id) => id !== "evening-decision") }
+        : node.id === "evening-decision"
+          ? { ...node, next: [] }
+          : node.id === "choose-call"
+            ? { ...node, actions: node.actions.filter((action) => action.type !== "call") }
+            : node
+    ),
+  };
+}
+
+/** A genuine ending needs the authored 2025 unsent letter to have been
+ * opened, and the pinned 💗 contact to have been visited. Old saves may
+ * already list the note in `read` without the newer clue marker.
+ */
+export function isMinaFinalCallReady(runtime: Runtime): boolean {
+  const noteExists = (runtime.messages.notes ?? []).some(
+    (item) => item.id === "mina-story-unsent-2025",
+  );
+  const noteRead =
+    runtime.clues.includes(minaClueKeys.finalLetterRead) ||
+    runtime.read.includes("mina-story-unsent-2025");
+  return noteExists && noteRead &&
+    runtime.clues.includes(minaClueKeys.heartThreadSeen);
+}
+
+export function isMinaFinalCallComplete(runtime: Runtime): boolean {
+  return Boolean(runtime.ui?.minaFinalCall?.answer) ||
+    runtime.endings.some((ending) =>
+      ending.startsWith("受話器の向こうで、") ||
+      ending.startsWith("今すぐ答えを出さなくてもいい。") ||
+      ending.startsWith("答えを待つ静かな時間。")
+    );
+}
+
+/** User-initiated recovery for missed/vanished calls. Never bypass puzzles. */
+export function dialMinaFinalCall(runtime: Runtime): Runtime {
+  if (!isMinaFinalCallReady(runtime) || isMinaFinalCallComplete(runtime) ||
+      runtime.incomingCall) return runtime;
+  return {
+    ...runtime,
+    incomingCall: {
+      caller: "Jeongyeon",
+      target: "mina-story-final-call",
+      status: "ringing",
+    },
+    clues: runtime.clues.includes(minaClueKeys.finalCallOffered)
+      ? runtime.clues
+      : [...runtime.clues, minaClueKeys.finalCallOffered],
+    ui: {
+      ...runtime.ui,
+      minaFinalCall: { ...runtime.ui?.minaFinalCall, step: 0 },
+    },
+    notifications: runtime.notifications.filter((notice) =>
+      notice !== "Phone: Jeongyeon · 不在着信（タップして折り返す）" &&
+      notice !== "Phone: 不明な番号 · 不在着信（タップして折り返す）"
     ),
   };
 }
@@ -87,19 +139,35 @@ export function normalizeMinaStoryRuntime(runtime: Runtime): Runtime {
     ]),
   );
   let normalized = changed ? { ...runtime, date, messages } : runtime;
-  // Hide the obsolete mid-story "goodnight call" choice in existing saves.
-  // The actual finale uses a separate trigger, after the last draft and 💗.
-  if (normalized.choices.some((choice) => choice.target === "choose-call")) {
+  // Old saved games sometimes retain the abandoned first-draft ending and
+  // its modal overlay, preventing the 2025 finale from ever appearing.
+  const discardedTargets = ["choose-call", "choose-together"];
+  const discardedEndings = ["同じ夜に帰る｜", "おやすみに、返事がある｜"];
+  if (normalized.choices.some((choice) => discardedTargets.includes(choice.target)) ||
+      normalized.endings.some((ending) => discardedEndings.some((prefix) => ending.startsWith(prefix)))) {
     normalized = {
       ...normalized,
-      choices: normalized.choices.filter((choice) => choice.target !== "choose-call"),
+      choices: normalized.choices.filter((choice) => !discardedTargets.includes(choice.target)),
+      endings: normalized.endings.filter((ending) => !discardedEndings.some((prefix) => ending.startsWith(prefix))),
     };
     changed = true;
   }
-  const genuineFinaleUnlocked =
-    normalized.clues.includes(minaClueKeys.unsentReunionReady) &&
-    normalized.clues.includes(minaClueKeys.heartThreadSeen) &&
-    normalized.clues.includes(minaClueKeys.finalLetterRead);
+  // Rebuild the clue marker for players who actually opened the final note
+  // on earlier builds before the call trigger was fixed.
+  const noteWasRead = normalized.read.includes("mina-story-unsent-2025");
+  const letterWasUnlocked = (normalized.messages.notes ?? []).some((item) =>
+    item.id === "mina-story-unsent-2025");
+  const recoveredClues = [
+    ...(letterWasUnlocked && !normalized.clues.includes(minaClueKeys.unsentReunionReady)
+      ? [minaClueKeys.unsentReunionReady] : []),
+    ...(noteWasRead && !normalized.clues.includes(minaClueKeys.finalLetterRead)
+      ? [minaClueKeys.finalLetterRead] : []),
+  ];
+  if (recoveredClues.length) {
+    normalized = { ...normalized, clues: [...normalized.clues, ...recoveredClues] };
+    changed = true;
+  }
+  const genuineFinaleUnlocked = isMinaFinalCallReady(normalized);
   const obsoleteCall =
     normalized.incomingCall?.target === "call-evening" ||
     (normalized.incomingCall?.target === "mina-story-final-call" &&
@@ -487,9 +555,11 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
   const finalCallReady =
     clues.includes(minaClueKeys.unsentReunionReady) &&
     clues.includes(minaClueKeys.heartThreadSeen) &&
-    clues.includes(minaClueKeys.finalLetterRead);
+    clues.includes(minaClueKeys.finalLetterRead) &&
+    (messages.notes ?? []).some((item) => item.id === "mina-story-unsent-2025");
   let incomingCall = runtime.incomingCall;
-  if (finalCallReady && !clues.includes(minaClueKeys.finalCallOffered) && !incomingCall) {
+  if (finalCallReady && !clues.includes(minaClueKeys.finalCallOffered) &&
+      !isMinaFinalCallComplete(runtime) && !incomingCall) {
     clues.push(minaClueKeys.finalCallOffered);
     incomingCall = {
       caller: "Jeongyeon",

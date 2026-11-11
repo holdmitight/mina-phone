@@ -28,6 +28,39 @@ describe("Jeongyeon responds to the phone's finder", () => {
     expect(gift.reply).not.toContain("레고");
   });
 
+  it("does not misread a question about FINDING MINA as finding her PHONE", () => {
+    const first = replyToJeongyeonText("你知道米娜手机丢了吗？", []);
+    const pickedUp = replyToJeongyeonText("我是捡到手机的人", [first]);
+    for (const question of [
+      "怎么才可以找到她",
+      "我要怎么找到米娜",
+      "米娜在哪里？",
+      "How do I find her?",
+      "我想联系她",
+    ]) {
+      const answer = replyToJeongyeonText(question, [first, pickedUp]);
+      expect(answer.topic, question).toBe("location");
+      expect(answer.zh, question).not.toContain("你捡到了手机");
+      expect(answer.zh, question).toMatch(/联系米娜|找到米娜/);
+    }
+  });
+
+  it("answers the second and third turn based on the prior disclosure, not one fixed script", () => {
+    const first = replyToJeongyeonText("米娜的手机丢了", []);
+    const repeated = replyToJeongyeonText("米娜的手机丢了", [first]);
+    expect(repeated.reply).not.toBe(first.reply);
+    const finder = replyToJeongyeonText("我捡到手机了", [first]);
+    const thanks = replyToJeongyeonText("我会还给她", [first, finder]);
+    expect(finder.topic).toBe("found");
+    expect(thanks.topic).toBe("return");
+    const worry = replyToJeongyeonText("戒指的事情你知道吗", [first, finder]);
+    expect(worry.topic).toBe("gift");
+    expect(worry.zh).toContain("直接问米娜");
+    const offTopic = replyToJeongyeonText("我觉得这件事好奇怪", [first, finder]);
+    expect(offTopic.topic).toBe("other");
+    expect(offTopic.zh).not.toContain("那件事应该");
+  });
+
   it("persists the conversation and keeps a Chinese translation for each reply", () => {
     const first = replyToJeongyeonText("你知道米娜手机丢了吗？", []);
     const second = replyToJeongyeonText("我会把手机还给她", [first]);

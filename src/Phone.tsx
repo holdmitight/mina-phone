@@ -26,7 +26,7 @@ import {
 import { AppArtwork, hasNativeArtwork } from "./AppArtwork";
 import { getFields } from "./fields";
 import { catalogSkins } from "./skins/catalog";
-import { discoverMinaClue, isMinaStoryWork, normalizeMinaStoryWork, normalizeMinaStoryRuntime, minaClueKeys } from "./skins/minaStoryInteractions";
+import { dialMinaFinalCall, discoverMinaClue, isMinaFinalCallComplete, isMinaFinalCallReady, isMinaStoryWork, normalizeMinaStoryWork, normalizeMinaStoryRuntime, minaClueKeys } from "./skins/minaStoryInteractions";
 import { MinaFinalCallScript, minaFinalCallLines, minaFinalCallOutcomes, minaFinalMissedCallNotice, playMinaFinalLine, stopMinaFinalSpeech, type MinaFinalCallChoice } from "./skins/MinaFinalCall";
 import "./skins/minaFinalCall.css";
 import "./skins/skins.css";
@@ -305,7 +305,7 @@ function PhoneRuntime({
       beginUnlock();
       return;
     }
-    if (notice === minaFinalMissedCallNotice && isMinaStoryWork(work)) {
+    if (notice === minaFinalMissedCallNotice && isMinaStoryWork(work) && isMinaFinalCallReady(runtimeRef.current)) {
       const current = runtimeRef.current;
       update({
         ...current,
@@ -644,6 +644,25 @@ function PhoneRuntime({
               )}
             </div>
           )}
+          {!creator && !locked && isMinaStoryWork(work) &&
+            isMinaFinalCallReady(s) && !isMinaFinalCallComplete(s) &&
+            !s.incomingCall && (
+              <div className="mina-final-call-dial" role="region" aria-label="最終電話をかける">
+                <span className="mina-final-call-dial-label">Jeongyeon · 最後の着信</span>
+                <button type="button" onClick={() => {
+                  const next = dialMinaFinalCall(runtimeRef.current);
+                  if (next !== runtimeRef.current) {
+                    stopMinaFinalSpeech();
+                    update(next);
+                    setApp("");
+                    setPanel("");
+                  }
+                }}>
+                  <PhoneIcon size={19} />
+                  <span>電話に出る・折り返す <small>接听／回拨最后的电话</small></span>
+                </button>
+              </div>
+            )}
           {!creator && s.choices.length > 0 && !locked && (
             <div className="story-overlay">
               <span className="eyebrow">この先は、あなた次第</span>

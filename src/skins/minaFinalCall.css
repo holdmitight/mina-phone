@@ -101,3 +101,52 @@
   font-size: 10px;
   line-height: 1.5;
 }
+
+/* Once the final letter and 💗 thread have both been read, keep a clear,
+ * persistent callback action on-screen for missed calls and old saves. */
+.mina-final-call-dial {
+  position: absolute;
+  z-index: 57;
+  left: 16px;
+  right: 16px;
+  bottom: 28px;
+  padding: 12px;
+  border-radius: 18px;
+  background: rgba(35, 54, 45, .94);
+  border: 1px solid rgba(184, 232, 206, .45);
+  box-shadow: 0 12px 28px rgba(0,0,0,.3);
+  backdrop-filter: blur(15px);
+  color: #fff;
+}
+.mina-final-call-dial-label {
+  display: block;
+  font-size: 11px;
+  color: #d5f1dc;
+  letter-spacing: .025em;
+  margin: 0 0 7px;
+}
+.mina-final-call-dial button {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 47px;
+  border: 0;
+  border-radius: 12px;
+  color: #0c3120;
+  background: #83e1a6;
+  font-weight: 750;
+  cursor: pointer;
+}
+.mina-final-call-dial button span {
+  font-size: 13px;
+  text-align: left;
+}
+.mina-final-call-dial button small {
+  display: block;
+  font-size: 10px;
+  font-weight: 450;
+  margin-top: 3px;
+  color: #345845;
+}
