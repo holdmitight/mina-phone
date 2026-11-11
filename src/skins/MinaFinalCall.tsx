@@ -1,8 +1,54 @@
 import type { ReactNode } from "react";
 
-/** The caller ID belongs to Jeongyeon: Mina borrowed her handset to ring the
- * phone A found. The call is text-only fiction, not an actual phone connection.
+/** Fictional ending: Mina borrows Jeongyeon's phone. It shows an unknown
+ * number on the found phone until Mina identifies herself after answer.
+ * Browser voices are generic Japanese TTS, not the real Mina's voice.
  */
+let activeSpeech: SpeechSynthesisUtterance | null = null;
+
+export function canSpeakMinaFinalCall(): boolean {
+  return typeof window !== "undefined" &&
+    typeof window.speechSynthesis !== "undefined" &&
+    typeof SpeechSynthesisUtterance !== "undefined";
+}
+
+export function stopMinaFinalSpeech(): void {
+  if (!canSpeakMinaFinalCall()) return;
+  window.speechSynthesis.cancel();
+  activeSpeech = null;
+}
+
+export function speakMinaFinalLine(ja: string): boolean {
+  if (!canSpeakMinaFinalCall()) return false;
+  try {
+    const synth = window.speechSynthesis;
+    synth.cancel();
+    const speech = new SpeechSynthesisUtterance(ja);
+    speech.lang = "ja-JP";
+    speech.rate = 0.88;
+    speech.pitch = 1.06;
+    speech.volume = 1;
+    // Prefer a built-in Japanese voice on this device. Avoid selecting an
+    // English voice for Japanese dialogue (which can sound like silence).
+    const japanese = synth.getVoices().filter((voice) => /^ja(?:-|$)/iu.test(voice.lang));
+    speech.voice = japanese.find((voice) =>
+      /kyoko|nanami|haruka|sayaka|hikari|mizuki|nozomi/i.test(voice.name),
+    ) ?? japanese[0] ?? null;
+    speech.onend = () => {
+      if (activeSpeech === speech) activeSpeech = null;
+    };
+    speech.onerror = () => {
+      if (activeSpeech === speech) activeSpeech = null;
+    };
+    activeSpeech = speech; // Safari may stop speech if the utterance is GC'd.
+    synth.speak(speech);
+    if (synth.paused) synth.resume();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export const minaFinalCallLines = [
   { ja: "……もしもし。", zh: "……喂？" },
   { ja: "びっくりさせてごめん。……私、南。今、定延のスマホを借りてる。", zh: "抱歉吓到你了……是我，南。我现在借了定延的手机。" },
@@ -56,6 +102,14 @@ export function MinaFinalCallScript({
       <div className="mina-final-call-speaker">MINA · 通話中</div>
       <p lang="ja" className="mina-final-call-ja">{current.ja}</p>
       <p lang="zh-CN" className="mina-final-call-zh">{current.zh}</p>
+      <div className="mina-final-call-audio-controls">
+        <button type="button" onClick={() => {
+          speakMinaFinalLine(current.ja);
+        }} aria-label="Minaの今のセリフを音声で再生">
+          🔊 もう一度聴く <small>重听这句话</small>
+        </button>
+        <span>{canSpeakMinaFinalCall() ? "日本語音声 · 端末の読み上げ" : "この端末では音声読み上げを利用できません"}</span>
+      </div>
       <span className="mina-final-call-progress">{index + 1} / {minaFinalCallLines.length}</span>
       {index < minaFinalCallLines.length - 1 ? (
         <button type="button" className="mina-final-call-next" onClick={onAdvance}>
