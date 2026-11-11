@@ -32,6 +32,9 @@ export function replyToJeongyeonText(text: string, earlier: readonly JeongyeonTu
   const finderDisclosed = earlier.some((turn) => ["found", "return"].includes(turn.topic));
   const same = (topic: JeongyeonTopic) => earlier.filter((turn) => turn.topic === topic).length;
 
+  if (/^(?:你?(?:是)?(?:怎么|怎麼|咋)知道(?:的)?|how (?:did|do) you know|어떻게 알았어|なんでわかったの)[啊呀呢?？!！。．.\s]*$/iu.test(value))
+    return message("미나 계정으로 메시지가 왔거든요. 메모 앱 한번 열어 봐요. 미나가 맨 위에 고정해 둔 글이 있어요.",
+      "因为消息是从米娜的账号发来的呀。去看看备忘录吧，米娜在最上面置顶了一条。", "other", text);
   if (/(?:说得?不对|說得?不對|理解错|理解錯|答非所问|答非所問|不是这个意思|不是這個意思|you misunderstood|that's wrong|そうじゃない|違うって)/iu.test(value))
     return message("아, 내가 잘못 이해했네. 어떤 부분이 달랐어? 폰 얘기인지, 아까 물어본 일인지 알려 줄래?", "啊，是我理解错了。是哪部分不对？你说的是手机，还是我刚才问的那件事？", "correction", text);
   if (/^(?:没有[，,\s]*)?(?:还没(?:有|呢|做好)?|還沒(?:有|呢)?|まだ(?:だよ|です|だ)?|not yet|아직)[。！!\s]*$/iu.test(value))
