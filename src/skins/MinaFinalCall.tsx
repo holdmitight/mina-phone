@@ -36,10 +36,9 @@ export function playMinaFinalLine(
       activeVoiceAudio.pause();
       activeVoiceAudio.currentTime = 0;
     }
-    // Refresh the corrected Mina-name take immediately on iPhone Safari.
-    // Pages may otherwise cache the old "Minami" audio for the same file URL.
+    // Refresh the edited self-introduction immediately on iPhone Safari.
     const audio = new Audio(import.meta.env.BASE_URL + "mina-voice/" + file +
-      (id === 0 ? "?v=mina-name-fixed-20261111" : ""));
+      (id === 0 ? "?v=watashi-dayo-20261111" : ""));
     activeVoiceAudio = audio;
     let fellBack = false;
     const fallback = () => {
@@ -129,7 +128,7 @@ export function speakMinaFinalLine(
 }
 
 export const minaFinalCallLines = [
-  { ja: "びっくりさせてごめん。……私、ミナ。今、ジョンヨンのスマホを借りてる。", zh: "抱歉吓到你了……是我，Mina。我现在借了定延的手机。" },
+  { ja: "びっくりさせてごめん。……私だよ。今、ジョンヨンのスマホを借りてる。", zh: "抱歉吓到你了……是我。我现在借了定延的手机。" },
   { ja: "そのスマホ……あなたが持ってるんじゃないかって、思ってた。", zh: "那部手机……我想，应该在你手里吧。" },
   { ja: "2015年の夏。レゴの指輪がいいって言ってくれたの、覚えてる？", zh: "2015 年夏天，你说过更想要 LEGO 戒指，还记得吗？" },
   { ja: "何回も作り直したの。……今度は、自分の手で作りたかったから。", zh: "我重做了好多次……因为这次，我真的想亲手做给你。" },
