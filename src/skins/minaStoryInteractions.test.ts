@@ -390,7 +390,7 @@ describe("Mina cross-app discoveries", () => {
     });
     expect(state.clues).toContain(clues.finalCallOffered);
     expect(discoverMinaClue(state, clues.finalLetterRead)).toBe(state);
-    expect(JSON.parse(JSON.stringify(state)).incomingCall?.caller).toBe("Jeongyeon");
+    expect(JSON.parse(JSON.stringify(state)).incomingCall?.caller).toBe("不明な番号");
   });
 
   it("offers the ending call regardless of whether the player reads 💗 or the final draft first", () => {
