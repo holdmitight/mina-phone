@@ -27,7 +27,7 @@ import { AppArtwork, hasNativeArtwork } from "./AppArtwork";
 import { getFields } from "./fields";
 import { catalogSkins } from "./skins/catalog";
 import { discoverMinaClue, isMinaStoryWork, normalizeMinaStoryWork, normalizeMinaStoryRuntime, minaClueKeys } from "./skins/minaStoryInteractions";
-import { MinaFinalCallScript, minaFinalCallOutcomes, type MinaFinalCallChoice } from "./skins/MinaFinalCall";
+import { MinaFinalCallScript, minaFinalCallOutcomes, minaFinalMissedCallNotice, type MinaFinalCallChoice } from "./skins/MinaFinalCall";
 import "./skins/minaFinalCall.css";
 import "./skins/skins.css";
 import "./ios18.css";
@@ -303,6 +303,21 @@ function PhoneRuntime({
   const openFromNotification = (notice: string) => {
     if (locked) {
       beginUnlock();
+      return;
+    }
+    if (notice === minaFinalMissedCallNotice && isMinaStoryWork(work)) {
+      const current = runtimeRef.current;
+      update({
+        ...current,
+        incomingCall: {
+          caller: "Jeongyeon",
+          target: "mina-story-final-call",
+          status: "ringing",
+        },
+        notifications: current.notifications.filter((entry) => entry !== notice),
+      });
+      setApp("");
+      setPanel("");
       return;
     }
     const target = notificationContent(notice, work.apps).appId;
@@ -710,6 +725,9 @@ function PhoneRuntime({
                               },
                             },
                             endings: [...runtime.endings, outcome.epilogue],
+                            notifications: runtime.notifications.filter(
+                              (entry) => entry !== minaFinalMissedCallNotice,
+                            ),
                           });
                         }}
                       />
@@ -726,17 +744,20 @@ function PhoneRuntime({
                   className="decline-call"
                   onClick={() => {
                     const call = runtimeRef.current.incomingCall;
-                    if (call)
-                      update(
-                        dispatch(
-                          work,
-                          { ...runtimeRef.current, incomingCall: null },
-                          call.status === "ringing"
-                            ? "callDeclined"
-                            : "callEnded",
-                          call.target || call.caller,
-                        ),
+                    if (call) {
+                      const ended = dispatch(
+                        work,
+                        { ...runtimeRef.current, incomingCall: null },
+                        call.status === "ringing" ? "callDeclined" : "callEnded",
+                        call.target || call.caller,
                       );
+                      const missed = call.target === "mina-story-final-call" &&
+                        isMinaStoryWork(work) && !ended.notifications.includes(minaFinalMissedCallNotice);
+                      update(missed ? {
+                        ...ended,
+                        notifications: [...ended.notifications, minaFinalMissedCallNotice],
+                      } : ended);
+                    }
                   }}
                 >
                   <PhoneIcon size={25} />
