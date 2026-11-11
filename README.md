@@ -53,3 +53,7 @@ npm run preview
 ## 来源与许可
 
 上游说明完整保留在 [UPSTREAM_README](docs/UPSTREAM_README.md)。源码采用 [MIT License](LICENSE)，保留上游版权及依赖声明。公开分发时包含 `THIRD_PARTY_LICENSES.txt`、`BRAND_NOTICE.txt`、`licenses/` 和肖像许可说明。
+
+## VoiceStudio 配音
+
+Mina 最终电话支持预先生成的 VoiceStudio 日语 AI 音频，缺少音频时使用浏览器自带日语朗读。配置、生成步骤和许可证说明请见 [VoiceStudio × Mina Phone](docs/VOICESTUDIO.md)。
