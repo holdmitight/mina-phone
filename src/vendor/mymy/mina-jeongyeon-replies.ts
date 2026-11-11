@@ -30,7 +30,6 @@ export function replyToJeongyeonText(text: string, earlier: readonly JeongyeonTu
   const value = text.normalize("NFKC").trim();
   const concerned = earlier.some((turn) => ["lost", "found", "return", "identity", "evasive", "location", "gift"].includes(turn.topic));
   const finderDisclosed = earlier.some((turn) => ["found", "return"].includes(turn.topic));
-  const identityUnknown = earlier.some((turn) => ["lost", "identity", "evasive"].includes(turn.topic));
   const same = (topic: JeongyeonTopic) => earlier.filter((turn) => turn.topic === topic).length;
 
   if (notMina.test(value))
