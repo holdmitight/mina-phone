@@ -5,7 +5,7 @@
 export type SanaTopic =
   | "meet-tomorrow" | "meet" | "avoid" | "affection" | "fear" | "regret"
   | "memory" | "why" | "deny" | "decision" | "question" | "short"
-  | "food" | "sleep" | "unknown";
+  | "food" | "sleep" | "phone-lost" | "phone-found" | "phone-not-mina" | "phone-return" | "unknown";
 
 export type SanaAdaptiveTurn = {
   text: string;
@@ -30,6 +30,18 @@ const decision = /(?:決めた|決心|頑張る|やってみる|伝える|話し
 const food = /(?:ラーメン|ご飯|ごはん|お腹|食べ|食べる|饭|吃饭|吃东西|餓了|饿了|吃|dinner|lunch|ramen|hungry|food|pizza|배고|먹을)/iu;
 const sleeping = /(?:眠い|眠たい|もう寝|寝るね|おやすみ|要睡了|我困了|好困|想睡|睡觉了|睡覺了|go to bed|good night|goodnight|sleepy|going to sleep|잘 자|졸려|자러 갈)/iu;
 
+/** These take precedence over ordinary chatting: a player might reveal that
+ * Mina's phone was found or that the sender isn't Mina. Sana may be surprised
+ * and ask questions, but never identifies A or exposes why the phone was left.
+ */
+const deviceWord = /(?:手机|手機|電話|电话|スマホ|携帯|ケータイ|phone|mobile|cellphone|handset|폰|핸드폰|휴대폰)/iu;
+const deviceMissing = /(?:丢了|丟了|丢失|丟失|不见|不見|弄丢|弄丟|遗失|遺失|掉了|没了|沒了|失踪|失蹤|なくし|落とし|紛失|見つからない|なくなっ|失くし|lost|missing|misplaced|can't find|cannot find|잃어버|분실|없어졌|사라졌)/iu;
+const deviceFound = /(?:捡到|撿到|拾到|拾った|拾いました|拾いました|見つけた|找到|找到了|found|picked up|i have her phone|i have mina's phone|주웠|찾았어)/iu;
+const deviceReturn = /(?:还给|還給|归还|歸還|交还|交還|物归原主|物歸原主|返す|返しに|届ける|return (?:it|her|the phone)|give (?:it|the phone) back|돌려주|반납)/iu;
+const notMina = /(?:我不是(?:mina|ミナ|みーたん|名井南|米娜|南)|不是(?:mina|ミナ|みーたん|名井南|米娜|南)本人|并非本人|並非本人|i'?m not mina|i am not mina|this isn'?t mina|not mina here|minaじゃない|みーたんじゃない|本人じゃない|미나가 아니|난 미나가 아니|이건 미나가 아니)/iu;
+const phoneContextTopics: SanaTopic[] = ["phone-lost", "phone-found", "phone-not-mina", "phone-return"];
+
+
 export function classifySanaTopic(text: string): SanaTopic {
   const value = tidy(text);
   // A lone question mark or reaction emoji is still a meaningful chat reply.
@@ -38,6 +50,15 @@ export function classifySanaTopic(text: string): SanaTopic {
   if (/^(?:🥺|😭|😢|😔|😅|🙂|😊|💗|❤️|!+|！+)$/u.test(text.trim())) return "short";
   const plain = compact(text);
   if (!plain) return "unknown";
+  // Match the lost-phone disclosure before generic "what do you think?"
+  // replies. Returning the phone must take precedence over "found".
+  if ((has(value, deviceWord) || has(value, /(?:それ|那个|那個|它|it|이거)/iu)) &&
+      has(value, deviceReturn)) return "phone-return";
+  if (has(value, deviceWord) && has(value, deviceFound)) return "phone-found";
+  if (has(value, notMina)) return "phone-not-mina";
+  if (has(value, deviceWord) && has(value, deviceMissing)) return "phone-lost";
+  // In a lost-phone conversation "I found it" / "拾った" has a clear referent,
+  // but isolated "found" elsewhere remains a generic remark.
   if (has(value, refusal)) return "avoid";
   if (has(value, meeting)) return has(value, tomorrow) ? "meet-tomorrow" : "meet";
   if (has(value, afraid)) return "fear";
@@ -68,10 +89,38 @@ export function sanaConversationCanContinueStory(turns: readonly SanaAdaptiveTur
 
 export function replyToSanaText(text: string, earlier: readonly SanaAdaptiveTurn[]): SanaAdaptiveTurn {
   const topic = classifySanaTopic(text);
-  const priorSame = earlier.filter((turn) => turn.topic === topic).length;
   const priorMeeting = earlier.some((turn) => turn.topic === "meet" || turn.topic === "meet-tomorrow");
   const directed = has(tidy(text), targets);
+  const discussingPhone = earlier.some((turn) => phoneContextTopics.includes(turn.topic));
+  // "I found it" and "I'll return it" can follow a lost-phone disclosure
+  // without repeating "phone" in the second message.
+  const contextualTopic: SanaTopic = discussingPhone && topic === "unknown" && has(tidy(text), deviceFound)
+    ? "phone-found"
+    : discussingPhone && topic === "unknown" && has(tidy(text), deviceReturn)
+      ? "phone-return"
+      : topic;
+  const previousSameTopic = earlier.filter((turn) => turn.topic === contextualTopic).length;
   const choices: Record<SanaTopic, string[]> = {
+    "phone-lost": [
+      "えっ、みーたんのスマホがなくなったの？……ちょっと待って。今このトークに返事してるのは誰？",
+      "スマホをなくしたって……今話してるの、みーたん本人じゃないの？",
+      "びっくりした……。まず、どこで見つかったのか教えてもらえる？",
+    ],
+    "phone-found": [
+      "拾ってくれた人なの？教えてくれてありがとう。……でも、今話してるのはみーたんじゃないんだよね？",
+      "そうだったんだ。スマホを持ってるなら、なくさないようにしておいてくれる？",
+      "わかった。ありがとう。誰が使ってるのか、先に確認してもいい？",
+    ],
+    "phone-not-mina": [
+      "えっ……みーたん本人じゃないの？びっくりした。誰がメッセージしてるの？",
+      "そうなんだ……。じゃあ、このスマホはどこで手に入れたの？",
+      "教えてくれてありがとう。でも、みーたんがどこにいるかは私にも確認が必要だよ。",
+    ],
+    "phone-return": [
+      "返してくれるんだね、ありがとう。落とし物なら、本人が確認できるところに預けてもらえると助かるよ。",
+      "うん、ありがとう。無理に会おうとせず、まず安全に返せる方法を考えよう。",
+      "ありがとう。みーたんが困らないようにしてくれると嬉しい。",
+    ],
     "meet-tomorrow": [
       directed
         ? "えっ、明日あの子に会うの？ それ、けっこう大きな一歩じゃない？"
@@ -154,25 +203,48 @@ export function replyToSanaText(text: string, earlier: readonly SanaAdaptiveTurn
       "ちゃんと読んでるよ。続きがあったら聞きたいな。",
     ],
   };
-  // Vary by message history, not by a fixed reply regardless of what was typed.
-  const reply = topic === "meet" && priorMeeting
-    ? "うん、会いに行くって決めたんだね。今度はちゃんと気持ちを伝えられるといいね。"
-    : choices[topic][priorSame % choices[topic].length];
-  return { text, replies: [reply], topic };
+  // Once the phone has been disclosed as missing, Sana no longer assumes the
+  // sender is Mina. Do not identify A from a vague pronoun or a typing style.
+  const phoneFollowup = discussingPhone && !phoneContextTopics.includes(contextualTopic)
+    ? contextualTopic === "short"
+      ? "……ごめん、びっくりして。これ、みーたん本人からの返事じゃないってこと？"
+      : contextualTopic === "question"
+        ? "まず、今このスマホで話してるのは誰なのか教えてもらえる？"
+        : contextualTopic === "meet" || contextualTopic === "meet-tomorrow"
+          ? "会うつもりなんだね。でもその前に、このスマホのことをちゃんと確認したいな。"
+          : "少し待って。スマホがなくなったって話が気になる。今、誰がこのトークに返事してるの？"
+    : null;
+  const reply = phoneFollowup ??
+    (contextualTopic === "meet" && priorMeeting
+      ? "うん、会いに行くって決めたんだね。今度はちゃんと気持ちを伝えられるといいね。"
+      : choices[contextualTopic][previousSameTopic % choices[contextualTopic].length]);
+  return { text, replies: [reply], topic: contextualTopic };
 }
 
 /** Defensive parsing of older and newer saved conversation turns. */
 export function parseSanaAdaptiveTurns(raw: readonly string[]): SanaAdaptiveTurn[] {
-  return raw.flatMap((value) => {
+  const parsed: SanaAdaptiveTurn[] = [];
+  for (const value of raw) {
     try {
       const obj: unknown = JSON.parse(value);
-      if (!obj || typeof obj !== "object") return [];
+      if (!obj || typeof obj !== "object") continue;
       const turn = obj as Record<string, unknown>;
-      if (typeof turn.text !== "string" || !turn.text.trim() || turn.text.length > 2000) return [];
+      if (typeof turn.text !== "string" || !turn.text.trim() || turn.text.length > 2000) continue;
       if (!Array.isArray(turn.replies) || turn.replies.length < 1 || turn.replies.length > 3 ||
-          !turn.replies.every((item) => typeof item === "string" && item.length > 0 && item.length <= 400)) return [];
+          !turn.replies.every((item) => typeof item === "string" && item.length > 0 && item.length <= 400)) continue;
       const topic = classifySanaTopic(turn.text);
-      return [{ text: turn.text, replies: [...turn.replies] as string[], topic }];
-    } catch { return []; }
-  }).slice(-30);
+      // Earlier versions saved a generic reply to "Sana, she lost her phone".
+      // Recover only the newly recognized lost-phone disclosure, preserving
+      // the player's exact words and all unrelated old conversations.
+      const newlyRecognized = phoneContextTopics.includes(topic) &&
+        !phoneContextTopics.includes(turn.topic as SanaTopic);
+      const contextual = newlyRecognized ? replyToSanaText(turn.text, parsed) : null;
+      parsed.push({
+        text: turn.text,
+        replies: contextual?.replies ?? [...turn.replies] as string[],
+        topic: contextual?.topic ?? topic,
+      });
+    } catch { /* Ignore corrupt local playthrough entries. */ }
+  }
+  return parsed.slice(-30);
 }
