@@ -36,7 +36,10 @@ export function playMinaFinalLine(
       activeVoiceAudio.pause();
       activeVoiceAudio.currentTime = 0;
     }
-    const audio = new Audio(import.meta.env.BASE_URL + "mina-voice/" + file);
+    // Refresh the corrected Mina-name take immediately on iPhone Safari.
+    // Pages may otherwise cache the old "Minami" audio for the same file URL.
+    const audio = new Audio(import.meta.env.BASE_URL + "mina-voice/" + file +
+      (id === 0 ? "?v=mina-name-fixed-20261111" : ""));
     activeVoiceAudio = audio;
     let fellBack = false;
     const fallback = () => {
