@@ -58,6 +58,21 @@ export function normalizeMinaStoryWork(work: Work): Work {
       date: work.phone.date?.replace(/^2026-11-/u, "2025-11-") ?? "2025-11-09",
     },
     data,
+    // The original "choose-call" event still points to the old silent
+    // "君 ♡" call. Override its action at runtime so even a brand-new
+    // playthrough triggers the same voiced Mina finale as older saves.
+    nodes: work.nodes.map((node) =>
+      node.id === "choose-call"
+        ? {
+            ...node,
+            actions: node.actions.map((action) =>
+              action.type === "call" && action.key === "call-evening"
+                ? { ...action, key: "mina-story-final-call", value: "Jeongyeon" }
+                : action,
+            ),
+          }
+        : node,
+    ),
   };
 }
 
@@ -98,8 +113,18 @@ export function normalizeMinaStoryRuntime(runtime: Runtime): Runtime {
     };
     changed = true;
   }
-  // The old script also added a "君 ♡ 来电" notice. Do not leave an
-  // unrelated ghost notification after the caller is migrated.
+  // The old script also added "君 ♡ 来电". The normalized event
+  // adds "Jeongyeon 来电". Both are redundant because the incoming-call
+  // screen is already visible. Remove them only for this finale.
+  if (normalized.incomingCall?.target === "mina-story-final-call" &&
+      normalized.notifications.includes("Jeongyeon 来电")) {
+    normalized = {
+      ...normalized,
+      notifications: normalized.notifications.filter((notice) => notice !== "Jeongyeon 来电"),
+    };
+    changed = true;
+  }
+  // Do not leave an unrelated ghost notification after the caller is migrated.
   if (normalized.notifications.some((notice) =>
     /^(?:君|💗|♡)(?:\\s*♡)?\\s*来电$/u.test(notice.trim()) ||
     notice === "君 ♡ 来电"
