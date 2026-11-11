@@ -148,6 +148,13 @@ describe("KakaoTalk unread incoming messages", () => {
     const html = renderToStaticMarkup(createElement(MymyKakao, pending));
     expect(html).toContain('aria-label="Jeongyeonから新しいメッセージ"');
     expect(html).toContain("kakao-story-popup-open");
+    expect(html).toContain('class="kakao-story-popup-icon"');
+    expect(html).toContain('aria-label="KakaoTalk"');
+    expect(html).toContain('fill="#FEE500"');
+    expect(html).toContain("kakao-story-popup-heading");
+    expect(html).toContain("Jeongyeon");
+    expect(html).toContain("<time>今</time>");
+    expect(html).not.toContain("kakao-story-popup-app");
     expect(html).toContain("야, 그거 이번엔 성공했어?ㅋㅋ");
     const read = renderToStaticMarkup(createElement(MymyKakao, {
       ...pending,
