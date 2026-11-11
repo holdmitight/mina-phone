@@ -394,7 +394,7 @@ export function MymyKakao(p: SkinProps) {
                 // message. Never answer a stranger with Mina's scripted intro.
                 if (stage === "") {
                   const topic = classifySanaTopic(text);
-                  const acknowledgment = /^(?:没有[，,\s]*)?(?:还没(?:有|呢|睡)?|嗯+|うん|まだ(?:です|だよ)?|not yet|yes|en|nono)[。！!\s]*$/iu.test(text);
+                  const acknowledgment = /^(?:没有[，,\s]*)?(?:没(?:有|呢|睡)?|还没(?:有|呢|睡)?|嗯+|うん|まだ(?:です|だよ)?|not yet|yes|en|nono)[。！!\s]*$/iu.test(text);
                   if (sanaPing && acknowledgment && !["phone-not-mina", "correction"].includes(topic)) {
                     setSanaAwakeText(text);
                     setSanaStage("awake");
@@ -404,7 +404,7 @@ export function MymyKakao(p: SkinProps) {
                     setSanaStage("direct");
                   }
                 } else {
-                  const nextTurn = { ...replyToSanaText(text, [...migratedTurns, ...adaptiveTurns]), beforePrompt: !sanaPing };
+                  const nextTurn = { ...replyToSanaText(text, [...migratedTurns, ...adaptiveTurns], stage === "awake"), beforePrompt: !sanaPing };
                   const nextTurns = [...adaptiveTurns, nextTurn];
                   setSanaChatTurns((old) => [...old, JSON.stringify(nextTurn)].slice(-30));
                   if (sanaPing && sanaConversationCanContinueStory([...migratedTurns, ...nextTurns]))

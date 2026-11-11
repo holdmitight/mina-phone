@@ -93,8 +93,18 @@ export function sanaConversationCanContinueStory(turns: readonly SanaAdaptiveTur
     turns.length >= 4;
 }
 
-export function replyToSanaText(text: string, earlier: readonly SanaAdaptiveTurn[]): SanaAdaptiveTurn {
+export function replyToSanaText(text: string, earlier: readonly SanaAdaptiveTurn[], afterIntro = false): SanaAdaptiveTurn {
   const topic = classifySanaTopic(text);
+  const brief = compact(text);
+  const clarification = "この前、帰り道で何度もスマホを見てたやん。誰かの連絡を待ってたのかなって。";
+  if (afterIntro && !earlier.length && /^(?:什么|什麼|啥|怎么了|何|なに|what)$/u.test(brief))
+    return { text, topic: "question", replies: [clarification] };
+  if (/^(?:不是|不是啊|不是啦|不是的|違う|ちがう)$/u.test(brief)) {
+    const replyingToGuess = earlier.at(-1)?.replies.includes(clarification) || (afterIntro && !earlier.length);
+    return { text, topic: "deny", replies: [replyingToGuess
+      ? "そっか、私の早とちりやね。ごめん。ちょっと気になっただけやから。"
+      : "あ、ごめん。どこを取り違えちゃった？"] };
+  }
   const priorMeeting = earlier.some((turn) => turn.topic === "meet" || turn.topic === "meet-tomorrow");
   const directed = has(tidy(text), targets);
   const discussingPhone = earlier.some((turn) => phoneContextTopics.includes(turn.topic));
