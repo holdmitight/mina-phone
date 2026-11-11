@@ -1,7 +1,7 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
-import { MinaFinalCallScript, minaFinalCallLines, minaFinalCallOutcomes, canSpeakMinaFinalCall, speakMinaFinalLine, stopMinaFinalSpeech } from "./MinaFinalCall";
+import { MinaFinalCallScript, minaFinalCallLines, minaFinalCallOutcomes, canSpeakMinaFinalCall, hasMinaRecordedVoice, playMinaFinalLine, speakMinaFinalLine, stopMinaFinalSpeech } from "./MinaFinalCall";
 
 describe("the final fictional phone call from Mina", () => {
   it("starts as a restrained conversation and doesn't spoil the secret on the first line", () => {
@@ -79,6 +79,9 @@ describe("the final fictional phone call from Mina", () => {
       }));
       expect(html).toContain("もう一度聴く");
       expect(html).toContain("重听这句话");
+      expect(hasMinaRecordedVoice("unavailable-voice-id")).toBe(false);
+      expect(playMinaFinalLine("unavailable-voice-id", "……もしもし。")).toBe(true);
+      expect(speak).toHaveBeenCalledTimes(3);
       stopMinaFinalSpeech();
       expect(cancel).toHaveBeenCalledTimes(1);
     } finally {
