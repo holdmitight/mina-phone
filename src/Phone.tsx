@@ -736,7 +736,7 @@ function PhoneRuntime({
                         onChoose={(choice: MinaFinalCallChoice) => {
                           const runtime = runtimeRef.current;
                           const outcome = minaFinalCallOutcomes[choice];
-                          playMinaFinalLine(choice, outcome.ja);
+                          stopMinaFinalSpeech();
                           update({
                             ...runtime,
                             incomingCall: null,
