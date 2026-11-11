@@ -32,6 +32,10 @@ const sleeping = /(?:眠い|眠たい|もう寝|寝るね|おやすみ|要睡了
 
 export function classifySanaTopic(text: string): SanaTopic {
   const value = tidy(text);
+  // A lone question mark or reaction emoji is still a meaningful chat reply.
+  // Do this before stripping punctuation and symbols.
+  if (/^[?？]+$/u.test(text.trim())) return "why";
+  if (/^(?:🥺|😭|😢|😔|😅|🙂|😊|💗|❤️|!+|！+)$/u.test(text.trim())) return "short";
   const plain = compact(text);
   if (!plain) return "unknown";
   if (has(value, refusal)) return "avoid";
