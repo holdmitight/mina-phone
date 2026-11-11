@@ -56,6 +56,23 @@ const native = new Set([
 function DrawnArtwork({ id, date }: { id: string; date?: string }) {
   const uid = useId().replaceAll(":", "");
   if (detailedIcons.has(id)) return <DetailedArtwork id={id} />;
+  if (id === "kakao") {
+    // A recognizable KakaoTalk icon for offline/built-in artwork too, rather
+    // than the generic MessageCircle symbol used by the registry.
+    return (
+      <svg className="app-artwork" viewBox="0 0 64 64" role="img" aria-label="KakaoTalk">
+        <rect width="64" height="64" rx="12" fill="#FEE500"/>
+        <path
+          d="M32 12C17.6 12 6 21.3 6 32.8c0 7.4 4.8 14 12.3 17.7l-2.5 8.9 11.1-6.4c1.7.3 3.4.4 5.1.4C46.4 53.4 58 44.1 58 32.8S46.4 12 32 12Z"
+          fill="#3B1E1E"
+        />
+        <text x="32" y="37" fill="#FEE500" fontSize="12" fontWeight="800" fontFamily="Arial, sans-serif" textAnchor="middle">
+          TALK
+        </text>
+      </svg>
+    );
+  }
+
   if (!native.has(id)) {
     const Icon = getApp(id).icon;
     return (
