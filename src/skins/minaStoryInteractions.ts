@@ -77,7 +77,30 @@ export function normalizeMinaStoryRuntime(runtime: Runtime): Runtime {
       }),
     ]),
   );
-  const normalized = changed ? { ...runtime, date, messages } : runtime;
+  let normalized = changed ? { ...runtime, date, messages } : runtime;
+  // Earlier versions showed Jeongyeon as the caller. Reinterpret only
+  // this fictional final call as an unknown number (Mina's identity is
+  // revealed after answering). Preserve the save's call status and step.
+  if (normalized.incomingCall?.target === "mina-story-final-call" &&
+      normalized.incomingCall.caller === "Jeongyeon") {
+    normalized = {
+      ...normalized,
+      incomingCall: { ...normalized.incomingCall, caller: "不明な番号" },
+    };
+    changed = true;
+  }
+  const oldMissed = "Phone: Jeongyeon · 不在着信（タップして折り返す）";
+  if (normalized.notifications.includes(oldMissed)) {
+    normalized = {
+      ...normalized,
+      notifications: normalized.notifications.map((notice) =>
+        notice === oldMissed
+          ? "Phone: 不明な番号 · 不在着信（タップして折り返す）"
+          : notice,
+      ),
+    };
+    changed = true;
+  }
 
   // Repair older saves whose Sana branch finished before the Jeongyeon
   // notification was recorded. Reopening KakaoTalk is not required.
@@ -391,7 +414,7 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
   if (finalCallReady && !clues.includes(minaClueKeys.finalCallOffered) && !incomingCall) {
     clues.push(minaClueKeys.finalCallOffered);
     incomingCall = {
-      caller: "Jeongyeon",
+      caller: "不明な番号",
       target: "mina-story-final-call",
       status: "ringing",
     };
