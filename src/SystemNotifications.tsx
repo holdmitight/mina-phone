@@ -13,9 +13,9 @@ export function notificationContent(text: string, apps: Work["apps"]) {
   // KakaoTalk app instead of falling back to the green SMS icon. Only remove
   // the placeholder 「君」 from the notification heading, not its message body
   // or the stored conversation.
-  const kakaoHeading = /^KakaoTalk(?:\\s*[·•・]\\s*(.*))?$/iu.exec(sender);
+  const kakaoHeading = /^KakaoTalk(?:\s*[·•・]\s*(.*))?$/iu.exec(sender);
   const rawBody = separator > 0 ? text.slice(separator + 1).trimStart() : text;
-  const embeddedContact = /^君\\s*([♡♥💗])\\s*[:：]\\s*/u.exec(rawBody);
+  const embeddedContact = /^君\s*([♡♥💗])\s*[:：]\s*/u.exec(rawBody);
   const contactLabel = (kakaoHeading?.[1] ?? embeddedContact?.[1] ?? "")
     .replace(/君/gu, "").trim();
   const isKakao = Boolean(kakaoHeading);
