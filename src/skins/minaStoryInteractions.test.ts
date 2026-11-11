@@ -426,7 +426,7 @@ describe("Mina cross-app discoveries", () => {
     expect(state.incomingCall).toBeNull();
     state = discoverMinaClue(state, clues.finalLetterRead);
     expect(state.incomingCall).toEqual({
-      caller: "不明な番号",
+      caller: "Jeongyeon",
       target: "mina-story-final-call",
       status: "ringing",
     });
