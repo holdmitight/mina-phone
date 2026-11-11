@@ -41,6 +41,7 @@ import { minaKakao2025Items } from "./mina-kakao-2025";
 import { hasSanaStoryPrompt, minaSanaInteractiveMessages, isSanaBranch, matchSanaFreeText, parseSanaAttempts, recoverSanaAttemptHistory, type SanaStage } from "./mina-sana-replies";
 import { minaClueKeys } from "../../skins/minaStoryInteractions";
 import { markKakaoThreadRead, orderKakaoMessages, unreadKakaoMessages } from "./kakaoUnread";
+import { classifySanaTopic, parseSanaAdaptiveTurns, replyToSanaText, sanaConversationCanContinueStory } from "./sanaAdaptive";
 import "../../skins/mina-instagram.css";
 function grouped(items: Item[]) {
   return [...new Set(items.map((i) => i.title))].map((title) => ({
@@ -80,6 +81,7 @@ export function MymyKakao(p: SkinProps) {
     [sanaAwakeText, setSanaAwakeText] = useSkinState<string>(p, "minaSanaAwakeText", ""),
     [sanaReplyText, setSanaReplyText] = useSkinState<string>(p, "minaSanaReplyText", ""),
     [sanaAttempts, setSanaAttempts] = useSkinState<string[]>(p, "minaSanaAttempts", []),
+    [sanaChatTurns, setSanaChatTurns] = useSkinState<string[]>(p, "minaSanaChatTurns", []),
     [jeongyeonPopupDismissed, setJeongyeonPopupDismissed] = useSkinState<boolean>(p, "minaJeongyeonPopupDismissed", false),
     [draft, setDraft] = useState(""),
     [query, setQuery] = useState(""),
@@ -114,15 +116,19 @@ export function MymyKakao(p: SkinProps) {
     sanaReplyText,
     parseSanaAttempts(sanaAttempts),
   );
+  const adaptiveTurns = parseSanaAdaptiveTurns(sanaChatTurns);
+  const legacyFollowAttempts = recoveredSana.attempts.filter((attempt) => attempt.phase === "awake");
+  const migratedTurns = legacyFollowAttempts.map((attempt) => replyToSanaText(attempt.text, []));
   const sanaStoryItems = minaSanaInteractiveMessages(
     sanaPing,
     recoveredSana.stage,
     recoveredSana.awakeText,
     recoveredSana.replyText,
     recoveredSana.attempts,
+    adaptiveTurns,
   );
   const sanaReplyPending =
-    !p.creator && p.thread === "Sana" && !!sanaPing && !isSanaBranch(recoveredSana.stage);
+    !p.creator && p.thread === "Sana" && !!sanaPing;
   const sourceItems = isMinaStory
     ? [...p.items, ...minaKakao2025Items, ...sanaStoryItems]
     : p.items;
@@ -201,6 +207,16 @@ export function MymyKakao(p: SkinProps) {
     if (isMinaStory && sanaPing && isSanaBranch(recoveredSana.stage))
       p.onClue?.(minaClueKeys.sanaFinished);
   }, [isMinaStory, !!sanaPing, recoveredSana.stage, p.onClue]);
+
+  // Also recover an older free-text playthrough where the player said
+  // something meaningful but the former keyword matcher kept replying with
+  // "What do you mean?". A plan to meet her is enough to progress the story.
+  useEffect(() => {
+    if (isMinaStory && sanaPing &&
+        sanaConversationCanContinueStory([...migratedTurns, ...adaptiveTurns])) {
+      p.onClue?.(minaClueKeys.sanaFinished);
+    }
+  }, [isMinaStory, !!sanaPing, sanaChatTurns.join("|"), sanaAttempts.join("|"), recoveredSana.stage, p.onClue]);
 
   // Opening the Jeongyeon conversation itself counts as reading the clue.
   // This also handles a chat restored directly after app navigation, rather
@@ -307,21 +323,29 @@ export function MymyKakao(p: SkinProps) {
               if (!text) return;
               if (sanaReplyPending) {
                 const stage = recoveredSana.stage as SanaStage;
-                const matched = matchSanaFreeText(text, stage);
-                if (stage === "" && matched === "awake") {
-                  setSanaAwakeText(text);
-                  setSanaStage("awake");
-                } else if (stage === "awake" && matched && isSanaBranch(matched)) {
-                  setSanaReplyText(text);
-                  setSanaStage(matched);
-                  // Send the clue at the exact moment the final branch reply
-                  // is submitted. The legacy useEffect remains a backup.
-                  p.onClue?.(minaClueKeys.sanaFinished);
+                // The first reply is simply an acknowledgment that Mina is
+                // awake; do not make the player guess an exact keyword.
+                if (stage === "") {
+                  if (classifySanaTopic(text) === "sleep") {
+                    setSanaAttempts((old) => [
+                      ...old, JSON.stringify(["", text]),
+                    ].slice(-12));
+                  } else {
+                    setSanaAwakeText(text);
+                    setSanaStage("awake");
+                  }
                 } else {
-                  setSanaAttempts((old) => [
-                    ...old,
-                    JSON.stringify([stage, text]),
-                  ].slice(-12));
+                  // After Sana's question, EVERY message gets a contextual
+                  // reply. Keep the exact words and responses in saved UI
+                  // state; the canonical three choices remain for old saves.
+                  const nextTurn = replyToSanaText(text, [...migratedTurns, ...adaptiveTurns]);
+                  const nextTurns = [...adaptiveTurns, nextTurn];
+                  setSanaChatTurns((old) => [
+                    ...old, JSON.stringify(nextTurn),
+                  ].slice(-30));
+                  if (sanaConversationCanContinueStory([...migratedTurns, ...nextTurns])) {
+                    p.onClue?.(minaClueKeys.sanaFinished);
+                  }
                 }
               } else {
                 setSent([
