@@ -89,7 +89,7 @@ export function normalizeMinaStoryRuntime(runtime: Runtime): Runtime {
       ...normalized,
       incomingCall: {
         ...oldCall,
-        caller: "不明な番号",
+        caller: "Jeongyeon",
         target: "mina-story-final-call",
       },
       clues: normalized.clues.includes(minaClueKeys.finalCallOffered)
@@ -113,24 +113,23 @@ export function normalizeMinaStoryRuntime(runtime: Runtime): Runtime {
     };
     changed = true;
   }
-  // Earlier versions showed Jeongyeon as the caller. Reinterpret only
-  // this fictional final call as an unknown number (Mina's identity is
-  // revealed after answering). Preserve the save's call status and step.
+  // Normalize the earlier anonymous-number variant: the call really comes
+  // from Jeongyeon's borrowed phone, with Mina speaking after answer.
   if (normalized.incomingCall?.target === "mina-story-final-call" &&
-      normalized.incomingCall.caller === "Jeongyeon") {
+      normalized.incomingCall.caller === "不明な番号") {
     normalized = {
       ...normalized,
-      incomingCall: { ...normalized.incomingCall, caller: "不明な番号" },
+      incomingCall: { ...normalized.incomingCall, caller: "Jeongyeon" },
     };
     changed = true;
   }
-  const oldMissed = "Phone: Jeongyeon · 不在着信（タップして折り返す）";
+  const oldMissed = "Phone: 不明な番号 · 不在着信（タップして折り返す）";
   if (normalized.notifications.includes(oldMissed)) {
     normalized = {
       ...normalized,
       notifications: normalized.notifications.map((notice) =>
         notice === oldMissed
-          ? "Phone: 不明な番号 · 不在着信（タップして折り返す）"
+          ? "Phone: Jeongyeon · 不在着信（タップして折り返す）"
           : notice,
       ),
     };
@@ -449,7 +448,7 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
   if (finalCallReady && !clues.includes(minaClueKeys.finalCallOffered) && !incomingCall) {
     clues.push(minaClueKeys.finalCallOffered);
     incomingCall = {
-      caller: "不明な番号",
+      caller: "Jeongyeon",
       target: "mina-story-final-call",
       status: "ringing",
     };
