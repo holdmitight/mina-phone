@@ -372,7 +372,7 @@ describe("Mina cross-app discoveries", () => {
 
     const repaired = normalizeMinaStoryRuntime(original);
     expect(repaired.incomingCall).toEqual({
-      caller: "不明な番号",
+      caller: "Jeongyeon",
       target: "mina-story-final-call",
       status: "ringing",
     });
@@ -393,25 +393,25 @@ describe("Mina cross-app discoveries", () => {
       ui: { minaFinalCall: { step: 3 } },
     };
     const repaired = normalizeMinaStoryRuntime(saved);
-    expect(repaired.incomingCall?.caller).toBe("不明な番号");
+    expect(repaired.incomingCall?.caller).toBe("Jeongyeon");
     expect(repaired.incomingCall?.target).toBe("mina-story-final-call");
     expect(repaired.incomingCall?.status).toBe("answered");
     expect(repaired.ui?.minaFinalCall?.step).toBe(3);
     expect(repaired.notifications).toEqual(["KakaoTalk: Sana：みーたん、まだ起きてる？"]);
   });
 
-  it("repairs saved Jeongyeon caller IDs and missed calls without resetting the final dialogue", () => {
+  it("repairs anonymous caller IDs from previous builds without resetting the final dialogue", () => {
     const saved = {
       ...initialRuntime(fixture),
-      incomingCall: { caller: "Jeongyeon", target: "mina-story-final-call", status: "answered" as const },
-      notifications: ["Phone: Jeongyeon · 不在着信（タップして折り返す）"],
+      incomingCall: { caller: "不明な番号", target: "mina-story-final-call", status: "answered" as const },
+      notifications: ["Phone: 不明な番号 · 不在着信（タップして折り返す）"],
       ui: { minaFinalCall: { step: 4 } },
     };
     const fixed = normalizeMinaStoryRuntime(saved);
-    expect(fixed.incomingCall?.caller).toBe("不明な番号");
+    expect(fixed.incomingCall?.caller).toBe("Jeongyeon");
     expect(fixed.incomingCall?.status).toBe("answered");
     expect(fixed.ui?.minaFinalCall?.step).toBe(4);
-    expect(fixed.notifications[0]).toContain("不明な番号");
+    expect(fixed.notifications[0]).toContain("Jeongyeon");
     expect(normalizeMinaStoryRuntime(fixed)).toBe(fixed);
   });
 
@@ -432,7 +432,7 @@ describe("Mina cross-app discoveries", () => {
     });
     expect(state.clues).toContain(clues.finalCallOffered);
     expect(discoverMinaClue(state, clues.finalLetterRead)).toBe(state);
-    expect(JSON.parse(JSON.stringify(state)).incomingCall?.caller).toBe("不明な番号");
+    expect(JSON.parse(JSON.stringify(state)).incomingCall?.caller).toBe("Jeongyeon");
   });
 
   it("offers the ending call regardless of whether the player reads 💗 or the final draft first", () => {
