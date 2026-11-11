@@ -358,6 +358,21 @@ describe("Mina cross-app discoveries", () => {
     expect(notYet.clues).not.toContain(clues.sanaFinished);
   });
 
+  it("repairs saved Jeongyeon caller IDs and missed calls without resetting the final dialogue", () => {
+    const saved = {
+      ...initialRuntime(fixture),
+      incomingCall: { caller: "Jeongyeon", target: "mina-story-final-call", status: "answered" as const },
+      notifications: ["Phone: Jeongyeon · 不在着信（タップして折り返す）"],
+      ui: { minaFinalCall: { step: 4 } },
+    };
+    const fixed = normalizeMinaStoryRuntime(saved);
+    expect(fixed.incomingCall?.caller).toBe("不明な番号");
+    expect(fixed.incomingCall?.status).toBe("answered");
+    expect(fixed.ui?.minaFinalCall?.step).toBe(4);
+    expect(fixed.notifications[0]).toContain("不明な番号");
+    expect(normalizeMinaStoryRuntime(fixed)).toBe(fixed);
+  });
+
   it("makes Mina call only after the real 2025 draft and 💗 chat were both read", () => {
     let state = initialRuntime(fixture);
     state = discoverMinaClue(state, clues.giftTrailResolved);
@@ -369,7 +384,7 @@ describe("Mina cross-app discoveries", () => {
     expect(state.incomingCall).toBeNull();
     state = discoverMinaClue(state, clues.finalLetterRead);
     expect(state.incomingCall).toEqual({
-      caller: "Jeongyeon",
+      caller: "不明な番号",
       target: "mina-story-final-call",
       status: "ringing",
     });
