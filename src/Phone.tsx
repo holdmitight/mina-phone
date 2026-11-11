@@ -27,7 +27,7 @@ import { AppArtwork, hasNativeArtwork } from "./AppArtwork";
 import { getFields } from "./fields";
 import { catalogSkins } from "./skins/catalog";
 import { discoverMinaClue, isMinaStoryWork, normalizeMinaStoryWork, normalizeMinaStoryRuntime, minaClueKeys } from "./skins/minaStoryInteractions";
-import { MinaFinalCallScript, minaFinalCallLines, minaFinalCallOutcomes, minaFinalMissedCallNotice, speakMinaFinalLine, stopMinaFinalSpeech, type MinaFinalCallChoice } from "./skins/MinaFinalCall";
+import { MinaFinalCallScript, minaFinalCallLines, minaFinalCallOutcomes, minaFinalMissedCallNotice, playMinaFinalLine, stopMinaFinalSpeech, type MinaFinalCallChoice } from "./skins/MinaFinalCall";
 import "./skins/minaFinalCall.css";
 import "./skins/skins.css";
 import "./ios18.css";
@@ -698,7 +698,7 @@ function PhoneRuntime({
                         step={currentStep}
                         onAdvance={() => {
                           const runtime = runtimeRef.current;
-                          speakMinaFinalLine(minaFinalCallLines[Math.min(currentStep + 1, minaFinalCallLines.length - 1)].ja);
+                          playMinaFinalLine(Math.min(currentStep + 1, minaFinalCallLines.length - 1), minaFinalCallLines[Math.min(currentStep + 1, minaFinalCallLines.length - 1)].ja);
                           update({
                             ...runtime,
                             ui: {
@@ -713,7 +713,7 @@ function PhoneRuntime({
                         onChoose={(choice: MinaFinalCallChoice) => {
                           const runtime = runtimeRef.current;
                           const outcome = minaFinalCallOutcomes[choice];
-                          speakMinaFinalLine(outcome.ja);
+                          playMinaFinalLine(choice, outcome.ja);
                           update({
                             ...runtime,
                             incomingCall: null,
@@ -781,7 +781,7 @@ function PhoneRuntime({
                             Math.max(Number(runtimeRef.current.ui?.minaFinalCall?.step ?? 0), 0),
                             minaFinalCallLines.length - 1,
                           );
-                          speakMinaFinalLine(minaFinalCallLines[step].ja);
+                          playMinaFinalLine(step, minaFinalCallLines[step].ja);
                         }
                         update(
                           dispatch(
