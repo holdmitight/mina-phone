@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import actualMinaStory from "../../stories/template/story.json";
 import { compileStory } from "../story-engine/compiler";
+import { choose } from "../engine";
 import { initialRuntime, makeItem, type Work } from "../schema";
 import {
   discoverMinaClue,
@@ -356,6 +357,47 @@ describe("Mina cross-app discoveries", () => {
     };
     const notYet = normalizeMinaStoryRuntime(onlyAwake);
     expect(notYet.clues).not.toContain(clues.sanaFinished);
+  });
+
+  it("fixes the real shipped storyline event that previously displayed 君 ♡ 来电 with no audio", () => {
+    const work = compileStory(actualMinaStory).work;
+    const oldChoice = {
+      ...initialRuntime(work),
+      choices: [{ label: "今夜は、声を聞いておやすみ。", target: "choose-call" }],
+    };
+    const original = choose(work, oldChoice, "choose-call");
+    expect(original.incomingCall?.caller).toBe("君 ♡");
+    expect(original.incomingCall?.target).toBe("call-evening");
+    expect(original.notifications).toContain("君 ♡ 来电");
+
+    const repaired = normalizeMinaStoryRuntime(original);
+    expect(repaired.incomingCall).toEqual({
+      caller: "不明な番号",
+      target: "mina-story-final-call",
+      status: "ringing",
+    });
+    expect(repaired.notifications).not.toContain("君 ♡ 来电");
+    expect(repaired.clues).toContain(clues.finalCallOffered);
+    expect(normalizeMinaStoryRuntime(repaired)).toBe(repaired);
+  });
+
+  it("upgrades a saved old call even when the player already answered it", () => {
+    const saved = {
+      ...initialRuntime(fixture),
+      incomingCall: {
+        caller: "君 ♡",
+        target: "call-evening",
+        status: "answered" as const,
+      },
+      notifications: ["君 ♡ 来电", "KakaoTalk: Sana：みーたん、まだ起きてる？"],
+      ui: { minaFinalCall: { step: 3 } },
+    };
+    const repaired = normalizeMinaStoryRuntime(saved);
+    expect(repaired.incomingCall?.caller).toBe("不明な番号");
+    expect(repaired.incomingCall?.target).toBe("mina-story-final-call");
+    expect(repaired.incomingCall?.status).toBe("answered");
+    expect(repaired.ui?.minaFinalCall?.step).toBe(3);
+    expect(repaired.notifications).toEqual(["KakaoTalk: Sana：みーたん、まだ起きてる？"]);
   });
 
   it("repairs saved Jeongyeon caller IDs and missed calls without resetting the final dialogue", () => {
