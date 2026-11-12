@@ -381,7 +381,7 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
       const newNote = makeItem({
         id: "mina-story-rain-unsent-note",
         title: "書きかけ",
-        body: "雨が強い。\n\n……今なら、ちゃんと言えるのに。",
+        body: "雨が強い。\n傘を開いたら、反対側を少し空ける癖がまだ残ってた。ひとりなのに左肩だけ濡れた。",
         time: "2025-11-04 20:41",
         sender: "名井南",
         kind: "note",
@@ -527,15 +527,10 @@ export function discoverMinaClue(runtime: Runtime, clue: string): Runtime {
 
   const oldGiftDraft = "何回やり直しても、うまくいかない。\n\nでも、自分で作りたい。\n……あの約束だから。";
   const refinedGiftDraft = [
-    "何回やり直しても、うまくいかない。",
+    "机の下で白いパーツをひとつ発見。昨日あんなに探したのに、靴下にくっついてた。",
     "",
-    "あの時は、冗談だと思ってた。",
-    "でも、私はずっと覚えてる。",
-    "",
-    "自分で作りたい。",
-    "……あの約束だから。",
-    "",
-    "今さら渡しても、困らせるだけかな。",
+    "あの約束、君は冗談のつもりだったかもしれない。",
+    "でも、これを見たときの君の顔を想像したら、もう一回くらい作り直せそう。",
   ].join("\n");
 
   // The three discoveries can be made in any order. This note is only a

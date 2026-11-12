@@ -148,7 +148,7 @@ describe("Mina cross-app discoveries", () => {
     const healed = discoverMinaClue(partial, clues.oldLine);
     expect(healed.messages.notes).toHaveLength(1);
     expect(healed.messages.notes[0].body).toBe(
-      "雨が強い。\n\n……今なら、ちゃんと言えるのに。",
+      "雨が強い。\n傘を開いたら、反対側を少し空ける癖がまだ残ってた。ひとりなのに左肩だけ濡れた。",
     );
     expect(discoverMinaClue(healed, clues.balletDetails)).toBe(healed);
   });
@@ -213,10 +213,10 @@ describe("Mina cross-app discoveries", () => {
     state = discoverMinaClue(state, clues.legoPromiseSeen);
     const draft = state.messages.notes.find((i) => i.id === "mina-story-gift-unsent-draft");
     expect(state.clues).toContain(clues.giftTrailResolved);
-    expect(draft?.body).toContain("あの時は、冗談だと思ってた。");
-    expect(draft?.body).toContain("私はずっと覚えてる");
+    expect(draft?.body).toContain("君は冗談のつもりだったかもしれない。");
+    expect(draft?.body).toContain("これを見たときの君の顔");
     expect(draft?.body).toContain("あの約束");
-    expect(draft?.body).toContain("困らせるだけかな");
+    expect(draft?.body).toContain("もう一回くらい作り直せそう");
     expect(draft?.body).not.toContain("スマホをわざと");
     expect(discoverMinaClue(state, clues.safariResearchSeen)).toBe(state);
   });
