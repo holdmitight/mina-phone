@@ -139,7 +139,7 @@ export const minaFinalCallLines = [
 
 export const minaFinalMissedCallNotice = "Phone: Jeongyeon · 不在着信（タップして折り返す）";
 
-export type MinaFinalCallChoice = "meet" | "time" | "silence";
+export type MinaFinalCallChoice = "meet" | "decline";
 
 export const minaFinalCallOutcomes: Record<MinaFinalCallChoice, {
   ja: string;
@@ -151,15 +151,10 @@ export const minaFinalCallOutcomes: Record<MinaFinalCallChoice, {
     zh: "……谢谢你。我等你。这次，我一定会亲手交给你。",
     epilogue: "受話器の向こうで、小さく息をのむ音がした。\n\n「……ありがとう。待ってる。」",
   },
-  time: {
-    ja: "うん。急がなくていいよ。……聞いてくれて、ありがとう。",
-    zh: "嗯，不用急着回答……谢谢你愿意听我说。",
-    epilogue: "今すぐ答えを出さなくてもいい。\n\n「……聞いてくれて、ありがとう。」",
-  },
-  silence: {
-    ja: "……うん。返事は、今じゃなくていいから。……また、いつか。",
-    zh: "……嗯。现在不回答也没关系……以后，有机会的话。",
-    epilogue: "答えを待つ静かな時間。\n\n「……また、いつか。」",
+  decline: {
+    ja: "……うん。わかった。",
+    zh: "……嗯，我知道了。",
+    epilogue: "「……うん。わかった。」\n\nミナは少し黙ってから、いつもの声で「じゃあね」と言った。電話を切ると、画面の時計は17:16を指していた。",
   },
 };
 
@@ -202,8 +197,7 @@ export function MinaFinalCallScript({
       ) : (
         <div className="mina-final-call-choices" role="group" aria-label="電話への返事">
           <button type="button" onClick={() => onChoose("meet")}>会いに行く <small>我去见你</small></button>
-          <button type="button" onClick={() => onChoose("time")}>少し時間がほしい <small>我还需要一点时间</small></button>
-          <button type="button" onClick={() => onChoose("silence")}>…… <small>暂时不回答</small></button>
+          <button type="button" onClick={() => onChoose("decline")}>会わない <small>不见面</small></button>
         </div>
       )}
     </div>

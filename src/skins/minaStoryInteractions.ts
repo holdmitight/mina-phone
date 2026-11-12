@@ -100,6 +100,7 @@ export function isMinaFinalCallComplete(runtime: Runtime): boolean {
   return Boolean(runtime.ui?.minaFinalCall?.answer) ||
     runtime.endings.some((ending) =>
       ending.startsWith("受話器の向こうで、") ||
+      ending.startsWith("「……うん。わかった。」") ||
       ending.startsWith("今すぐ答えを出さなくてもいい。") ||
       ending.startsWith("答えを待つ静かな時間。")
     );

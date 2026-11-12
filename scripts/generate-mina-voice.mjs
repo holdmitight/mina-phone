@@ -13,7 +13,7 @@ const lines = [...source.matchAll(/\{\s*ja:\s*"([^"]+)"\s*,\s*zh:/gu)]
 if (lines.length !== 7) throw Error("Could not find all 7 final-call lines.");
 
 const outcomes = {};
-for (const choice of ["meet", "time", "silence"]) {
+for (const choice of ["meet", "decline"]) {
   const pattern = new RegExp(choice + ':\\s*\\{\\s*ja:\\s*"([^"]+)"', "u");
   const match = source.match(pattern);
   if (!match) throw Error("Could not find outcome " + choice);
@@ -21,7 +21,7 @@ for (const choice of ["meet", "time", "silence"]) {
 }
 
 if (process.argv.includes("--check")) {
-  console.log("VoiceStudio script checked: 8 call lines and 3 outcomes.");
+  console.log("VoiceStudio script checked: 7 call lines and 2 outcomes.");
   process.exit(0);
 }
 

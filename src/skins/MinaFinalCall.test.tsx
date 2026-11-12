@@ -39,8 +39,8 @@ describe("the final fictional phone call from Mina", () => {
     }));
     expect(html).toContain("会ってくれる");
     expect(html).toContain("会いに行く");
-    expect(html).toContain("少し時間がほしい");
-    expect(html).toContain("暂时不回答");
+    expect(html).toContain("不见面");
+    expect(html).not.toContain("暂时不回答");
     expect(html).not.toContain("続きを聞く");
   });
 
@@ -96,10 +96,10 @@ describe("the final fictional phone call from Mina", () => {
     }
   });
 
-  it("respects yes, not-yet, and silence without pretending the ring is already delivered", () => {
+  it("respects meeting and declining without pretending the ring is already delivered", () => {
     expect(minaFinalCallOutcomes.meet.ja).toContain("私がちゃんと渡す");
-    expect(minaFinalCallOutcomes.time.ja).toContain("急がなくていい");
-    expect(minaFinalCallOutcomes.silence.ja).toContain("返事は");
+    expect(Object.keys(minaFinalCallOutcomes)).toEqual(["meet", "decline"]);
+    expect(minaFinalCallOutcomes.decline.epilogue).toContain("17:16");
     expect(minaFinalCallOutcomes.meet.epilogue).not.toContain("指輪をはめた");
   });
 });
