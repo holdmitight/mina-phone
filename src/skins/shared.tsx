@@ -99,7 +99,7 @@ export function Avatar({
       {safeMedia(src)?.startsWith("data:image/") ? (
         <img src={safeMedia(src)} alt="" />
       ) : (
-        name.slice(0, 1) || "人"
+        Array.from(name)[0] || "人"
       )}
     </span>
   );
@@ -137,11 +137,13 @@ export function Row({
   onItem,
   leading,
   children,
+  showTime = true,
 }: {
   item: Item;
   onItem: (i: Item) => void;
   leading?: ReactNode;
   children?: ReactNode;
+  showTime?: boolean;
 }) {
   return (
     <button className="catalog-row" onClick={() => onItem(item)}>
@@ -149,7 +151,7 @@ export function Row({
       <span>
         <strong>{item.title}</strong>
         <p>{item.body.split("\n")[0]}</p>
-        <small>{item.time}</small>
+        {showTime && <small>{item.time}</small>}
       </span>
       {children ??
         (item.password ? (

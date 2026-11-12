@@ -3,7 +3,7 @@
   "id": "mina-after-hours",
   "title": "MINA のスマートフォン · 夜の余白",
   "description": "MINAをテーマにした非公式のフィクション。日本語のメッセージ、韓国語の日常、あなただけのピン留め。",
-  "revision": 6,
+  "revision": 7,
   "phone": {
     "owner": "名井南",
     "date": "2026-11-09",
@@ -236,7 +236,7 @@
   "contacts": [
     {
       "id": "contact-you",
-      "name": "君 ♡",
+      "name": "💗",
       "phone": "ストーリー内の連絡先",
       "avatar": "",
       "bio": "ピン留めした連絡先。「帰れた？」を、最初に聞いてくれる人。"
@@ -330,7 +330,7 @@
     {
       "id": "kaka-you",
       "app": "kakao",
-      "title": "君 ♡",
+      "title": "💗",
       "participants": [
         "owner",
         "contact-you"
@@ -338,7 +338,7 @@
       "messages": [
         {
           "id": "kaka-you-1",
-          "title": "君 ♡",
+          "title": "💗",
           "body": "起きた？ コーヒー、冷蔵庫の左側に入れてあるよ。",
           "senderId": "contact-you",
           "time": "2026-11-09 08:12",
@@ -347,7 +347,7 @@
         },
         {
           "id": "kaka-you-2",
-          "title": "君 ♡",
+          "title": "💗",
           "body": "今起きた。出るとき、起こしてくれてもよかったのに。",
           "senderId": "owner",
           "time": "2026-11-09 08:24",
@@ -356,7 +356,7 @@
         },
         {
           "id": "kaka-you-3",
-          "title": "君 ♡",
+          "title": "💗",
           "body": "「あと5分」って、布団抱きしめてた人がいたから。",
           "senderId": "contact-you",
           "time": "2026-11-09 08:25",
@@ -365,7 +365,7 @@
         },
         {
           "id": "kaka-you-4",
-          "title": "君 ♡",
+          "title": "💗",
           "body": "……それ、私じゃないと思う。",
           "senderId": "owner",
           "time": "2026-11-09 08:26",
@@ -374,7 +374,7 @@
         },
         {
           "id": "kaka-you-5",
-          "title": "君 ♡",
+          "title": "💗",
           "body": "じゃあ、あそこに住んでる小さいペンギンかな。",
           "senderId": "contact-you",
           "time": "2026-11-09 08:27",
@@ -383,7 +383,7 @@
         },
         {
           "id": "kaka-you-6",
-          "title": "君 ♡",
+          "title": "💗",
           "body": "今日は練習、少し遅くなりそう。ごはんは先に食べてね。",
           "senderId": "owner",
           "time": "2026-11-09 12:31",
@@ -392,7 +392,7 @@
         },
         {
           "id": "kaka-you-7",
-          "title": "君 ♡",
+          "title": "💗",
           "body": "わかった。昨日選んだ映画は、まだ見ないでおく。",
           "senderId": "contact-you",
           "time": "2026-11-09 12:34",
@@ -401,7 +401,7 @@
         },
         {
           "id": "kaka-you-8",
-          "title": "君 ♡",
+          "title": "💗",
           "body": "それは一緒に見たい。",
           "senderId": "owner",
           "time": "2026-11-09 12:34",
@@ -410,7 +410,7 @@
         },
         {
           "id": "kaka-you-9",
-          "title": "君 ♡",
+          "title": "💗",
           "body": "うん。最初から、一緒に見ようね。",
           "senderId": "contact-you",
           "time": "2026-11-09 12:35",
@@ -419,7 +419,7 @@
         },
         {
           "id": "kaka-you-10",
-          "title": "君 ♡",
+          "title": "💗",
           "body": "今ちょっと休憩中。あなたのと似てるマフラー見つけた。",
           "senderId": "owner",
           "time": "2026-11-09 17:42",
@@ -428,7 +428,7 @@
         },
         {
           "id": "kaka-you-11",
-          "title": "君 ♡",
+          "title": "💗",
           "body": "じゃあ今度、おそろいにする？",
           "senderId": "contact-you",
           "time": "2026-11-09 17:45",
@@ -437,7 +437,7 @@
         },
         {
           "id": "kaka-you-12",
-          "title": "君 ♡",
+          "title": "💗",
           "body": "……いいけど。",
           "senderId": "owner",
           "time": "2026-11-09 17:46",
@@ -446,7 +446,7 @@
         },
         {
           "id": "kaka-you-13",
-          "title": "君 ♡",
+          "title": "💗",
           "body": "そろそろ終わる？ スープ、作ってあるよ。",
           "senderId": "contact-you",
           "time": "2026-11-09 21:06",
@@ -455,7 +455,7 @@
         },
         {
           "id": "kaka-you-14",
-          "title": "君 ♡",
+          "title": "💗",
           "body": "あと1回で終わる。今日はちょっと、会いたい。",
           "senderId": "owner",
           "time": "2026-11-09 21:07",
@@ -464,7 +464,7 @@
         },
         {
           "id": "kaka-you-last",
-          "title": "君 ♡",
+          "title": "💗",
           "body": "私も。会いに来ても、電話だけでもいいよ。無理しないでね。",
           "senderId": "contact-you",
           "time": "2026-11-09 21:09",
@@ -2144,7 +2144,7 @@
     "phone": [
       {
         "id": "phone-you",
-        "title": "君 ♡",
+        "title": "💗",
         "body": "昨日は18分24秒。最後の3分は、どちらも先に切ろうと言わなかった。",
         "time": "2026-11-08 23:06",
         "kind": "call",
@@ -2192,7 +2192,7 @@
       },
       {
         "id": "call-evening",
-        "title": "君 ♡",
+        "title": "💗",
         "body": "「帰れた？」\n「今着いた。今日は、ちょっと疲れた」\n「じゃあ、頑張って話さなくていいよ。しばらく一緒にいよう」\n\n作品内の架空の通話です。電話を切ると、今夜の言葉を「君へ」のメモに残します。",
         "time": "2026-11-09 21:09",
         "kind": "call",
@@ -2471,7 +2471,7 @@
         {
           "type": "notification",
           "key": "",
-          "value": "KakaoTalk · 君 ♡：私も。会いに来ても、電話だけでもいいよ。無理しないでね。"
+          "value": "KakaoTalk · 💗：私も。会いに来ても、電話だけでもいいよ。無理しないでね。"
         }
       ]
     },
@@ -2615,7 +2615,7 @@
         {
           "type": "call",
           "key": "call-evening",
-          "value": "君 ♡"
+          "value": "💗"
         }
       ]
     },

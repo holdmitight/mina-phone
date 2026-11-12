@@ -111,7 +111,7 @@ export function NativeDetail({
       ) : app === "contacts" || app === "phone" ? (
         <div className="native-detail-scroll">
           <div className="native-contact-hero">
-            <span>{item.title.slice(0, 1)}</span>
+            <span>{Array.from(item.title)[0]}</span>
             <h1>{item.title}</h1>
           </div>
           <div className="native-contact-actions">
