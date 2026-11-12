@@ -60,7 +60,6 @@ export function BubbleSkin(p: Props) {
     index: cleared ? index + Math.max(0, Math.floor(hiddenThrough)) : index,
   })).filter(entry => entry.text.includes(query));
   const lastText = localLetters.at(-1) || (cleared ? "メッセージはありません" : authored.at(-1)?.body || "トークを開く");
-  const lastDate = authored.at(-1)?.time.slice(0, 10).replaceAll("-", "/") || "";
   useEffect(() => {
     if (stream.current && !query) stream.current.scrollTop = stream.current.scrollHeight;
   }, [authored.length, letters.length, screen, query]);
@@ -102,7 +101,7 @@ export function BubbleSkin(p: Props) {
     <small>© DearU</small>
   </button> : null;
   const footer = <nav className="bubble-reference-tabs" aria-label="bubbleのナビゲーション">{[{id:"friends",label:"プロフィール",Icon:UserRound},{id:"chats",label:"トーク",Icon:MessageCircle},{id:"more",label:"その他",Icon:MoreVertical}].map(({id,label,Icon}) => <button key={id} aria-label={label} aria-pressed={screen===id} onClick={() => go(id)}><Icon size={25} fill={screen===id&&id==="chats"?"currentColor":"none"} /></button>)}</nav>;
-  const onceChatRow = <button className="bubble-reference-chat-row" aria-label="ONCEとのトークを開く" onClick={() => go("thread")}><FanAvatar /><span className="bubble-reference-row-copy"><strong>ONCE</strong><small>{lastText}</small></span><time>{lastDate}</time></button>;
+  const onceChatRow = <button className="bubble-reference-chat-row" aria-label="ONCEとのトークを開く" onClick={() => go("thread")}><FanAvatar /><span className="bubble-reference-row-copy"><strong>ONCE</strong><small>{lastText}</small></span></button>;
   if (screen === "profile") return (
     <section className="catalog-skin mina-bubble-root bubble-reference-app mina-bubble-artist-page" data-perspective="mina" data-view="profile" aria-label="自分のプロフィール" style={{ backgroundImage: `url("${bubbleAssets}background.png")` }}>
       <button className="mina-bubble-profile-close" aria-label="プロフィールを閉じる" onClick={() => go(profileReturn)}><X size={25} /></button>
@@ -124,7 +123,6 @@ export function BubbleSkin(p: Props) {
       {intro}
       {searchOpen&&<div className="bubble-reference-search"><Search size={17}/><input autoFocus value={query} onChange={e=>setQuery(e.target.value)} placeholder="トーク内を検索" aria-label="トーク内の検索文字" /></div>}
       <div className="mina-bubble-thread bubble-reference-messages" ref={stream}>
-        <p className="bubble-reference-date">{lastDate}</p>
         {visibleHistory.map(item => {
           const artist = item.outgoing || item.sender === p.owner || ["묘", "MINA", "名井南"].includes(item.sender);
           const translation = item.meta.translation || item.meta.translated || "";
