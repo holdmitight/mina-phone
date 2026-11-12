@@ -36,9 +36,9 @@ export function playMinaFinalLine(
       activeVoiceAudio.pause();
       activeVoiceAudio.currentTime = 0;
     }
-    // Refresh the edited self-introduction immediately on iPhone Safari.
+    // Version recorded lines so cached phones load the current dialogue.
     const audio = new Audio(import.meta.env.BASE_URL + "mina-voice/" + file +
-      (id === 0 ? "?v=intro-d866c7a4" : ""));
+      (typeof id === "number" ? "?v=receiver-49f8363f" : ""));
     activeVoiceAudio = audio;
     let fellBack = false;
     const fallback = () => {
@@ -128,12 +128,12 @@ export function speakMinaFinalLine(
 }
 
 export const minaFinalCallLines = [
-  { ja: "びっくりさせてごめん。……私だよ。今、ジョンヨンのスマホを借りてる。", zh: "抱歉吓到你了……是我。我现在借了定延的手机。" },
-  { ja: "そのスマホ……あなたが持ってるんじゃないかって、思ってた。", zh: "那部手机……我想，应该在你手里吧。" },
-  { ja: "2015年の夏。レゴの指輪がいいって言ってくれたの、覚えてる？", zh: "2015 年夏天，你说过更想要 LEGO 戒指，还记得吗？" },
-  { ja: "何回も作り直したの。……今度は、自分の手で作りたかったから。", zh: "我重做了好多次……因为这次，我真的想亲手做给你。" },
-  { ja: "あのカフェに置いてきたのは……偶然じゃない。", zh: "手机留在那家咖啡店……不是偶然。" },
-  { ja: "……ごめん。十年前の約束、まだ渡せてない。……今度こそ、ちゃんと会って、あなたに渡したい。", zh: "对不起。十年前的约定，我还没能兑现……这一次，我想当面把它交给你。" },
+  { ja: "びっくりさせてごめんね。……私だよ。今、ジョンヨンオンニのスマホを借りてるの。", zh: "抱歉吓到你了……是我。我现在借了定延姐姐的手机。" },
+  { ja: "そのスマホの中……もう、全部見たよね。", zh: "那部手机……你都看到了吧。" },
+  { ja: "あのレゴの指輪、覚えてる？", zh: "你还记不记得那个LEGO戒指？" },
+  { ja: "何度も作り直したの……。", zh: "我重做了好多次……" },
+  { ja: "ごめんね。十年前の約束、まだ果たせてなくて……。", zh: "对不起。十年前的约定，我还没能兑现……" },
+  { ja: "今、あの指輪をあなたに渡したい。", zh: "现在我想把它送给你。" },
   { ja: "……会ってくれる？", zh: "……你愿意见我吗？" },
 ] as const;
 

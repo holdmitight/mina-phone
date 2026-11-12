@@ -22,13 +22,13 @@ describe("the final fictional phone call from Mina", () => {
   });
 
   it("makes it clear Mina borrowed Jeongyeon's phone to reach A without identifying A early", () => {
-    expect(minaFinalCallLines[0].ja).toContain("ジョンヨンのスマホを借りてる");
+    expect(minaFinalCallLines[0].ja).toContain("ジョンヨンオンニのスマホを借りてる");
     expect(minaFinalCallLines[0].ja).toContain("私だよ。");
     expect(minaFinalCallLines[0].ja).not.toContain("私、ミナ。");
-    expect(minaFinalCallLines[0].zh).toBe("抱歉吓到你了……是我。我现在借了定延的手机。");
+    expect(minaFinalCallLines[0].zh).toBe("抱歉吓到你了……是我。我现在借了定延姐姐的手机。");
     expect(minaFinalCallLines[2].ja).toContain("レゴの指輪");
-    expect(minaFinalCallLines[4].ja).toContain("偶然じゃない");
-    expect(minaFinalCallLines[3].ja).toContain("自分の手");
+    expect(minaFinalCallLines[4].ja).toContain("十年前の約束");
+    expect(minaFinalCallLines[3].ja).toContain("何度も作り直した");
   });
 
   it("lets the player hear the full question before choosing what to say", () => {
