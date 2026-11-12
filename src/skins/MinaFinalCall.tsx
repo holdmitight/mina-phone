@@ -38,7 +38,7 @@ export function playMinaFinalLine(
     }
     // Version recorded lines so cached phones load the current dialogue.
     const audio = new Audio(import.meta.env.BASE_URL + "mina-voice/" + file +
-      (typeof id === "number" ? "?v=receiver-49f8363f" : ""));
+      (typeof id === "number" ? "?v=expressive-20261112" : ""));
     activeVoiceAudio = audio;
     let fellBack = false;
     const fallback = () => {
