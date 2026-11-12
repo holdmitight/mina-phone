@@ -5,6 +5,9 @@ import { makeItem } from "../../schema";
 import type { SkinProps } from "../../AppSkins";
 import { MymyKakao } from "./Apps";
 import { minaKakao2025Items, minaKakao2025Lines } from "./mina-kakao-2025";
+import actualStory from "../../../stories/template/story.json";
+import { compileStory } from "../../story-engine/compiler";
+import { normalizeMinaStoryWork } from "../../skins/minaStoryInteractions";
 
 const baseItems = [
   makeItem({
@@ -83,6 +86,21 @@ describe("2025 KakaoTalk concert-and-cafe flashback", () => {
     expect(html).toContain("내가 너무 늦었나 봐.");
     expect(html).toContain("2025.10.30");
     expect(html).toContain("2025.11.04");
+  });
+
+  it("makes the locked note's reunion date visible in the actual player's Sana history", () => {
+    const work = normalizeMinaStoryWork(compileStory(actualStory).work);
+    const note = work.data.notes.find(item => item.id === "note-draft")!;
+    const html = renderToStaticMarkup(createElement(MymyKakao, props("Sana", {
+      owner: work.phone.owner,
+      items: work.data.kakao,
+    })));
+    const reunionDate = minaKakao2025Lines[0].time.slice(0, 10);
+    expect(html).toContain(`data-kakao-date="${reunionDate}"`);
+    expect(html).toContain(reunionDate.replaceAll("-", "."));
+    expect(html).toContain("今日のアンコール");
+    expect(reunionDate.slice(5).replace("-", "")).toBe(note.password);
+    expect(note.meta.passwordHint).toContain("KakaoTalk");
   });
 
   it("preserves the contact ordering and latest 2026 previews on the list", () => {

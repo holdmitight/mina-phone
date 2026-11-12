@@ -1861,6 +1861,12 @@ svg {
   font-size: 14px;
   line-height: 1.7;
 }
+.locked-note .note-password-hint > small {
+  display: block;
+  margin-top: 7px;
+  color: inherit;
+  line-height: inherit;
+}
 .calculator {
   display: flex;
   flex-direction: column;

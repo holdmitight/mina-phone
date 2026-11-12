@@ -35,10 +35,14 @@ describe("Mina's summer-to-November 2015 LINE archive", () => {
     expect(html).toContain("来年、一緒にハワイに行こうね。");
   });
 
-  it("exposes the two LINE clue actions even if scroll observers do not fire", () => {
+  it("ends the archive without a walkthrough, spoilers or a mismatched year", () => {
     const html = renderToStaticMarkup(createElement(MinaLineSkin, props(minaLineThreadName)));
-    expect(html).toContain("继续寻找线索");
-    expect(html).toContain("回看2014年的乐高戒指约定");
+    expect(html).not.toContain("mina-line-archive-next");
+    expect(html).not.toContain("继续寻找线索");
+    expect(html).not.toContain("Amazon");
+    expect(html).not.toContain("最终电话");
+    expect(html).not.toContain("回看2014年");
+    expect(html).toContain("来年、一緒にハワイに行こうね。");
   });
 
   it("preserves A's 2015 ballet meeting, departure and the original message IDs", () => {

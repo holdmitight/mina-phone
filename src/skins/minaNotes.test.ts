@@ -12,6 +12,10 @@ describe('Mina private notes', () => {
     expect(draft.password).toBe(date);
     expect(draft.title).toBe('君だけのページ');
     expect(draft.meta.passwordHint).toContain('Sana');
+    expect(draft.meta.passwordHint).toContain('KakaoTalk');
+    expect(draft.meta.passwordHintZh).toContain('安可舞台');
+    expect(draft.meta.passwordHint).not.toContain(date);
+    expect(draft.meta.passwordHintZh).not.toContain(date);
     for (const note of work.data.notes) {
       expect(note.title).not.toContain(date);
       expect(note.body).not.toContain('0324');

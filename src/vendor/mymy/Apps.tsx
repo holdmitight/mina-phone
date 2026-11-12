@@ -218,6 +218,18 @@ export function MymyKakao(p: SkinProps) {
       }),
     ],
     scroll = useRef<HTMLDivElement>(null);
+  const historyDates = [...new Set(messages.map((item) => item.time.slice(0, 10)))]
+    .filter((date) => /^\d{4}-\d{2}-\d{2}$/u.test(date));
+  const showHistoryDate = (date: string) => {
+    const node = scroll.current;
+    const marker = node?.querySelector<HTMLElement>(`[data-kakao-date="${date}"]`);
+    if (!node || !marker) return;
+    const bounds = node.getBoundingClientRect();
+    const scale = bounds.height / node.offsetHeight || 1;
+    const top = node.scrollTop + (marker.getBoundingClientRect().top - bounds.top) / scale - 8;
+    node.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    setMenu(false);
+  };
   useEffect(() => {
     const node = scroll.current;
     if (node) node.scrollTop = node.scrollHeight;
@@ -336,7 +348,7 @@ export function MymyKakao(p: SkinProps) {
               return (
                 <Fragment key={m.id}>
                   {showDate && (
-                    <div className="kakao-date-separator">
+                    <div className="kakao-date-separator" data-kakao-date={date}>
                       {date.replaceAll("-", ".")}
                     </div>
                   )}
@@ -452,11 +464,27 @@ export function MymyKakao(p: SkinProps) {
             </button>
           </form>
           {menu && (
-            <div className="mymy-local-menu">
+            <div className="mymy-local-menu kakao-history-menu" role="dialog" aria-label="トーク履歴">
               <strong>{displayTitle(p.thread)}</strong>
               <p>
                 グループメンバー：{[...new Set(messages.map((m) => displaySender(m.sender)))].join("、")}
               </p>
+              {historyDates.length > 0 && (
+                <div className="kakao-history-actions">
+                  <button type="button" onClick={() => showHistoryDate(historyDates[0])}>最初のメッセージへ</button>
+                  <label>
+                    日付で探す
+                    <select aria-label="トークの日付を選ぶ" value="" onChange={(event) => showHistoryDate(event.target.value)}>
+                      <option value="" disabled>日付を選択</option>
+                      {historyDates.map((date) => <option key={date} value={date}>{date.replaceAll("-", "/")}</option>)}
+                    </select>
+                  </label>
+                  <button type="button" onClick={() => {
+                    scroll.current?.scrollTo({ top: scroll.current.scrollHeight, behavior: "smooth" });
+                    setMenu(false);
+                  }}>最新のメッセージへ</button>
+                </div>
+              )}
               <button onClick={() => setMenu(false)}>完了</button>
             </div>
           )}

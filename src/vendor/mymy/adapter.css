@@ -134,6 +134,32 @@
 .mymy-local-menu p {
   margin: 20px 0;
 }
+.mymy-ui .kakao-history-menu {
+  max-height: calc(100% - 70px);
+  overflow-y: auto;
+}
+.kakao-history-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.kakao-history-actions > button,
+.kakao-history-actions select {
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid #e4e6e8;
+  border-radius: 8px;
+  background: #f7f8fa;
+  font: inherit;
+  color: inherit;
+}
+.kakao-history-actions label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+}
 .mymy-search {
   margin: 8px 14px;
   border: 0;

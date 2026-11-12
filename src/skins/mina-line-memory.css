@@ -195,38 +195,3 @@
   .mina-line-balloon{max-width:72vw;padding:8px;font-size:11px}
   .mina-line-chat-row{padding:9px!important}
 }
-
-/* Diegetic continuation after the archived last LINE message (not a call). */
-.mina-line-archive-next {
-  margin: 18px 14px 8px;
-  padding: 13px 12px 12px;
-  border-radius: 13px;
-  background: #f5f7f8;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
-  color: #6b7477;
-}
-.mina-line-archive-ended { font-size: 10px; line-height: 1.5; }
-.mina-line-archive-next button {
-  align-self: stretch;
-  border: 1px solid #cee9d8;
-  border-radius: 11px;
-  background: #fff;
-  color: #23804c;
-  font-size: 12px;
-  font-weight: 650;
-  padding: 10px 9px;
-  text-align: center;
-}
-.mina-line-archive-next button small {
-  display: block;
-  margin-top: 3px;
-  color: #779083;
-  font-size: 10px;
-  font-weight: 400;
-}
-.mina-line-archive-hint { display: flex; flex-direction: column; gap: 8px; }
-.mina-line-archive-hint p { margin: 0; font-size: 11px; }
-.mina-line-archive-hint>small { color: #687579; font-size: 10.5px; line-height: 1.6; }

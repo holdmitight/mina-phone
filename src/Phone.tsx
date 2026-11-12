@@ -1130,9 +1130,11 @@ function AppContent({
             内容のロックを解除
           </button>
           <small>{pwError}</small>
-          {detail.meta.passwordHint && Math.max(pwFailures[detail.id] || 0,
-            Number(state.ui?.[app.id]?.["password-failures:" + detail.id]) || 0) >= 3 && (
-            <p className="note-password-hint" role="status">{detail.meta.passwordHint}</p>
+          {detail.meta.passwordHint && (
+            <p className="note-password-hint" role="status">
+              {detail.meta.passwordHint}
+              {detail.meta.passwordHintZh && <small lang="zh-CN">{detail.meta.passwordHintZh}</small>}
+            </p>
           )}
         </form>
       ) : (
