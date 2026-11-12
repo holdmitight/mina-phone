@@ -507,7 +507,7 @@ function PhoneRuntime({
             ) : app && app !== "appstore" ? (
               <AppWindow
                 key={app}
-                className={`app-screen engine-${plugin.engine} skin-${app}`}
+                className={`app-screen engine-${plugin.engine} skin-${app === "bubble" ? "jyp-bubble" : app}`}
                 creator={creator}
                 origin={launchOrigin}
               >

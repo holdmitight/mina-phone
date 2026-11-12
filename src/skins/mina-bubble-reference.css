@@ -216,7 +216,7 @@
 
 /* Mina-as-owner perspective and full-height layout fix. */
 /* Keep the iOS status bar, but let Bubble use the entire remaining phone viewport. */
-.app-screen.skin-bubble:has(.mina-bubble-root) {
+.app-screen.skin-jyp-bubble:has(.mina-bubble-root) {
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -224,7 +224,7 @@
   padding-bottom: 0;
   overflow: hidden;
 }
-.app-screen.skin-bubble > .catalog-slot:not([hidden]) {
+.app-screen.skin-jyp-bubble > .catalog-slot:not([hidden]) {
   display: flex;
   flex: 1 1 auto;
   min-width: 0;
@@ -234,7 +234,7 @@
   max-height: 100%;
   overflow: hidden;
 }
-.app-screen.skin-bubble > .catalog-slot > .mina-bubble-root.bubble-reference-app {
+.app-screen.skin-jyp-bubble > .catalog-slot > .mina-bubble-root.bubble-reference-app {
   display: flex;
   flex: 1 1 auto;
   width: 100%;
@@ -243,20 +243,20 @@
   min-height: 0;
   overflow: hidden;
 }
-.app-screen.skin-bubble .bubble-reference-list-scroll,
-.app-screen.skin-bubble .bubble-reference-messages {
+.app-screen.skin-jyp-bubble .bubble-reference-list-scroll,
+.app-screen.skin-jyp-bubble .bubble-reference-messages {
   flex: 1 1 auto;
   height: auto;
   min-height: 0;
   overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
 }
-.app-screen.skin-bubble .bubble-reference-tabs {
+.app-screen.skin-jyp-bubble .bubble-reference-tabs {
   height: 76px;
   min-height: 76px;
   padding-bottom: 15px;
 }
-.app-screen.skin-bubble .bubble-reference-composer {
+.app-screen.skin-jyp-bubble .bubble-reference-composer {
   min-height: 77px;
   padding-bottom: 21px;
 }
@@ -314,15 +314,15 @@
   margin-left: auto;
 }
 /* Match the background of the system status strip to Bubble's current page. */
-.phone-screen:has(.skin-bubble .bubble-reference-list) .status-bar {
+.phone-screen:has(.skin-jyp-bubble .bubble-reference-list) .status-bar {
   background: #c4e5f4;
   color: #15191b;
 }
-.phone-screen:has(.skin-bubble .bubble-reference-conversation) .status-bar {
+.phone-screen:has(.skin-jyp-bubble .bubble-reference-conversation) .status-bar {
   background: #fff;
   color: #15191b;
 }
-.phone-screen:has(.skin-bubble .mina-bubble-artist-page) .status-bar {
+.phone-screen:has(.skin-jyp-bubble .mina-bubble-artist-page) .status-bar {
   background: transparent;
   color: #fff;
 }
