@@ -112,7 +112,7 @@
 .mina-line-message.mine .mina-line-translation{color:#547040}
 .mina-line-end-spacer{height:23px}
 .mina-line-reply-archive{
-  flex-shrink:0;display:flex;align-items:center;gap:8px;min-height:54px;padding:9px 12px 11px;
+  flex-shrink:0;display:flex;align-items:center;gap:8px;min-height:54px;padding:9px 12px 45px;
   background:#fff;border-top:1px solid #e8eaed;
 }
 .mina-line-reply-archive>span{display:flex;align-items:center;flex:1;height:34px;border:1px solid #e5e5e5;
@@ -178,7 +178,7 @@
 .mina-line-chat-summary small{display:block;max-width:100%;color:#87898b;font-size:11px;white-space:nowrap;
   text-overflow:ellipsis;overflow:hidden}
 .mina-line-chat-row time{flex-shrink:0;align-self:flex-start;color:#9b9b9b;font-size:9px;padding-top:4px}
-.mina-line-tabs{display:flex;align-items:center;min-height:66px;padding-bottom:13px;flex-shrink:0;
+.mina-line-tabs{display:flex;align-items:center;min-height:84px;padding-bottom:34px;flex-shrink:0;
   border-top:1px solid #edeef0;background:#fff}
 .mina-line-tabs button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:4px;min-height:49px;color:#a4a4a4}
