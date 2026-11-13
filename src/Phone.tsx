@@ -1095,6 +1095,11 @@ function AppContent({
       : app.id === "whatsapp"
         ? WhatsAppSkin
         : (catalogSkins[app.id as keyof typeof catalogSkins] ?? null);
+  const savedPwFailures = detail ? state.ui?.[app.id]?.["password-failures:" + detail.id] : 0;
+  const detailPwFailures = Math.max(
+    detail ? pwFailures[detail.id] || 0 : 0,
+    typeof savedPwFailures === "number" ? savedPwFailures : 0,
+  );
   const detailView = detail ? (
     <div className="phone-content detail-content">
       {detail.password && !creator && !unlocks.includes(detail.id) ? (
@@ -1130,7 +1135,7 @@ function AppContent({
             内容のロックを解除
           </button>
           <small>{pwError}</small>
-          {detail.meta.passwordHint && (
+          {detailPwFailures >= 3 && detail.meta.passwordHint && (
             <p className="note-password-hint" role="status">
               {detail.meta.passwordHint}
               {detail.meta.passwordHintZh && <small lang="zh-CN">{detail.meta.passwordHintZh}</small>}
