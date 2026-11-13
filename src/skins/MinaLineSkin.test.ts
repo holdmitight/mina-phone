@@ -26,8 +26,8 @@ function props(thread = "", items: Item[] = []): Props {
 describe("Mina's summer-to-November 2015 LINE archive", () => {
   it("shows Mina's saved private nickname without an A avatar in the chat list", () => {
     const html = renderToStaticMarkup(createElement(MinaLineSkin, props()));
-    expect(minaLineThreadName).toBe("うさぎちゃん 🐰");
-    expect(html).toContain("うさぎちゃん 🐰");
+    expect(minaLineThreadName).toBe("💗");
+    expect(html).toContain("💗");
     expect(html).not.toContain("A ♡");
     expect(html).not.toContain('class="mina-line-avatar">A');
     expect(html).toContain('class="mina-line-avatar empty"');

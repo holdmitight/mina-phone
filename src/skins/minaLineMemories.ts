@@ -13,7 +13,7 @@ export type LineMemoryMessage = {
   translation?: string;
 };
 
-export const minaLineThreadName = "うさぎちゃん 🐰";
+export const minaLineThreadName = "💗";
 
 const archivedDraftLines: LineMemoryMessage[] = [
   { id: "2014-06-16-01", day: "2014-06-16", time: "17:48", from: "a", text: "今日はありがとう！\nあの回転、何度やってもできなくて…", translation: "今天谢谢你！那个旋转我怎么练都练不好……" },
